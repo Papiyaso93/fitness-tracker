@@ -4,7 +4,7 @@ import SwiftData
 /// Création rapide d'une séance non planifiée, loguée directement depuis l'Accueil — pas de plan
 /// d'exercices associé, contrairement à une CycleSession créée via le constructeur de programme.
 struct AddAdHocSessionView: View {
-    let cycle: Cycle
+    let cycle: Cycle?
     let date: Date
     var onCreated: (CycleSession) -> Void
 
@@ -58,13 +58,14 @@ struct AddAdHocSessionView: View {
         guard let objective else { return }
         let calendar = Calendar.current
         let session = CycleSession(
-            weekNumber: cycle.weekNumber(for: date),
+            weekNumber: cycle?.weekNumber(for: date) ?? 1,
             weekday: calendar.component(.weekday, from: date),
             title: title,
             kind: kind,
             objective: objective,
             order: 999,
-            isAdHoc: true
+            isAdHoc: true,
+            adHocDate: cycle == nil ? date : nil
         )
         session.cycle = cycle
         context.insert(session)

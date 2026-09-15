@@ -4,6 +4,7 @@ import SwiftData
 struct HomeView: View {
     @Query private var allCycles: [Cycle]
     @Query private var allSessions: [CycleSession]
+    @Query private var allPrograms: [TrainingProgram]
     @Query(sort: \TransitLog.dateTime, order: .reverse) private var transitLogs: [TransitLog]
     @Query(sort: \MealLog.dateTime, order: .reverse) private var meals: [MealLog]
 
@@ -11,16 +12,40 @@ struct HomeView: View {
     @State private var showingTransitSheet = false
     @State private var showingDatePicker = false
     @State private var showingAddAdHocSession = false
+    @State private var showingCreateProgram = false
     @State private var createdAdHocSession: CycleSession?
     @State private var selectedDate = Calendar.current.startOfDay(for: .now)
 
     private var isToday: Bool { Calendar.current.isDateInToday(selectedDate) }
 
-    /// Le cycle (nouveau système Programme/Cycle) dont la période couvre le jour affiché.
-    private var activeCycle: Cycle? {
-        allCycles.first {
-            $0.program != nil && $0.startDate <= selectedDate && selectedDate <= $0.endDate
+    /// Le programme dont la période couvre le jour affiché (sans date = toujours actif).
+    private var activeProgram: TrainingProgram? {
+        allPrograms.first { covers($0, date: selectedDate) }
+    }
+
+    private func covers(_ program: TrainingProgram, date: Date) -> Bool {
+        switch (program.startDate, program.endDate) {
+        case let (start?, end?): return start <= date && date <= end
+        case let (start?, nil): return start <= date
+        case let (nil, end?): return date <= end
+        case (nil, nil): return true
         }
+    }
+
+    /// Le cycle du programme actif dont la période couvre le jour affiché.
+    private var activeCycle: Cycle? {
+        guard let activeProgram else { return nil }
+        return allCycles.first {
+            $0.program?.id == activeProgram.id && $0.startDate <= selectedDate && selectedDate <= $0.endDate
+        }
+    }
+
+    /// Le prochain cycle du programme actif (après le jour affiché), s'il y en a un.
+    private func upcomingCycle(in program: TrainingProgram) -> Cycle? {
+        allCycles
+            .filter { $0.program?.id == program.id && $0.startDate > selectedDate }
+            .sorted { $0.startDate < $1.startDate }
+            .first
     }
 
     private var weekNumber: Int {
@@ -33,10 +58,13 @@ struct HomeView: View {
     }
 
     private var daySessions: [CycleSession] {
-        guard let cycle = activeCycle else { return [] }
-        return allSessions
-            .filter { $0.cycle?.id == cycle.id && $0.weekNumber == weekNumber && $0.weekday == weekday }
-            .sorted { $0.order < $1.order }
+        var sessions = allSessions.filter {
+            $0.cycle == nil && $0.isAdHoc && $0.adHocDate.map { Calendar.current.isDate($0, inSameDayAs: selectedDate) } == true
+        }
+        if let cycle = activeCycle {
+            sessions += allSessions.filter { $0.cycle?.id == cycle.id && $0.weekNumber == weekNumber && $0.weekday == weekday }
+        }
+        return sessions.sorted { $0.order < $1.order }
     }
 
     private var dayMeals: [MealLog] {
@@ -47,20 +75,36 @@ struct HomeView: View {
         transitLogs.filter { Calendar.current.isDate($0.dateTime, inSameDayAs: selectedDate) }
     }
 
+    /// Le prochain programme à venir après le jour affiché — utilisé seulement quand aucun
+    /// programme n'est actif ce jour-là.
+    private var upcomingProgram: TrainingProgram? {
+        allPrograms
+            .filter { ($0.startDate ?? .distantPast) > selectedDate }
+            .sorted { ($0.startDate ?? .distantFuture) < ($1.startDate ?? .distantFuture) }
+            .first
+    }
+
     var body: some View {
         NavigationStack {
             ScrollView {
                 VStack(alignment: .leading, spacing: 20) {
                     dayNavigator
 
-                    if let cycle = activeCycle {
-                        activeCycleCard(cycle)
+                    if let activeProgram {
+                        if let cycle = activeCycle {
+                            activeCycleCard(cycle)
+                        } else {
+                            programActiveNoCycleCard(activeProgram, upcomingCycle: upcomingCycle(in: activeProgram))
+                        }
+                    } else if let upcoming = upcomingProgram {
+                        upcomingProgramCard(upcoming)
+                    } else {
+                        noProgramCard
                     }
+
                     SectionLabel(text: "Séance du jour")
                     sessionSummaryCard
-                    if activeCycle != nil {
-                        addAdHocSessionButton
-                    }
+                    addAdHocSessionButton
 
                     SectionLabel(text: "Repas")
                     mealCard
@@ -75,14 +119,15 @@ struct HomeView: View {
             .sheet(isPresented: $showingMealSheet) { MealEntryView() }
             .sheet(isPresented: $showingTransitSheet) { TransitEntryView() }
             .sheet(isPresented: $showingAddAdHocSession) {
-                if let cycle = activeCycle {
-                    AddAdHocSessionView(cycle: cycle, date: selectedDate) { session in
-                        createdAdHocSession = session
-                    }
+                AddAdHocSessionView(cycle: activeCycle, date: selectedDate) { session in
+                    createdAdHocSession = session
                 }
             }
             .navigationDestination(item: $createdAdHocSession) { session in
                 LogCycleSessionView(session: session)
+            }
+            .sheet(isPresented: $showingCreateProgram) {
+                CreateProgramView()
             }
             .sheet(isPresented: $showingDatePicker) {
                 NavigationStack {
@@ -143,6 +188,118 @@ struct HomeView: View {
         formatter.locale = Locale(identifier: "fr_FR")
         formatter.dateFormat = "EEEE d MMM"
         return formatter.string(from: selectedDate).capitalized
+    }
+
+    private var noProgramCard: some View {
+        AppCard {
+            VStack(spacing: 12) {
+                ZStack {
+                    Circle().fill(AppTheme.border.opacity(0.5)).frame(width: 40, height: 40)
+                    Image(systemName: "calendar.badge.exclamationmark")
+                        .font(.system(size: 16))
+                        .foregroundStyle(AppTheme.textSecondary)
+                }
+                VStack(spacing: 4) {
+                    Text("Aucun programme en cours")
+                        .font(.system(size: 14, weight: .medium))
+                        .foregroundStyle(AppTheme.textPrimary)
+                    Text("Crée un programme pour planifier tes séances et suivre tes objectifs.")
+                        .font(.system(size: 13))
+                        .foregroundStyle(AppTheme.textSecondary)
+                        .multilineTextAlignment(.center)
+                }
+                Button {
+                    showingCreateProgram = true
+                } label: {
+                    Text("Créer un programme")
+                        .font(.system(size: 13, weight: .medium))
+                        .foregroundStyle(.white)
+                        .padding(.horizontal, 16)
+                        .padding(.vertical, 9)
+                        .background(AppTheme.accent)
+                        .clipShape(Capsule())
+                }
+                .buttonStyle(.plain)
+            }
+            .frame(maxWidth: .infinity)
+            .padding(.vertical, 6)
+        }
+    }
+
+    private func upcomingProgramCard(_ program: TrainingProgram) -> some View {
+        AppCard {
+            HStack(spacing: 10) {
+                ZStack {
+                    Circle().fill(AppTheme.border.opacity(0.5)).frame(width: 36, height: 36)
+                    Image(systemName: "clock")
+                        .font(.system(size: 14))
+                        .foregroundStyle(AppTheme.textSecondary)
+                }
+                VStack(alignment: .leading, spacing: 2) {
+                    Text("Pas de programme en cours")
+                        .font(.system(size: 14, weight: .medium))
+                        .foregroundStyle(AppTheme.textPrimary)
+                    if let startDate = program.startDate {
+                        Text("« \(program.title) » commence le \(formatted(startDate))")
+                            .font(.system(size: 12))
+                            .foregroundStyle(AppTheme.textSecondary)
+                    }
+                }
+                Spacer(minLength: 0)
+            }
+        }
+    }
+
+    private func formatted(_ date: Date) -> String {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "d MMMM"
+        formatter.locale = Locale(identifier: "fr_FR")
+        return formatter.string(from: date)
+    }
+
+    private func programActiveNoCycleCard(_ program: TrainingProgram, upcomingCycle: Cycle?) -> some View {
+        AppCard {
+            HStack(alignment: .top, spacing: 10) {
+                ZStack {
+                    Circle().fill(AppTheme.accent.opacity(0.12)).frame(width: 36, height: 36)
+                    Image(systemName: "calendar")
+                        .font(.system(size: 14))
+                        .foregroundStyle(AppTheme.accent)
+                }
+                VStack(alignment: .leading, spacing: 4) {
+                    HStack(spacing: 6) {
+                        Text(program.title)
+                            .font(.system(size: 14, weight: .medium))
+                            .foregroundStyle(AppTheme.textPrimary)
+                        Text("— en cours")
+                            .font(.system(size: 12))
+                            .foregroundStyle(AppTheme.textSecondary)
+                    }
+                    if let upcomingCycle {
+                        Text("Prochain cycle « \(upcomingCycle.name) » le \(formatted(upcomingCycle.startDate))")
+                            .font(.system(size: 12))
+                            .foregroundStyle(AppTheme.textSecondary)
+                    } else {
+                        Text("Aucun cycle configuré pour ce programme.")
+                            .font(.system(size: 12))
+                            .foregroundStyle(AppTheme.textSecondary)
+                        NavigationLink {
+                            ProgramDetailView(program: program)
+                        } label: {
+                            Text("Ajouter un cycle")
+                                .font(.system(size: 12, weight: .medium))
+                                .foregroundStyle(.white)
+                                .padding(.horizontal, 12)
+                                .padding(.vertical, 6)
+                                .background(AppTheme.accent)
+                                .clipShape(Capsule())
+                        }
+                        .padding(.top, 2)
+                    }
+                }
+                Spacer(minLength: 0)
+            }
+        }
     }
 
     private func activeCycleCard(_ cycle: Cycle) -> some View {
@@ -210,18 +367,16 @@ struct HomeView: View {
 
     @ViewBuilder
     private var sessionSummaryCard: some View {
-        if activeCycle == nil {
-            AppCard {
-                Text("Pas de cycle actif").foregroundStyle(AppTheme.textSecondary)
+        if daySessions.isEmpty {
+            if activeCycle != nil {
+                VStack(spacing: 8) {
+                    Text("Pas de séance prévue. Repose-toi.")
+                        .font(.system(size: 15))
+                        .foregroundStyle(AppTheme.textSecondary)
+                }
+                .frame(maxWidth: .infinity)
+                .padding(.vertical, 24)
             }
-        } else if daySessions.isEmpty {
-            VStack(spacing: 8) {
-                Text("Pas de séance prévue. Repose-toi.")
-                    .font(.system(size: 15))
-                    .foregroundStyle(AppTheme.textSecondary)
-            }
-            .frame(maxWidth: .infinity)
-            .padding(.vertical, 24)
         } else {
             VStack(spacing: 10) {
                 ForEach(daySessions) { session in

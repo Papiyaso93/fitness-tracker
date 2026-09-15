@@ -26,6 +26,9 @@ final class CycleSession {
     /// Séance créée à la volée depuis l'Accueil (pas via le constructeur de programme) — pas de
     /// plan d'exercices associé, et supprimable directement depuis l'écran de saisie.
     var isAdHoc: Bool = false
+    /// Date réelle d'une séance hors programme sans cycle (aucun `cycle` pour en déduire la date
+    /// via `weekNumber`/`weekday`) — nil sinon.
+    var adHocDate: Date?
 
     var cycle: Cycle?
 
@@ -42,7 +45,7 @@ final class CycleSession {
     /// Date calendaire réelle de cette occurrence, déduite du cycle parent — une CycleSession
     /// correspond à une seule occurrence (pas de répétition hebdomadaire comme l'ancien système).
     var scheduledDate: Date? {
-        cycle?.date(forWeek: weekNumber, weekday: weekday)
+        cycle?.date(forWeek: weekNumber, weekday: weekday) ?? adHocDate
     }
 
     var objective: PhysicalQuality? {
@@ -58,7 +61,8 @@ final class CycleSession {
         objective: PhysicalQuality?,
         sessionDescription: String? = nil,
         order: Int = 0,
-        isAdHoc: Bool = false
+        isAdHoc: Bool = false,
+        adHocDate: Date? = nil
     ) {
         self.id = UUID()
         self.weekNumber = weekNumber
@@ -69,5 +73,6 @@ final class CycleSession {
         self.sessionDescription = sessionDescription
         self.order = order
         self.isAdHoc = isAdHoc
+        self.adHocDate = adHocDate
     }
 }
