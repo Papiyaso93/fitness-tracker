@@ -27,10 +27,7 @@ struct CyclePlanningView: View {
     }
 
     private func dayLabel(_ date: Date) -> String {
-        let formatter = DateFormatter()
-        formatter.locale = Locale(identifier: "fr_FR")
-        formatter.dateFormat = "d MMM"
-        return formatter.string(from: date)
+        AppDateFormat.dayMonth.string(from: date)
     }
 
     var body: some View {
@@ -40,7 +37,7 @@ struct CyclePlanningView: View {
 
                 AppCard {
                     VStack(alignment: .leading, spacing: 0) {
-                        ForEach(Array(EditSessionView.orderedWeekdays.enumerated()), id: \.element.weekday) { index, day in
+                        ForEach(Array(Weekday.ordered.enumerated()), id: \.element.weekday) { index, day in
                             if index > 0 { Divider().overlay(AppTheme.border) }
                             dayRow(weekday: day.weekday, label: day.label)
                         }

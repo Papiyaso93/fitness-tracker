@@ -184,10 +184,7 @@ struct HomeView: View {
 
     private var dayLabel: String {
         if isToday { return "Aujourd'hui" }
-        let formatter = DateFormatter()
-        formatter.locale = Locale(identifier: "fr_FR")
-        formatter.dateFormat = "EEEE d MMM"
-        return formatter.string(from: selectedDate).capitalized
+        return AppDateFormat.weekdayDayMonth.string(from: selectedDate).capitalized
     }
 
     private var noProgramCard: some View {
@@ -251,10 +248,7 @@ struct HomeView: View {
     }
 
     private func formatted(_ date: Date) -> String {
-        let formatter = DateFormatter()
-        formatter.dateFormat = "d MMMM"
-        formatter.locale = Locale(identifier: "fr_FR")
-        return formatter.string(from: date)
+        AppDateFormat.dayFullMonth.string(from: date)
     }
 
     private func programActiveNoCycleCard(_ program: TrainingProgram, upcomingCycle: Cycle?) -> some View {

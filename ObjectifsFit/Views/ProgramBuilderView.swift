@@ -149,10 +149,7 @@ struct ProgramBuilderView: View {
     }
 
     private func formatted(_ date: Date) -> String {
-        let formatter = DateFormatter()
-        formatter.dateFormat = "d MMM yyyy"
-        formatter.locale = Locale(identifier: "fr_FR")
-        return formatter.string(from: date)
+        AppDateFormat.dayMonthYear.string(from: date)
     }
 
     private func statusTag(_ status: ProgramStatus) -> some View {

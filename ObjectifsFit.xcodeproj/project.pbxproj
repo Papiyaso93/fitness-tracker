@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		03B66F799AFAE83810F993A7 /* DateFormatting.swift in Sources */ = {isa = PBXBuildFile; fileRef = C4036A2832918A1D3F285D4B /* DateFormatting.swift */; };
 		0979A53F136B64C764D8B1FA /* PlannedExercise.swift in Sources */ = {isa = PBXBuildFile; fileRef = B23F85731AB7BFC7A7283513 /* PlannedExercise.swift */; };
 		0CAA24A6B168C5F4BCD10038 /* ProgramObjective.swift in Sources */ = {isa = PBXBuildFile; fileRef = 39FFED54583DD7FADE3FA348 /* ProgramObjective.swift */; };
 		11AFAF92A7FF8D26A26E26CD /* EditProgramView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3DDAD235F2F213EB8543B9A4 /* EditProgramView.swift */; };
@@ -23,6 +24,7 @@
 		4A1098E9AC4ED2FDE058FCEB /* ExerciseDefinition.swift in Sources */ = {isa = PBXBuildFile; fileRef = 44BA0840BCDA04131C4CE0FA /* ExerciseDefinition.swift */; };
 		4C4BFEDC99549EAE63E5AF01 /* CycleSession.swift in Sources */ = {isa = PBXBuildFile; fileRef = D9A4CBD6EFE65E54A6F604EB /* CycleSession.swift */; };
 		4DB6035E5A4DFD90F5586C0F /* LogPlannedSetView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BECA52D4932A90AF4BD151F7 /* LogPlannedSetView.swift */; };
+		4E1372103350E2533327F2C4 /* Weekday.swift in Sources */ = {isa = PBXBuildFile; fileRef = 654FB5919D9080C6235FCE7D /* Weekday.swift */; };
 		4EB74FE8795A1FBA8583250B /* PhysicalQuality.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4C1A24E514FB7FB830AF4F11 /* PhysicalQuality.swift */; };
 		5577BCA58811F29ECF918433 /* ProgramDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C2BB902E60BEACA7100DC3FC /* ProgramDetailView.swift */; };
 		571A3D54D76E91E4E8DEA0B4 /* ObjectifsFitApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = E02D003481EFEF0F8D3A6B1E /* ObjectifsFitApp.swift */; };
@@ -72,6 +74,7 @@
 		4C1A24E514FB7FB830AF4F11 /* PhysicalQuality.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhysicalQuality.swift; sourceTree = "<group>"; };
 		575F2B82818BCE87EC10FC72 /* SessionCompletion.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SessionCompletion.swift; sourceTree = "<group>"; };
 		6448AEBC9E9549855073D233 /* QualitySelectionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QualitySelectionView.swift; sourceTree = "<group>"; };
+		654FB5919D9080C6235FCE7D /* Weekday.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Weekday.swift; sourceTree = "<group>"; };
 		68E3F58218E9D6D62AFECAB8 /* AppTheme.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppTheme.swift; sourceTree = "<group>"; };
 		6AC4FD54BAB1617D04130F88 /* AddPlannedExerciseView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddPlannedExerciseView.swift; sourceTree = "<group>"; };
 		6EA8F5E112F215D897219EDD /* TransitEntryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TransitEntryView.swift; sourceTree = "<group>"; };
@@ -93,6 +96,7 @@
 		BECA52D4932A90AF4BD151F7 /* LogPlannedSetView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LogPlannedSetView.swift; sourceTree = "<group>"; };
 		C0BD91D030DBDF4CF22C69D7 /* TransitLog.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TransitLog.swift; sourceTree = "<group>"; };
 		C2BB902E60BEACA7100DC3FC /* ProgramDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProgramDetailView.swift; sourceTree = "<group>"; };
+		C4036A2832918A1D3F285D4B /* DateFormatting.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DateFormatting.swift; sourceTree = "<group>"; };
 		CB8F8DB01F05F7E664A2B666 /* MealEntryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MealEntryView.swift; sourceTree = "<group>"; };
 		CC16CD3D59968A49A6ABF849 /* Cycle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Cycle.swift; sourceTree = "<group>"; };
 		D5A9A31DB4DAB6472816A55D /* HeadlineGoal.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HeadlineGoal.swift; sourceTree = "<group>"; };
@@ -136,6 +140,7 @@
 			isa = PBXGroup;
 			children = (
 				68E3F58218E9D6D62AFECAB8 /* AppTheme.swift */,
+				C4036A2832918A1D3F285D4B /* DateFormatting.swift */,
 			);
 			path = DesignSystem;
 			sourceTree = "<group>";
@@ -181,6 +186,7 @@
 				AB30D50A5B19AFCA279AEF10 /* TrainingEnums.swift */,
 				F51F6949C11B923C8D379349 /* TrainingProgram.swift */,
 				C0BD91D030DBDF4CF22C69D7 /* TransitLog.swift */,
+				654FB5919D9080C6235FCE7D /* Weekday.swift */,
 			);
 			path = Models;
 			sourceTree = "<group>";
@@ -326,6 +332,7 @@
 				8A0C91AC0ED13A11862387BE /* CyclePlanningView.swift in Sources */,
 				4C4BFEDC99549EAE63E5AF01 /* CycleSession.swift in Sources */,
 				FE4F26028257154CB651FA9E /* DashboardView.swift in Sources */,
+				03B66F799AFAE83810F993A7 /* DateFormatting.swift in Sources */,
 				2737D1EA71CCC28FA272EDFA /* DaySessionsView.swift in Sources */,
 				865C5DFFE5292BE6974BF91F /* EditCycleView.swift in Sources */,
 				424AF01710B8A265FA59966F /* EditPlannedSetEntryView.swift in Sources */,
@@ -359,6 +366,7 @@
 				E4704DF2DFC96A815B6E9EE2 /* TransitEntryView.swift in Sources */,
 				D05380BA88923DB0958ED180 /* TransitLog.swift in Sources */,
 				354BA7E205F2AD795FDE37AA /* WeekDetailView.swift in Sources */,
+				4E1372103350E2533327F2C4 /* Weekday.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

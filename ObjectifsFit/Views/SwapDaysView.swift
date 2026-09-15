@@ -20,12 +20,12 @@ struct SwapDaysView: View {
             Form {
                 Section {
                     Picker("Premier jour", selection: $dayA) {
-                        ForEach(EditSessionView.orderedWeekdays, id: \.weekday) { day in
+                        ForEach(Weekday.ordered, id: \.weekday) { day in
                             Text(day.label).tag(day.weekday)
                         }
                     }
                     Picker("Second jour", selection: $dayB) {
-                        ForEach(EditSessionView.orderedWeekdays, id: \.weekday) { day in
+                        ForEach(Weekday.ordered, id: \.weekday) { day in
                             Text(day.label).tag(day.weekday)
                         }
                     }

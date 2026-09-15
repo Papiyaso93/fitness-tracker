@@ -64,16 +64,12 @@ struct EditSessionView: View {
         !title.trimmingCharacters(in: .whitespaces).isEmpty && objective != nil
     }
 
-    static let orderedWeekdays: [(weekday: Int, label: String)] = [
-        (2, "Lundi"), (3, "Mardi"), (4, "Mercredi"), (5, "Jeudi"), (6, "Vendredi"), (7, "Samedi"), (1, "Dimanche")
-    ]
-
     var body: some View {
         NavigationStack {
             Form {
                 Section("Jour") {
                     Picker("Jour", selection: $weekday) {
-                        ForEach(Self.orderedWeekdays, id: \.weekday) { day in
+                        ForEach(Weekday.ordered, id: \.weekday) { day in
                             Text(day.label).tag(day.weekday)
                         }
                     }

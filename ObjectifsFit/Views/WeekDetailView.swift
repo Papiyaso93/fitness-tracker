@@ -26,11 +26,6 @@ struct WeekDetailView: View {
         weekNumber > 1 && currentWeekSessions.isEmpty && !previousWeekSessions.isEmpty
     }
 
-    /// Lundi en premier, comme le reste de l'app (WeeklySchedule) — 2=Lundi ... 1=Dimanche (Calendar).
-    private let orderedWeekdays: [(weekday: Int, label: String)] = [
-        (2, "Lundi"), (3, "Mardi"), (4, "Mercredi"), (5, "Jeudi"), (6, "Vendredi"), (7, "Samedi"), (1, "Dimanche")
-    ]
-
     private func sessions(for weekday: Int) -> [CycleSession] {
         allSessions
             .filter { $0.cycle?.id == cycle.id && $0.weekNumber == weekNumber && $0.weekday == weekday }
@@ -46,7 +41,7 @@ struct WeekDetailView: View {
                     Label("Dupliquer la semaine précédente", systemImage: "doc.on.doc")
                 }
             }
-            ForEach(orderedWeekdays, id: \.weekday) { day in
+            ForEach(Weekday.ordered, id: \.weekday) { day in
                 Button {
                     selectedWeekday = WeekdaySelection(weekday: day.weekday)
                 } label: {
