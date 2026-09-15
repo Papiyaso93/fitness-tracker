@@ -29,8 +29,6 @@ struct ObjectifsFitApp: App {
         }
 
         SeedData.seedExerciseLibraryIfNeeded(context: container.mainContext)
-        SeedData.seedTestProgramsIfNeeded(context: container.mainContext)
-        SeedData.seedTestCycleIfNeeded(context: container.mainContext)
         NotificationManager.scheduleTransitReminder()
         AppAppearance.apply()
     }
