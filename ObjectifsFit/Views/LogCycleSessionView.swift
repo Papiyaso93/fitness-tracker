@@ -1,0 +1,416 @@
+import SwiftUI
+import SwiftData
+
+/// Équivalent de SessionDetailView (ancien système) pour une CycleSession du nouveau système —
+/// même flow de saisie (Commencer/Ajouter/Terminer/Annuler pour la musculation, commentaire +
+/// plan appliqué pour "Autre", "Autre séance réalisée ?" pour loguer un contenu différent du plan
+/// sans le modifier).
+struct LogCycleSessionView: View {
+    @Bindable var session: CycleSession
+
+    @Environment(\.modelContext) private var context
+    @Environment(\.dismiss) private var dismiss
+    /// Relation `completion.setEntries` non fiable pour déclencher un refresh quand l'ajout se fait
+    /// depuis une sheet enfant (même problème déjà rencontré sur ProgramDetailView/cycles) — on passe
+    /// par un @Query filtré à la place.
+    @Query private var allSetEntries: [PlannedSetEntry]
+    @State private var isPlanExpanded = true
+    @State private var showingAddSet = false
+    @State private var editingSet: PlannedSetEntry?
+    @State private var simpleComment: String = ""
+    @State private var showingSwitchConfirm = false
+    @State private var showingSwitchChoice = false
+    @State private var showingCancelAdaptationConfirm = false
+
+    private var scheduledDate: Date { session.scheduledDate ?? .now }
+    private var isToday: Bool { Calendar.current.isDateInToday(scheduledDate) }
+    private var isPast: Bool { scheduledDate < Calendar.current.startOfDay(for: .now) }
+    private var isFuture: Bool { scheduledDate > Calendar.current.startOfDay(for: .now) && !isToday }
+
+    /// Le type réellement en cours de saisie — celui du plan, sauf si une adaptation est en cours.
+    private var effectiveKind: SessionKind {
+        guard let completion = session.completion, completion.isAdapted else { return session.kind }
+        return completion.adaptedKind ?? session.kind
+    }
+
+    private var hasEnteredData: Bool {
+        guard let completion = session.completion else { return false }
+        return completion.startTime != nil || completion.endTime != nil || !entries(for: completion).isEmpty
+            || !(completion.simpleComment?.isEmpty ?? true)
+    }
+
+    private func entries(for completion: SessionCompletion) -> [PlannedSetEntry] {
+        allSetEntries
+            .filter { $0.completion?.id == completion.id }
+            .sorted { $0.date < $1.date }
+    }
+
+    var body: some View {
+        ScrollView {
+            VStack(alignment: .leading, spacing: 20) {
+                if session.isAdHoc {
+                    adHocBadge
+                } else {
+                    collapsibleHeader(text: "Plan de la séance")
+                    if isPlanExpanded {
+                        planCard
+                    }
+                }
+
+                SectionLabel(text: "Ma séance")
+                switchSessionHeader
+                if effectiveKind == .musculation {
+                    musculationSection
+                } else {
+                    simpleSessionSection
+                }
+
+                if session.isAdHoc {
+                    Button("Supprimer cette séance", role: .destructive) {
+                        context.delete(session)
+                        dismiss()
+                    }
+                    .font(.system(size: 13))
+                    .frame(maxWidth: .infinity)
+                }
+            }
+            .padding(16)
+        }
+        .background(AppTheme.background)
+        .navigationTitle(session.title)
+        .navigationBarTitleDisplayMode(.inline)
+        .sheet(isPresented: $showingAddSet) {
+            if let completion = session.completion {
+                let suggested = (completion.isAdapted) ? [] : session.sortedExercises
+                LogPlannedSetView(completion: completion, suggestedExercises: suggested)
+            }
+        }
+        .sheet(item: $editingSet) { entry in
+            EditPlannedSetEntryView(entry: entry)
+        }
+        .confirmationDialog(
+            "Les informations déjà saisies pour cette séance seront perdues.",
+            isPresented: $showingSwitchConfirm,
+            titleVisibility: .visible
+        ) {
+            Button("Continuer", role: .destructive) {
+                discardCurrentSession()
+                showingSwitchChoice = true
+            }
+            Button("Annuler", role: .cancel) {}
+        }
+        .confirmationDialog("Quel type de séance ?", isPresented: $showingSwitchChoice) {
+            Button("Musculation") { startAdaptation(kind: .musculation) }
+            Button("Autre") { startAdaptation(kind: .autre) }
+            Button("Annuler", role: .cancel) {}
+        }
+        .confirmationDialog(
+            "Les informations déjà saisies pour cette séance seront perdues.",
+            isPresented: $showingCancelAdaptationConfirm,
+            titleVisibility: .visible
+        ) {
+            Button("Continuer", role: .destructive) { discardCurrentSession() }
+            Button("Annuler", role: .cancel) {}
+        }
+        .onAppear {
+            simpleComment = session.completion?.simpleComment ?? ""
+        }
+    }
+
+    private var adHocBadge: some View {
+        Text("Hors programme")
+            .font(.system(size: 11, weight: .medium))
+            .padding(.horizontal, 8)
+            .padding(.vertical, 3)
+            .background(Color.purple.opacity(0.15))
+            .foregroundStyle(Color.purple.opacity(0.9))
+            .clipShape(Capsule())
+    }
+
+    @ViewBuilder
+    private var switchSessionHeader: some View {
+        if session.completion?.isAdapted == true {
+            HStack {
+                Text("Séance adaptée")
+                    .font(.system(size: 11, weight: .medium))
+                    .padding(.horizontal, 8)
+                    .padding(.vertical, 3)
+                    .background(Color.orange.opacity(0.15))
+                    .foregroundStyle(Color.orange.opacity(0.9))
+                    .clipShape(Capsule())
+                Spacer()
+                Button("Annuler") {
+                    if hasEnteredData {
+                        showingCancelAdaptationConfirm = true
+                    } else {
+                        discardCurrentSession()
+                    }
+                }
+                .font(.system(size: 13))
+            }
+        } else if isToday || isPast {
+            Button {
+                if hasEnteredData {
+                    showingSwitchConfirm = true
+                } else {
+                    showingSwitchChoice = true
+                }
+            } label: {
+                Text("Autre séance réalisée ?")
+                    .underline()
+            }
+            .font(.system(size: 13))
+            .foregroundStyle(AppTheme.textSecondary)
+        }
+    }
+
+    private func discardCurrentSession() {
+        if let completion = session.completion {
+            context.delete(completion)
+            session.completion = nil
+        }
+        simpleComment = ""
+    }
+
+    private func startAdaptation(kind: SessionKind) {
+        let completion = SessionCompletion(startTime: .now, isAdapted: true, adaptedTitle: session.title, adaptedKind: kind)
+        completion.cycleSession = session
+        context.insert(completion)
+        session.completion = completion
+    }
+
+    private func collapsibleHeader(text: String) -> some View {
+        Button {
+            withAnimation { isPlanExpanded.toggle() }
+        } label: {
+            HStack {
+                SectionLabel(text: text)
+                Image(systemName: isPlanExpanded ? "chevron.up" : "chevron.down")
+                    .font(.system(size: 11))
+                    .foregroundStyle(AppTheme.textSecondary)
+            }
+        }
+        .buttonStyle(.plain)
+    }
+
+    @ViewBuilder
+    private var planCard: some View {
+        if session.kind == .musculation {
+            AppCard {
+                VStack(alignment: .leading, spacing: 0) {
+                    ForEach(Array(session.sortedExercises.enumerated()), id: \.element.id) { index, exercise in
+                        if index > 0 { Divider().overlay(AppTheme.border) }
+                        HStack(alignment: .top, spacing: 10) {
+                            Text("\(index + 1)")
+                                .font(.system(size: 13, weight: .medium))
+                                .foregroundStyle(AppTheme.textSecondary)
+                                .frame(width: 18, alignment: .leading)
+                            VStack(alignment: .leading, spacing: 4) {
+                                MuscleGroupTag(group: exercise.muscleGroup)
+                                Text(exercise.exerciseName)
+                                    .foregroundStyle(AppTheme.textPrimary)
+                                    .fontWeight(.medium)
+                                Text(exercise.summary)
+                                    .font(.system(size: 12))
+                                    .foregroundStyle(AppTheme.textSecondary)
+                            }
+                            Spacer(minLength: 0)
+                        }
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .padding(.vertical, 10)
+                    }
+                }
+            }
+        } else {
+            AppCard {
+                Text(session.sessionDescription?.isEmpty == false ? session.sessionDescription! : "Aucun plan renseigné")
+                    .foregroundStyle(AppTheme.textPrimary)
+            }
+        }
+    }
+
+    // MARK: - Musculation
+
+    @ViewBuilder
+    private var musculationSection: some View {
+        if let completion = session.completion {
+            let entries = entries(for: completion)
+            if !entries.isEmpty {
+                AppCard {
+                    VStack(alignment: .leading, spacing: 0) {
+                        ForEach(Array(entries.enumerated()), id: \.element.id) { index, entry in
+                            if index > 0 { Divider().overlay(AppTheme.border) }
+                            Button {
+                                editingSet = entry
+                            } label: {
+                                HStack(alignment: .top, spacing: 10) {
+                                    VStack(alignment: .leading, spacing: 4) {
+                                        MuscleGroupTag(group: entry.muscleGroup)
+                                        Text(entry.exerciseName)
+                                            .foregroundStyle(AppTheme.textPrimary)
+                                            .fontWeight(.medium)
+                                        Text(setSummary(entry))
+                                            .font(.system(size: 12))
+                                            .foregroundStyle(AppTheme.textSecondary)
+                                    }
+                                    Spacer(minLength: 0)
+                                    Text(entry.date.formatted(date: .omitted, time: .shortened))
+                                        .font(.system(size: 12))
+                                        .foregroundStyle(AppTheme.textSecondary)
+                                }
+                                .frame(maxWidth: .infinity, alignment: .leading)
+                                .padding(.vertical, 10)
+                                .contentShape(Rectangle())
+                            }
+                            .buttonStyle(.plain)
+                        }
+                    }
+                }
+            }
+
+            if completion.endTime == nil {
+                Button {
+                    showingAddSet = true
+                } label: {
+                    HStack {
+                        Text("Ajouter un exercice réalisé").fontWeight(.medium)
+                        Spacer()
+                        Image(systemName: "plus.circle.fill")
+                    }
+                }
+                .foregroundStyle(AppTheme.accent)
+                .padding(.horizontal, 4)
+                .contentShape(Rectangle())
+                .buttonStyle(.plain)
+
+                Button {
+                    completion.endTime = .now
+                } label: {
+                    Text("Terminer la séance")
+                        .frame(maxWidth: .infinity)
+                        .padding()
+                        .background(AppTheme.accent)
+                        .foregroundStyle(.white)
+                        .clipShape(RoundedRectangle(cornerRadius: AppTheme.cardRadius))
+                        .contentShape(Rectangle())
+                }
+                .buttonStyle(.plain)
+
+                Button("Annuler la séance", role: .destructive) {
+                    context.delete(completion)
+                    session.completion = nil
+                }
+                .font(.system(size: 13))
+                .frame(maxWidth: .infinity)
+            } else {
+                Button("Supprimer la séance", role: .destructive) {
+                    context.delete(completion)
+                    session.completion = nil
+                }
+                .font(.system(size: 13))
+                .frame(maxWidth: .infinity)
+            }
+        } else if isToday || isPast {
+            Button {
+                startSession()
+            } label: {
+                Text(isToday ? "Commencer la séance" : "Renseigner ma séance")
+                    .frame(maxWidth: .infinity)
+                    .padding()
+                    .background(AppTheme.accent)
+                    .foregroundStyle(.white)
+                    .clipShape(RoundedRectangle(cornerRadius: AppTheme.cardRadius))
+                    .contentShape(Rectangle())
+            }
+            .buttonStyle(.plain)
+        } else {
+            Text("Séance à venir.")
+                .font(.system(size: 13))
+                .foregroundStyle(AppTheme.textSecondary)
+                .frame(maxWidth: .infinity)
+        }
+    }
+
+    private func setSummary(_ entry: PlannedSetEntry) -> String {
+        let weightLabel: String
+        switch entry.resistanceMode {
+        case .poidsLibre, .machine, .elastique:
+            weightLabel = entry.weight.map { "\(Int($0))kg" } ?? "—"
+        case .poidsDuCorps:
+            weightLabel = entry.bodyWeight.map { "\(Int($0))kg (corps)" } ?? "—"
+        case .leste:
+            let body = entry.bodyWeight.map { "\(Int($0))" } ?? "?"
+            let added = entry.weight.map { "\(Int($0))" } ?? "?"
+            weightLabel = "\(body)+\(added)kg"
+        }
+        return "\(entry.resistanceMode.rawValue) · \(weightLabel) · \(entry.reps) reps · \(entry.sensation.label)"
+    }
+
+    private func startSession() {
+        let completion = SessionCompletion(startTime: .now)
+        completion.cycleSession = session
+        context.insert(completion)
+        session.completion = completion
+    }
+
+    // MARK: - Autre
+
+    @ViewBuilder
+    private var simpleSessionSection: some View {
+        if let completionEntry = session.completion, completionEntry.endTime != nil {
+            AppCard {
+                Text(completionEntry.simpleComment?.isEmpty == false ? completionEntry.simpleComment! : "Aucun commentaire")
+                    .foregroundStyle(AppTheme.textPrimary)
+            }
+            Button("Supprimer la séance", role: .destructive) {
+                context.delete(completionEntry)
+                session.completion = nil
+            }
+            .font(.system(size: 13))
+            .frame(maxWidth: .infinity)
+        } else if isToday || isPast {
+            AppCard {
+                VStack(alignment: .leading, spacing: 4) {
+                    Text("Commentaire").foregroundStyle(AppTheme.textSecondary).font(.system(size: 13))
+                    TextField("Qu'as-tu fait ?", text: $simpleComment, axis: .vertical)
+                }
+            }
+            Button {
+                saveSimpleSession()
+            } label: {
+                Text("Enregistrer la séance")
+                    .frame(maxWidth: .infinity)
+                    .padding()
+                    .background(AppTheme.accent)
+                    .foregroundStyle(.white)
+                    .clipShape(RoundedRectangle(cornerRadius: AppTheme.cardRadius))
+                    .contentShape(Rectangle())
+            }
+            .buttonStyle(.plain)
+        } else {
+            Text("Séance à venir.")
+                .font(.system(size: 13))
+                .foregroundStyle(AppTheme.textSecondary)
+                .frame(maxWidth: .infinity)
+        }
+    }
+
+    private func saveSimpleSession() {
+        // Une adaptation a déjà créé la SessionCompletion — on la complète plutôt que d'en créer
+        // une seconde, sinon `isAdapted`/`adaptedKind` seraient perdus.
+        if let completion = session.completion {
+            completion.startTime = completion.startTime ?? .now
+            completion.endTime = .now
+            completion.simpleComment = simpleComment.isEmpty ? nil : simpleComment
+        } else {
+            let completion = SessionCompletion(
+                startTime: .now,
+                endTime: .now,
+                simpleComment: simpleComment.isEmpty ? nil : simpleComment
+            )
+            completion.cycleSession = session
+            context.insert(completion)
+            session.completion = completion
+        }
+    }
+}

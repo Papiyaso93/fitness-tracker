@@ -1,0 +1,175 @@
+import SwiftUI
+
+/// Brouillon d'objectif en cours de saisie, avant que le programme ne soit créé (évite d'insérer
+/// des objets orphelins dans SwiftData si l'utilisateur annule le formulaire).
+struct ObjectiveDraft: Identifiable {
+    let id = UUID()
+    var isMeasurable: Bool
+    var freeText: String = ""
+    var metricType: ObjectiveMetricType = .masseGrasse
+    var customMetricName: String = ""
+    var customUnit: String = ""
+    var mode: ObjectiveMode = .progression
+    var startValue: String = ""
+    var targetValue: String = ""
+
+    private var metricName: String {
+        metricType == .autre ? customMetricName : metricType.rawValue
+    }
+
+    private var metricUnit: String {
+        metricType == .autre ? customUnit : metricType.unit
+    }
+
+    var summary: String {
+        if !isMeasurable {
+            return freeText
+        }
+        switch mode {
+        case .progression:
+            let start = startValue.isEmpty ? "?" : "\(startValue)\(metricUnit)"
+            let target = targetValue.isEmpty ? "?" : "\(targetValue)\(metricUnit)"
+            return "\(metricName) : \(start) → \(target)"
+        case .maintien:
+            let target = targetValue.isEmpty ? "?" : "\(targetValue)\(metricUnit)"
+            return "\(metricName) : maintenir \(target)"
+        }
+    }
+}
+
+/// Formulaire d'ajout d'un objectif ou indicateur — texte libre, ou cible chiffrée
+/// (progression X→Y, ou maintien) sur une métrique suivie par l'app.
+struct AddObjectiveDraftView: View {
+    /// Si fourni, limite le choix de métrique à cette liste (+ "Autre" toujours ajouté) — utilisé
+    /// pour les objectifs de cycle, restreints aux métriques déjà suivies par le programme.
+    var allowedMetrics: [ObjectiveMetricType]?
+    let onSave: (ObjectiveDraft) -> Void
+
+    @Environment(\.dismiss) private var dismiss
+
+    @State private var isMeasurable = true
+    @State private var freeText = ""
+    @State private var metricType: ObjectiveMetricType = .masseGrasse
+    @State private var customMetricName = ""
+    @State private var customUnit = ""
+    @State private var mode: ObjectiveMode = .progression
+    @State private var startValue = ""
+    @State private var targetValue = ""
+
+    init(allowedMetrics: [ObjectiveMetricType]? = nil, onSave: @escaping (ObjectiveDraft) -> Void) {
+        self.allowedMetrics = allowedMetrics
+        self.onSave = onSave
+        _metricType = State(initialValue: allowedMetrics?.first ?? .masseGrasse)
+    }
+
+    private var availableMetrics: [ObjectiveMetricType] {
+        guard let allowedMetrics, !allowedMetrics.isEmpty else { return ObjectiveMetricType.allCases }
+        return allowedMetrics + [.autre]
+    }
+
+    private var canSave: Bool {
+        if !isMeasurable {
+            return !freeText.trimmingCharacters(in: .whitespaces).isEmpty
+        }
+        if metricType == .autre && customMetricName.trimmingCharacters(in: .whitespaces).isEmpty {
+            return false
+        }
+        if mode == .progression {
+            return Double(startValue) != nil && Double(targetValue) != nil
+        }
+        return Double(targetValue) != nil
+    }
+
+    var body: some View {
+        NavigationStack {
+            Form {
+                Section {
+                    Picker("Type", selection: $isMeasurable) {
+                        Text("Chiffré").tag(true)
+                        Text("Texte libre").tag(false)
+                    }
+                    .pickerStyle(.segmented)
+                }
+
+                if isMeasurable {
+                    Section {
+                        Picker("Métrique", selection: $metricType) {
+                            ForEach(availableMetrics) { type in
+                                Text(type.rawValue).tag(type)
+                            }
+                        }
+                        if metricType == .autre {
+                            VStack(alignment: .leading, spacing: 4) {
+                                Text("Nom *").font(.system(size: 13)).foregroundStyle(AppTheme.textSecondary)
+                                TextField("Ex: fréquence cardiaque au repos", text: $customMetricName)
+                            }
+                            VStack(alignment: .leading, spacing: 4) {
+                                Text("Unité").font(.system(size: 13)).foregroundStyle(AppTheme.textSecondary)
+                                TextField("Ex: bpm, reps, min…", text: $customUnit)
+                            }
+                        }
+                    } header: {
+                        Text("Métrique *")
+                    } footer: {
+                        if allowedMetrics != nil && !(allowedMetrics?.isEmpty ?? true) {
+                            Text("Limitée aux métriques déjà suivies par le programme.")
+                        }
+                    }
+
+                    Section("Cible *") {
+                        Picker("Mode", selection: $mode) {
+                            ForEach(ObjectiveMode.allCases) { m in
+                                Text(m.rawValue).tag(m)
+                            }
+                        }
+                        .pickerStyle(.segmented)
+
+                        if mode == .progression {
+                            LabeledContent("Valeur de départ\(unitSuffix)") {
+                                TextField("0", text: $startValue)
+                                    .keyboardType(.decimalPad)
+                                    .multilineTextAlignment(.trailing)
+                            }
+                        }
+                        LabeledContent(mode == .progression ? "Valeur cible\(unitSuffix)" : "Valeur à maintenir\(unitSuffix)") {
+                            TextField("0", text: $targetValue)
+                                .keyboardType(.decimalPad)
+                                .multilineTextAlignment(.trailing)
+                        }
+                    }
+                } else {
+                    Section("Description *") {
+                        TextField("Ex: redevenir plus explosif", text: $freeText, axis: .vertical)
+                    }
+                }
+            }
+            .navigationTitle("Nouvel objectif")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .cancellationAction) {
+                    Button("Annuler") { dismiss() }
+                }
+                ToolbarItem(placement: .confirmationAction) {
+                    Button("Ajouter") {
+                        var draft = ObjectiveDraft(isMeasurable: isMeasurable)
+                        draft.freeText = freeText
+                        draft.metricType = metricType
+                        draft.customMetricName = customMetricName
+                        draft.customUnit = customUnit
+                        draft.mode = mode
+                        draft.startValue = startValue
+                        draft.targetValue = targetValue
+                        onSave(draft)
+                        dismiss()
+                    }
+                    .disabled(!canSave)
+                }
+            }
+        }
+    }
+
+    private var unitSuffix: String {
+        let unit = metricType == .autre ? customUnit : metricType.unit
+        return unit.isEmpty ? "" : " (\(unit))"
+    }
+}
