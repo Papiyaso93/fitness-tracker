@@ -6,7 +6,7 @@ options:
 settings:
   base:
     SWIFT_VERSION: "5.0"
-    DEVELOPMENT_TEAM: ""
+    DEVELOPMENT_TEAM: "ZQRDF4F5V8"
     CODE_SIGN_STYLE: Automatic
 targets:
   ObjectifsFit:
@@ -19,9 +19,9 @@ targets:
       path: ObjectifsFit/Info.plist
       properties:
         UILaunchScreen: {}
-        CFBundleDisplayName: "Marcel"
-        NSHealthShareUsageDescription: "Marcel lit ton poids, ta masse grasse et ta VO2max depuis Santé pour suivre ta progression sans ressaisie."
-        NSHealthUpdateUsageDescription: "Marcel peut écrire tes métriques saisies manuellement dans Santé."
+        CFBundleDisplayName: "Genki"
+        NSHealthShareUsageDescription: "Genki lit ton poids, ta masse grasse et ta VO2max depuis Santé pour suivre ta progression sans ressaisie."
+        NSHealthUpdateUsageDescription: "Genki peut écrire tes métriques saisies manuellement dans Santé."
     entitlements:
       path: ObjectifsFit/ObjectifsFit.entitlements
       properties:

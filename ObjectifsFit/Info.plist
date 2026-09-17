@@ -5,7 +5,7 @@
 	<key>CFBundleDevelopmentRegion</key>
 	<string>$(DEVELOPMENT_LANGUAGE)</string>
 	<key>CFBundleDisplayName</key>
-	<string>Marcel</string>
+	<string>Genki</string>
 	<key>CFBundleExecutable</key>
 	<string>$(EXECUTABLE_NAME)</string>
 	<key>CFBundleIdentifier</key>
@@ -21,9 +21,9 @@
 	<key>CFBundleVersion</key>
 	<string>1</string>
 	<key>NSHealthShareUsageDescription</key>
-	<string>Marcel lit ton poids, ta masse grasse et ta VO2max depuis Santé pour suivre ta progression sans ressaisie.</string>
+	<string>Genki lit ton poids, ta masse grasse et ta VO2max depuis Santé pour suivre ta progression sans ressaisie.</string>
 	<key>NSHealthUpdateUsageDescription</key>
-	<string>Marcel peut écrire tes métriques saisies manuellement dans Santé.</string>
+	<string>Genki peut écrire tes métriques saisies manuellement dans Santé.</string>
 	<key>UILaunchScreen</key>
 	<dict/>
 </dict>

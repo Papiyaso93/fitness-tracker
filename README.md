@@ -1,4 +1,4 @@
-# Marcel
+# Genki
 
 App de suivi sport & physique (iOS, usage perso) — SwiftUI + SwiftData, sans backend. Voir `project.yml` (XcodeGen) pour la config du projet.
 
