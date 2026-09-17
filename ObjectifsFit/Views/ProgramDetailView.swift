@@ -140,7 +140,7 @@ struct ProgramDetailView: View {
             switch program.status {
             case .aVenir: return AppTheme.textSecondary
             case .enCours: return AppTheme.accent
-            case .termine: return .green
+            case .termine: return AppTheme.secondary
             }
         }()
         return Text(program.status.rawValue)

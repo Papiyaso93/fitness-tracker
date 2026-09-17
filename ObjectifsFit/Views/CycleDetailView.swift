@@ -101,7 +101,7 @@ struct CycleDetailView: View {
             switch cycle.status {
             case .aVenir: return AppTheme.textSecondary
             case .enCours: return AppTheme.accent
-            case .termine: return .green
+            case .termine: return AppTheme.secondary
             }
         }()
         return Text(cycle.status.rawValue)

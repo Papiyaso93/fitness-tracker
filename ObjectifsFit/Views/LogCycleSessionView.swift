@@ -135,8 +135,8 @@ struct LogCycleSessionView: View {
                     .font(.system(size: 11, weight: .medium))
                     .padding(.horizontal, 8)
                     .padding(.vertical, 3)
-                    .background(Color.orange.opacity(0.15))
-                    .foregroundStyle(Color.orange.opacity(0.9))
+                    .background(Color.yellow.opacity(0.2))
+                    .foregroundStyle(Color(hex: "8A6D00"))
                     .clipShape(Capsule())
                 Spacer()
                 Button("Annuler") {

@@ -347,7 +347,7 @@ struct HomeView: View {
             switch status {
             case .aVenir: return AppTheme.textSecondary
             case .enCours: return AppTheme.accent
-            case .termine: return .green
+            case .termine: return AppTheme.secondary
             }
         }()
         return Text(status.rawValue)
@@ -466,8 +466,8 @@ struct HomeView: View {
     private func tag(_ text: String, color: TagColor) -> some View {
         let (bg, fg): (Color, Color) = {
             switch color {
-            case .success: return (Color.green.opacity(0.15), Color.green.opacity(0.9))
-            case .warning: return (Color.orange.opacity(0.15), Color.orange.opacity(0.9))
+            case .success: return (AppTheme.secondary.opacity(0.15), AppTheme.secondary)
+            case .warning: return (Color.yellow.opacity(0.2), Color(hex: "8A6D00"))
             case .danger: return (Color.red.opacity(0.15), Color.red.opacity(0.9))
             case .neutral: return (AppTheme.border.opacity(0.5), AppTheme.textSecondary)
             case .accentTag: return (AppTheme.accent.opacity(0.15), AppTheme.accent)

@@ -12,15 +12,17 @@ extension Color {
     }
 }
 
-/// Design system "Slate & Cobalt" — fond gris clair, cartes blanches, accent bleu franc.
-/// Mode sombre à construire plus tard (cf. décision produit).
+/// Design system "Genki" — fond crème chaleureux, cartes blanches, accent orange (repris du
+/// logo) + secondaire vert profond pour les statuts positifs. Mode sombre à construire plus
+/// tard (cf. décision produit).
 enum AppTheme {
-    static let background = Color(hex: "F4F4F2")
+    static let background = Color(hex: "FBF3EC")
     static let surface = Color.white
-    static let border = Color(hex: "DEDEDA")
-    static let accent = Color(hex: "1B5CE0")
-    static let textPrimary = Color(hex: "1A1C1E")
-    static let textSecondary = Color(hex: "6B6E72")
+    static let border = Color(hex: "EAD9C8")
+    static let accent = Color(hex: "E8703A")
+    static let secondary = Color(hex: "2B6E63")
+    static let textPrimary = Color(hex: "2A2521")
+    static let textSecondary = Color(hex: "8A7A6C")
 
     static let cardRadius: CGFloat = 14
     static let cardPadding: CGFloat = 14
@@ -132,6 +134,8 @@ enum AppAppearance {
 
         UITableView.appearance().backgroundColor = bg
         UICollectionView.appearance().backgroundColor = bg
+        UITableView.appearance().separatorColor = UIColor(AppTheme.border)
+        UITableViewCell.appearance().backgroundColor = surface
 
         let navAppearance = UINavigationBarAppearance()
         navAppearance.configureWithOpaqueBackground()
