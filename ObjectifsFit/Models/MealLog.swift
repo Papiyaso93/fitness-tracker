@@ -8,8 +8,17 @@ enum MealSensation: String, Codable, CaseIterable {
     case tropMange = "Trop mangé"
     case ballonneInconfortable = "Inconfortable / ballonné"
 
-    /// Cible : atteindre ce niveau dans 90% des repas de la semaine.
-    var isTarget: Bool { self == .rassasie80 }
+    var id: String { rawValue }
+
+    var icon: String {
+        switch self {
+        case .encoreFaim: return "arrow.down.circle.fill"
+        case .rassasie80: return "checkmark.circle.fill"
+        case .rassasiePile: return "equal.circle.fill"
+        case .tropMange: return "arrow.up.circle.fill"
+        case .ballonneInconfortable: return "exclamationmark.triangle.fill"
+        }
+    }
 }
 
 @Model

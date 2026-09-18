@@ -10,6 +10,7 @@ struct AddAdHocSessionView: View {
 
     @Environment(\.modelContext) private var context
     @Environment(\.dismiss) private var dismiss
+    @Query private var allSessions: [CycleSession]
 
     @State private var kind: SessionKind = .musculation
     @State private var title: String = ""
@@ -18,30 +19,29 @@ struct AddAdHocSessionView: View {
     var body: some View {
         NavigationStack {
             Form {
-                Section("Type") {
+                Section {
                     Picker("Type", selection: $kind) {
                         ForEach(SessionKind.allCases) { k in
                             Text(k.rawValue).tag(k)
                         }
                     }
                     .pickerStyle(.segmented)
-                }
+                } header: { formSectionHeader("Type", required: true) }
 
-                Section("Titre*") {
+                Section {
                     TextField("Ex: Push improvisé", text: $title)
-                }
+                } header: { formSectionHeader("Titre", required: true) }
 
-                Section("Objectif de la séance*") {
+                Section {
                     Picker("Objectif", selection: $objective) {
                         Text("Choisir…").tag(PhysicalQuality?.none)
-                        ForEach(PhysicalQuality.allCases) { quality in
+                        ForEach(PhysicalQuality.allCasesSortedAlphabetically) { quality in
                             Text(quality.rawValue).tag(PhysicalQuality?.some(quality))
                         }
                     }
-                }
+                } header: { formSectionHeader("Objectif de la séance", required: true) }
             }
             .navigationTitle("Nouvelle séance")
-            .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
                     Button("Annuler") { dismiss() }
@@ -54,16 +54,34 @@ struct AddAdHocSessionView: View {
         }
     }
 
+    /// Les séances ad-hoc partageaient toutes un `order` fixe (999) : sans clé de tri stable,
+    /// leur ordre d'affichage dépendait de l'ordre de retour du @Query et pouvait changer d'un
+    /// chargement à l'autre. On les place maintenant après la dernière séance existante du jour,
+    /// dans leur ordre de création.
+    private func nextOrder(weekNumber: Int, weekday: Int) -> Int {
+        let sameDaySessions: [CycleSession]
+        if let cycle {
+            sameDaySessions = allSessions.filter { $0.cycle?.id == cycle.id && $0.weekNumber == weekNumber && $0.weekday == weekday }
+        } else {
+            sameDaySessions = allSessions.filter {
+                $0.cycle == nil && $0.isAdHoc && $0.adHocDate.map { Calendar.current.isDate($0, inSameDayAs: date) } == true
+            }
+        }
+        return (sameDaySessions.map(\.order).max() ?? -1) + 1
+    }
+
     private func save() {
         guard let objective else { return }
         let calendar = Calendar.current
+        let weekNumber = cycle?.weekNumber(for: date) ?? 1
+        let weekday = calendar.component(.weekday, from: date)
         let session = CycleSession(
-            weekNumber: cycle?.weekNumber(for: date) ?? 1,
-            weekday: calendar.component(.weekday, from: date),
+            weekNumber: weekNumber,
+            weekday: weekday,
             title: title,
             kind: kind,
             objective: objective,
-            order: 999,
+            order: nextOrder(weekNumber: weekNumber, weekday: weekday),
             isAdHoc: true,
             adHocDate: cycle == nil ? date : nil
         )

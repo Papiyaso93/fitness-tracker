@@ -24,16 +24,16 @@ struct CreateProgramView: View {
     var body: some View {
         NavigationStack {
             Form {
-                Section("Informations") {
+                Section {
                     VStack(alignment: .leading, spacing: 4) {
-                        Text("Titre *").font(.system(size: 13)).foregroundStyle(AppTheme.textSecondary)
+                        fieldCaption("Titre", required: true)
                         TextField("Programme 1 — Perte de gras", text: $title)
                     }
                     VStack(alignment: .leading, spacing: 4) {
-                        Text("Description").font(.system(size: 13)).foregroundStyle(AppTheme.textSecondary)
+                        fieldCaption("Description")
                         TextField("Résumé en une phrase", text: $description, axis: .vertical)
                     }
-                }
+                } header: { formSectionHeader("Informations") }
 
                 Section {
                     objectiveList(principalDrafts) { principalDrafts.remove(atOffsets: $0) }
@@ -43,7 +43,7 @@ struct CreateProgramView: View {
                         Label("Ajouter un objectif principal", systemImage: "plus.circle")
                     }
                 } header: {
-                    Text("Objectifs principaux")
+                    formSectionHeader("Objectifs principaux")
                 } footer: {
                     Text("Deux objectifs maximum recommandés, pour rester concentré sur l'essentiel. Idéalement mesurables.")
                 }
@@ -56,7 +56,7 @@ struct CreateProgramView: View {
                         Label("Ajouter un indicateur", systemImage: "plus.circle")
                     }
                 } header: {
-                    Text("Indicateurs à suivre")
+                    formSectionHeader("Indicateurs à suivre")
                 } footer: {
                     Text("Aucune limite — des repères à suivre en complément des objectifs principaux.")
                 }
@@ -71,7 +71,7 @@ struct CreateProgramView: View {
                         DatePicker(selection: $endDate, displayedComponents: .date) { EmptyView() }
                     }
                 } header: {
-                    Text("Dates")
+                    formSectionHeader("Dates")
                 } footer: {
                     Text("Permet de situer les objectifs dans le temps.")
                 }

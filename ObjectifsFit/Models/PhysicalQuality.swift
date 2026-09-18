@@ -15,4 +15,8 @@ enum PhysicalQuality: String, Codable, CaseIterable, Identifiable {
     case recuperationMobilite = "Récupération/mobilité"
 
     var id: String { rawValue }
+
+    static var allCasesSortedAlphabetically: [PhysicalQuality] {
+        allCases.sorted { $0.rawValue.localizedStandardCompare($1.rawValue) == .orderedAscending }
+    }
 }

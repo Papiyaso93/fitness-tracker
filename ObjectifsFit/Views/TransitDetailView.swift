@@ -9,32 +9,13 @@ struct TransitDetailView: View {
 
     var body: some View {
         Form {
-            Section("Heure") {
+            Section {
                 DatePicker("Heure", selection: $log.dateTime, displayedComponents: [.date, .hourAndMinute])
                     .labelsHidden()
-            }
-            Section("Échelle de Bristol") {
-                ForEach(BristolType.allCases) { type in
-                    Button {
-                        log.bristolType = type
-                    } label: {
-                        HStack {
-                            VStack(alignment: .leading, spacing: 2) {
-                                Text(type.shortLabel)
-                                    .foregroundStyle(AppTheme.textPrimary)
-                                Text(type.category)
-                                    .font(.system(size: 12))
-                                    .foregroundStyle(AppTheme.textSecondary)
-                            }
-                            Spacer()
-                            if log.bristolType == type {
-                                Image(systemName: "checkmark.circle.fill")
-                                    .foregroundStyle(AppTheme.accent)
-                            }
-                        }
-                    }
-                }
-            }
+            } header: { formSectionHeader("Heure", required: true) }
+            Section {
+                BristolScaleField(selection: $log.bristolType)
+            } header: { formSectionHeader("Échelle de Bristol", required: true) }
             Section {
                 Button("Supprimer ce passage", role: .destructive) {
                     context.delete(log)

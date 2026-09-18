@@ -14,13 +14,13 @@ struct EditPlannedSetEntryView: View {
     var body: some View {
         NavigationStack {
             Form {
-                Section("Exercice") {
+                Section {
                     LabeledContent("Groupe musculaire") { MuscleGroupTag(group: entry.muscleGroup) }
                     LabeledContent("Exercice") { Text(entry.exerciseName) }
                     LabeledContent("Mode de résistance") { Text(entry.resistanceMode.rawValue) }
-                }
+                } header: { formSectionHeader("Exercice") }
 
-                Section("Série") {
+                Section {
                     switch entry.resistanceMode {
                     case .poidsLibre, .machine:
                         LabeledContent("Poids (kg)") {
@@ -43,16 +43,20 @@ struct EditPlannedSetEntryView: View {
                         }
                     }
 
-                    LabeledContent("Répétitions") {
+                    LabeledContent {
                         TextField("0", text: $repsText).keyboardType(.numberPad).multilineTextAlignment(.trailing)
+                    } label: {
+                        fieldLabel("Répétitions", required: true)
                     }
 
-                    Picker("Sensation", selection: $entry.sensation) {
+                    Picker(selection: $entry.sensation) {
                         ForEach(SensationLevel.allCases, id: \.self) { Text($0.label).tag($0) }
+                    } label: {
+                        fieldLabel("Sensation", required: true)
                     }
 
                     VStack(alignment: .leading, spacing: 4) {
-                        Text("Commentaire").foregroundStyle(AppTheme.textSecondary).font(.system(size: 13))
+                        fieldCaption("Commentaire")
                         TextField("Optionnel", text: Binding(
                             get: { entry.comment ?? "" },
                             set: { entry.comment = $0.isEmpty ? nil : $0 }
@@ -62,7 +66,7 @@ struct EditPlannedSetEntryView: View {
                     LabeledContent("Horodatage") {
                         Text(entry.date.formatted(date: .omitted, time: .shortened))
                     }
-                }
+                } header: { formSectionHeader("Série") }
 
                 Section {
                     Button("Supprimer cette série", role: .destructive) {

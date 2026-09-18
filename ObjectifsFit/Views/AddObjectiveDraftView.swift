@@ -89,7 +89,7 @@ struct AddObjectiveDraftView: View {
                         Text("Texte libre").tag(false)
                     }
                     .pickerStyle(.segmented)
-                }
+                } header: { formSectionHeader("Type", required: true) }
 
                 if isMeasurable {
                     Section {
@@ -100,23 +100,23 @@ struct AddObjectiveDraftView: View {
                         }
                         if metricType == .autre {
                             VStack(alignment: .leading, spacing: 4) {
-                                Text("Nom *").font(.system(size: 13)).foregroundStyle(AppTheme.textSecondary)
+                                fieldCaption("Nom", required: true)
                                 TextField("Ex: fréquence cardiaque au repos", text: $customMetricName)
                             }
                             VStack(alignment: .leading, spacing: 4) {
-                                Text("Unité").font(.system(size: 13)).foregroundStyle(AppTheme.textSecondary)
+                                fieldCaption("Unité")
                                 TextField("Ex: bpm, reps, min…", text: $customUnit)
                             }
                         }
                     } header: {
-                        Text("Métrique *")
+                        formSectionHeader("Métrique", required: true)
                     } footer: {
                         if allowedMetrics != nil && !(allowedMetrics?.isEmpty ?? true) {
                             Text("Limitée aux métriques déjà suivies par le programme.")
                         }
                     }
 
-                    Section("Cible *") {
+                    Section {
                         Picker("Mode", selection: $mode) {
                             ForEach(ObjectiveMode.allCases) { m in
                                 Text(m.rawValue).tag(m)
@@ -125,22 +125,26 @@ struct AddObjectiveDraftView: View {
                         .pickerStyle(.segmented)
 
                         if mode == .progression {
-                            LabeledContent("Valeur de départ\(unitSuffix)") {
+                            LabeledContent {
                                 TextField("0", text: $startValue)
                                     .keyboardType(.decimalPad)
                                     .multilineTextAlignment(.trailing)
+                            } label: {
+                                fieldLabel("Valeur de départ\(unitSuffix)", required: true)
                             }
                         }
-                        LabeledContent(mode == .progression ? "Valeur cible\(unitSuffix)" : "Valeur à maintenir\(unitSuffix)") {
+                        LabeledContent {
                             TextField("0", text: $targetValue)
                                 .keyboardType(.decimalPad)
                                 .multilineTextAlignment(.trailing)
+                        } label: {
+                            fieldLabel(mode == .progression ? "Valeur cible\(unitSuffix)" : "Valeur à maintenir\(unitSuffix)", required: true)
                         }
-                    }
+                    } header: { formSectionHeader("Cible", required: true) }
                 } else {
-                    Section("Description *") {
+                    Section {
                         TextField("Ex: redevenir plus explosif", text: $freeText, axis: .vertical)
-                    }
+                    } header: { formSectionHeader("Description", required: true) }
                 }
             }
             .navigationTitle("Nouvel objectif")

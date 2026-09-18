@@ -14,6 +14,7 @@ struct LogPlannedSetView: View {
 
     @State private var muscleGroup: String?
     @State private var exerciseName: String = ""
+    @State private var reusedFromPrevious = false
 
     @State private var technique: SetTechnique = .normal
     @State private var techniqueOtherLabel: String = ""
@@ -36,6 +37,19 @@ struct LogPlannedSetView: View {
         BodyweightCoefficients.defaultCoefficient(forExerciseNamed: exerciseName.isEmpty ? (muscleGroup ?? "") : exerciseName)
     }
 
+    private var previousEntry: PlannedSetEntry? {
+        completion.setEntries.sorted { $0.date < $1.date }.last
+    }
+
+    private func weightSummary(for entry: PlannedSetEntry) -> String {
+        switch entry.resistanceMode {
+        case .poidsDuCorps: return "\(entry.reps) reps"
+        default:
+            let weightLabel = entry.weight.map { "\(Int($0))kg" } ?? ""
+            return "\(weightLabel) · \(entry.reps) reps"
+        }
+    }
+
     private var exerciseNamesForGroup: [String] {
         guard let muscleGroup else { return [] }
         let planNames = suggestedExercises.filter { $0.muscleGroup == muscleGroup }.map(\.exerciseName)
@@ -46,26 +60,69 @@ struct LogPlannedSetView: View {
     var body: some View {
         NavigationStack {
             Form {
-                Section("Muscle ciblé") {
-                    Picker("Groupe musculaire", selection: $muscleGroup) {
+                if let previousEntry, !reusedFromPrevious {
+                    Button {
+                        applyPreviousEntry(previousEntry)
+                    } label: {
+                        HStack(alignment: .top, spacing: 6) {
+                            Image(systemName: "doc.on.doc")
+                                .font(.system(size: 13))
+                            VStack(alignment: .leading, spacing: 1) {
+                                Text("Reprendre la série précédente")
+                                    .font(.system(size: 13, weight: .medium))
+                                    .underline()
+                                Text("(\(previousEntry.exerciseName) · \(weightSummary(for: previousEntry)))")
+                                    .font(.system(size: 13))
+                            }
+                        }
+                        .foregroundStyle(AppTheme.secondary)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .padding(.vertical, 10)
+                        .padding(.horizontal, 12)
+                        .background(AppTheme.secondary.opacity(0.1))
+                        .clipShape(RoundedRectangle(cornerRadius: 10))
+                    }
+                    .buttonStyle(.plain)
+                    .listRowBackground(Color.clear)
+                    .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0))
+                } else if reusedFromPrevious {
+                    HStack {
+                        Label("Repris de la série précédente", systemImage: "checkmark.circle.fill")
+                            .font(.system(size: 13, weight: .medium))
+                            .foregroundStyle(AppTheme.secondary)
+                        Spacer()
+                        Button("Annuler") { resetToBlank() }
+                            .font(.system(size: 13))
+                            .foregroundStyle(AppTheme.textSecondary)
+                    }
+                }
+
+                Section {
+                    Picker(selection: $muscleGroup) {
                         Text("Choisir…").tag(String?.none)
                         ForEach(MuscleGroupStyle.order, id: \.self) { group in
                             Text(group).tag(String?.some(group))
                         }
+                    } label: {
+                        fieldLabel("Groupe musculaire", required: true)
                     }
-                    .onChange(of: muscleGroup) { _, _ in exerciseName = "" }
+                    .onChange(of: muscleGroup) { _, _ in
+                        if !exerciseNamesForGroup.contains(exerciseName) { exerciseName = "" }
+                    }
 
-                    Picker("Exercice", selection: $exerciseName) {
+                    Picker(selection: $exerciseName) {
                         Text("Choisir…").tag("")
                         ForEach(exerciseNamesForGroup, id: \.self) { name in
                             Text(name).tag(name)
                         }
+                    } label: {
+                        fieldLabel("Exercice", required: true)
                     }
                     .disabled(muscleGroup == nil)
-                }
+                } header: { formSectionHeader("Muscle ciblé", required: true) }
 
                 if !exerciseName.isEmpty {
-                    Section("Technique") {
+                    Section {
                         Picker("Type de série", selection: $technique) {
                             ForEach(SetTechnique.allCases, id: \.self) { Text($0.rawValue).tag($0) }
                         }
@@ -75,9 +132,9 @@ struct LogPlannedSetView: View {
                         if technique != .normal {
                             Toggle("Lier à la série précédente", isOn: $linkToPrevious)
                         }
-                    }
+                    } header: { formSectionHeader("Technique", required: true) }
 
-                    Section("Mode de résistance") {
+                    Section {
                         Picker("Mode", selection: $resistanceMode) {
                             ForEach(ResistanceMode.allCases, id: \.self) { Text($0.rawValue).tag($0) }
                         }
@@ -86,23 +143,27 @@ struct LogPlannedSetView: View {
                                 Text("\(defaultCoefficient, specifier: "%.2f")")
                             }
                         }
-                    }
+                    } header: { formSectionHeader("Mode de résistance", required: true) }
 
-                    Section("Série") {
+                    Section {
                         weightFields
-                        LabeledContent("Répétitions") {
+                        LabeledContent {
                             TextField("0", text: $reps)
                                 .keyboardType(.numberPad)
                                 .multilineTextAlignment(.trailing)
+                        } label: {
+                            fieldLabel("Répétitions", required: true)
                         }
-                        Picker("Sensation", selection: $sensation) {
+                        Picker(selection: $sensation) {
                             ForEach(SensationLevel.allCases, id: \.self) { Text($0.label).tag($0) }
+                        } label: {
+                            fieldLabel("Sensation", required: true)
                         }
                         VStack(alignment: .leading, spacing: 4) {
-                            Text("Commentaire").foregroundStyle(AppTheme.textSecondary).font(.system(size: 13))
+                            fieldCaption("Commentaire")
                             TextField("Optionnel", text: $comment, axis: .vertical)
                         }
-                    }
+                    } header: { formSectionHeader("Série") }
                 }
             }
             .navigationTitle("Nouvelle série")
@@ -170,6 +231,35 @@ struct LogPlannedSetView: View {
         case .leste: return Double(addedWeight)
         case .poidsDuCorps: return nil
         }
+    }
+
+    private func applyPreviousEntry(_ entry: PlannedSetEntry) {
+        muscleGroup = entry.muscleGroup
+        exerciseName = entry.exerciseName
+        resistanceMode = entry.resistanceMode
+        reps = String(entry.reps)
+        sensation = entry.sensation
+        switch entry.resistanceMode {
+        case .poidsLibre, .machine, .elastique:
+            weight = entry.weight.map { String(format: "%.1f", $0) } ?? ""
+        case .leste:
+            addedWeight = entry.weight.map { String(format: "%.1f", $0) } ?? ""
+            bodyWeight = entry.bodyWeight.map { String(format: "%.1f", $0) } ?? bodyWeight
+        case .poidsDuCorps:
+            bodyWeight = entry.bodyWeight.map { String(format: "%.1f", $0) } ?? bodyWeight
+        }
+        reusedFromPrevious = true
+    }
+
+    private func resetToBlank() {
+        muscleGroup = nil
+        exerciseName = ""
+        resistanceMode = .poidsLibre
+        weight = ""
+        addedWeight = ""
+        reps = ""
+        sensation = .difficile
+        reusedFromPrevious = false
     }
 
     private func save() {

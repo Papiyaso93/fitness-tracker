@@ -12,13 +12,55 @@ extension Color {
     }
 }
 
-/// Design system "Genki" — fond crème chaleureux, cartes blanches, accent orange (repris du
+/// Couleur commune à tous les labels de formulaire (headers de Section, légendes au-dessus des
+/// champs, labels de Picker/LabeledContent) — un seul gris plus foncé que le gris système par
+/// défaut, pour rester lisible sur le fond crème, et surtout identique que le champ soit
+/// obligatoire ou non (seul l'astérisque change).
+private let formLabelColor = Color(hex: "4A4038")
+
+/// Header de `Section` standard — remplace `Section("X")` pour garantir la même couleur/poids
+/// sur tous les formulaires plutôt que de dépendre du style natif (qui variait). `required`
+/// ajoute un astérisque orange après le texte.
+func formSectionHeader(_ text: String, required: Bool = false) -> some View {
+    Group {
+        if required {
+            Text(text) + Text(" *").foregroundStyle(AppTheme.accent)
+        } else {
+            Text(text)
+        }
+    }
+    .font(.system(size: 12, weight: .semibold))
+    .foregroundStyle(formLabelColor)
+    .textCase(.uppercase)
+}
+
+/// Label de `Picker`/`LabeledContent` (texte normal, pas de transformation) avec astérisque
+/// orange optionnel.
+func fieldLabel(_ text: String, required: Bool = false) -> Text {
+    required ? Text(text) + Text(" *").foregroundStyle(AppTheme.accent) : Text(text)
+}
+
+/// Légende (13pt) au-dessus d'un `TextField`, même couleur que les headers de Section, avec
+/// astérisque orange optionnel.
+func fieldCaption(_ text: String, required: Bool = false) -> some View {
+    Group {
+        if required {
+            Text(text) + Text(" *").foregroundStyle(AppTheme.accent)
+        } else {
+            Text(text)
+        }
+    }
+    .font(.system(size: 13))
+    .foregroundStyle(formLabelColor)
+}
+
+/// Design system "Genki" — fond blanc cassé neutre, cartes blanches, accent orange (repris du
 /// logo) + secondaire vert profond pour les statuts positifs. Mode sombre à construire plus
 /// tard (cf. décision produit).
 enum AppTheme {
-    static let background = Color(hex: "FBF3EC")
+    static let background = Color(hex: "FAFAF8")
     static let surface = Color.white
-    static let border = Color(hex: "EAD9C8")
+    static let border = Color(hex: "E7E4DC")
     static let accent = Color(hex: "E8703A")
     static let secondary = Color(hex: "2B6E63")
     static let textPrimary = Color(hex: "2A2521")
@@ -120,7 +162,8 @@ struct SectionLabel: View {
     var body: some View {
         Text(text.uppercased())
             .font(AppTheme.Font.sectionHeader)
-            .foregroundStyle(AppTheme.textSecondary)
+            .tracking(0.6)
+            .foregroundStyle(Color(hex: "6B5D50"))
             .padding(.horizontal, 4)
     }
 }

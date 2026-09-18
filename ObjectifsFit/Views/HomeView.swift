@@ -102,15 +102,29 @@ struct HomeView: View {
                         noProgramCard
                     }
 
-                    SectionLabel(text: "Séance du jour")
-                    sessionSummaryCard
-                    addAdHocSessionButton
+                    if daySessions.isEmpty && activeCycle == nil {
+                        SectionLabel(text: "Séance du jour")
+                        addAdHocSessionCard
+                    } else {
+                        sessionSectionHeader
+                        sessionSummaryCard
+                    }
 
-                    SectionLabel(text: "Repas")
-                    mealCard
+                    if isToday && dayMeals.isEmpty {
+                        SectionLabel(text: "Repas")
+                        addMealCard
+                    } else {
+                        mealSectionHeader
+                        mealCard
+                    }
 
-                    SectionLabel(text: "Transit")
-                    transitCard
+                    if isToday && dayTransitLogs.isEmpty {
+                        SectionLabel(text: "Transit")
+                        addTransitCard
+                    } else {
+                        transitSectionHeader
+                        transitCard
+                    }
                 }
                 .padding(16)
             }
@@ -380,21 +394,36 @@ struct HomeView: View {
         }
     }
 
-    private var addAdHocSessionButton: some View {
-        Button {
-            showingAddAdHocSession = true
-        } label: {
-            HStack {
-                Spacer()
+    private var sessionSectionHeader: some View {
+        HStack {
+            SectionLabel(text: "Séance du jour")
+            Spacer()
+            Button {
+                showingAddAdHocSession = true
+            } label: {
                 Image(systemName: "plus")
-                Text("Ajouter une séance")
-                Spacer()
+                    .font(.system(size: 13, weight: .semibold))
+                    .foregroundStyle(AppTheme.accent)
             }
-            .font(.system(size: 14, weight: .medium))
-            .foregroundStyle(AppTheme.accent)
-            .padding(.vertical, 10)
+            .padding(.trailing, 4)
         }
-        .buttonStyle(.plain)
+    }
+
+    private var addAdHocSessionCard: some View {
+        AppCard {
+            Button {
+                showingAddAdHocSession = true
+            } label: {
+                HStack {
+                    Text("Ajouter une séance")
+                        .font(.system(size: 14, weight: .medium))
+                        .foregroundStyle(AppTheme.textPrimary)
+                    Spacer()
+                    Image(systemName: "plus.circle.fill")
+                        .foregroundStyle(AppTheme.accent)
+                }
+            }
+        }
     }
 
     private func sessionCard(_ session: CycleSession) -> some View {
@@ -404,12 +433,12 @@ struct HomeView: View {
             AppCard {
                 HStack {
                     VStack(alignment: .leading, spacing: 6) {
-                        Text(session.title)
-                            .font(AppTheme.Font.cardTitle)
-                            .foregroundStyle(AppTheme.textPrimary)
                         Text(summary(for: session))
                             .font(.system(size: 12))
                             .foregroundStyle(AppTheme.textSecondary)
+                        Text(session.title)
+                            .font(AppTheme.Font.cardTitle)
+                            .foregroundStyle(AppTheme.textPrimary)
                         statusTag(for: session)
                     }
                     Spacer()
@@ -424,11 +453,7 @@ struct HomeView: View {
 
     /// "3 exercices · Hypertrophie"
     private func summary(for session: CycleSession) -> String {
-        var parts: [String] = []
-        if session.kind == .musculation {
-            let count = session.exercises.count
-            parts.append("\(count) exercice\(count > 1 ? "s" : "")")
-        }
+        var parts: [String] = [session.kind.rawValue]
         if let objective = session.objective {
             parts.append(objective.rawValue)
         }
@@ -483,47 +508,78 @@ struct HomeView: View {
             .clipShape(Capsule())
     }
 
-    private var mealCard: some View {
-        AppCard {
+    private var mealSectionHeader: some View {
+        HStack {
+            SectionLabel(text: "Repas")
+            Spacer()
             if isToday {
                 Button {
                     showingMealSheet = true
                 } label: {
-                    HStack {
-                        Text("Ajouter une prise alimentaire")
-                            .foregroundStyle(AppTheme.accent)
-                            .fontWeight(.medium)
-                        Spacer()
-                        Image(systemName: "plus.circle.fill")
-                            .foregroundStyle(AppTheme.accent)
-                    }
+                    Image(systemName: "plus")
+                        .font(.system(size: 13, weight: .semibold))
+                        .foregroundStyle(AppTheme.accent)
+                }
+                .padding(.trailing, 4)
+            }
+        }
+    }
+
+    private var addMealCard: some View {
+        AppCard {
+            Button {
+                showingMealSheet = true
+            } label: {
+                HStack {
+                    Text("Ajouter une prise alimentaire")
+                        .font(.system(size: 14, weight: .medium))
+                        .foregroundStyle(AppTheme.textPrimary)
+                    Spacer()
+                    Image(systemName: "plus.circle.fill")
+                        .foregroundStyle(AppTheme.accent)
                 }
             }
+        }
+    }
+
+    private var mealCard: some View {
+        AppCard {
             if dayMeals.isEmpty {
-                if !isToday {
-                    Text("Aucun repas noté").font(.system(size: 12)).foregroundStyle(AppTheme.textSecondary)
-                }
+                Text("Aucun repas noté").font(.system(size: 12)).foregroundStyle(AppTheme.textSecondary)
             } else {
                 VStack(spacing: 0) {
                     ForEach(dayMeals) { meal in
-                        Divider().overlay(AppTheme.border)
+                        if meal.id != dayMeals.first?.id {
+                            Divider().overlay(AppTheme.border)
+                        }
                         NavigationLink {
                             MealDetailView(meal: meal)
                         } label: {
-                            HStack {
-                                Text(meal.dateTime.formatted(date: .omitted, time: .shortened))
-                                    .font(.system(size: 13, weight: .medium))
-                                    .foregroundStyle(AppTheme.textSecondary)
-                                    .frame(width: 60, alignment: .leading)
-                                Text(meal.title)
-                                    .foregroundStyle(AppTheme.textPrimary)
-                                    .lineLimit(1)
+                            HStack(spacing: 10) {
+                                Image(systemName: meal.sensation.icon)
+                                    .font(.system(size: 12, weight: .bold))
+                                    .frame(width: 26, height: 26)
+                                    .foregroundStyle(meal.sensation.categoryColor.text)
+                                    .background(meal.sensation.categoryColor.background)
+                                    .clipShape(RoundedRectangle(cornerRadius: 8))
+                                VStack(alignment: .leading, spacing: 1) {
+                                    Text(meal.title)
+                                        .font(.system(size: 13, weight: .medium))
+                                        .foregroundStyle(AppTheme.textPrimary)
+                                        .lineLimit(1)
+                                    Text(meal.sensation.rawValue)
+                                        .font(.system(size: 11))
+                                        .foregroundStyle(meal.sensation.categoryColor.text)
+                                }
                                 Spacer()
+                                Text(meal.dateTime.formatted(date: .omitted, time: .shortened))
+                                    .font(.system(size: 12))
+                                    .foregroundStyle(AppTheme.textSecondary)
                                 Image(systemName: "chevron.right")
                                     .font(.system(size: 12))
                                     .foregroundStyle(AppTheme.textSecondary)
                             }
-                            .padding(.vertical, 6)
+                            .padding(.vertical, 8)
                         }
                         .buttonStyle(.plain)
                     }
@@ -532,46 +588,77 @@ struct HomeView: View {
         }
     }
 
-    private var transitCard: some View {
-        AppCard {
+    private var transitSectionHeader: some View {
+        HStack {
+            SectionLabel(text: "Transit")
+            Spacer()
             if isToday {
                 Button {
                     showingTransitSheet = true
                 } label: {
-                    HStack {
-                        Text("Ajouter un passage")
-                            .foregroundStyle(AppTheme.accent)
-                            .fontWeight(.medium)
-                        Spacer()
-                        Image(systemName: "plus.circle.fill")
-                            .foregroundStyle(AppTheme.accent)
-                    }
+                    Image(systemName: "plus")
+                        .font(.system(size: 13, weight: .semibold))
+                        .foregroundStyle(AppTheme.accent)
+                }
+                .padding(.trailing, 4)
+            }
+        }
+    }
+
+    private var addTransitCard: some View {
+        AppCard {
+            Button {
+                showingTransitSheet = true
+            } label: {
+                HStack {
+                    Text("Ajouter un passage")
+                        .font(.system(size: 14, weight: .medium))
+                        .foregroundStyle(AppTheme.textPrimary)
+                    Spacer()
+                    Image(systemName: "plus.circle.fill")
+                        .foregroundStyle(AppTheme.accent)
                 }
             }
+        }
+    }
+
+    private var transitCard: some View {
+        AppCard {
             if dayTransitLogs.isEmpty {
-                if !isToday {
-                    Text("Aucun passage noté").font(.system(size: 12)).foregroundStyle(AppTheme.textSecondary)
-                }
+                Text("Aucun passage noté").font(.system(size: 12)).foregroundStyle(AppTheme.textSecondary)
             } else {
                 VStack(spacing: 0) {
                     ForEach(dayTransitLogs) { log in
-                        Divider().overlay(AppTheme.border)
+                        if log.id != dayTransitLogs.first?.id {
+                            Divider().overlay(AppTheme.border)
+                        }
                         NavigationLink {
                             TransitDetailView(log: log)
                         } label: {
-                            HStack {
-                                Text(log.dateTime.formatted(date: .omitted, time: .shortened))
-                                    .font(.system(size: 13, weight: .medium))
-                                    .foregroundStyle(AppTheme.textSecondary)
-                                    .frame(width: 60, alignment: .leading)
-                                Text("Type \(log.bristolType.rawValue)")
-                                    .foregroundStyle(AppTheme.textPrimary)
+                            HStack(spacing: 10) {
+                                Text("\(log.bristolType.rawValue)")
+                                    .font(.system(size: 12, weight: .bold))
+                                    .frame(width: 26, height: 26)
+                                    .foregroundStyle(log.bristolType.categoryColor.text)
+                                    .background(log.bristolType.categoryColor.background)
+                                    .clipShape(RoundedRectangle(cornerRadius: 8))
+                                VStack(alignment: .leading, spacing: 1) {
+                                    Text(log.bristolType.shortDescription)
+                                        .font(.system(size: 13, weight: .medium))
+                                        .foregroundStyle(AppTheme.textPrimary)
+                                    Text(log.bristolType.category)
+                                        .font(.system(size: 11))
+                                        .foregroundStyle(log.bristolType.categoryColor.text)
+                                }
                                 Spacer()
+                                Text(log.dateTime.formatted(date: .omitted, time: .shortened))
+                                    .font(.system(size: 12))
+                                    .foregroundStyle(AppTheme.textSecondary)
                                 Image(systemName: "chevron.right")
                                     .font(.system(size: 12))
                                     .foregroundStyle(AppTheme.textSecondary)
                             }
-                            .padding(.vertical, 6)
+                            .padding(.vertical, 8)
                         }
                         .buttonStyle(.plain)
                     }

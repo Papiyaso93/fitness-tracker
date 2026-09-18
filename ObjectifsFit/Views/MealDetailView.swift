@@ -9,27 +9,19 @@ struct MealDetailView: View {
 
     var body: some View {
         Form {
-            Section("Heure") {
+            Section {
                 DatePicker("Heure", selection: $meal.dateTime, displayedComponents: [.date, .hourAndMinute])
                     .labelsHidden()
-            }
-            Section("Titre") {
+            } header: { formSectionHeader("Heure", required: true) }
+            Section {
                 TextField("Titre", text: $meal.title)
-            }
-            Section("Description") {
+            } header: { formSectionHeader("Titre", required: true) }
+            Section {
                 TextField("Description", text: $meal.mealDescription, axis: .vertical)
-            }
-            Section("Sensation") {
-                Picker(selection: $meal.sensation) {
-                    ForEach(MealSensation.allCases, id: \.self) { level in
-                        Text(level.rawValue).tag(level)
-                    }
-                } label: {
-                    Text("Sensation")
-                }
-                .pickerStyle(.inline)
-                .labelsHidden()
-            }
+            } header: { formSectionHeader("Description") }
+            Section {
+                MealSensationField(selection: $meal.sensation)
+            } header: { formSectionHeader("Sensation", required: true) }
             Section {
                 Button("Supprimer ce repas", role: .destructive) {
                     context.delete(meal)

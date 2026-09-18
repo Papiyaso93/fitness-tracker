@@ -65,14 +65,6 @@ struct LogCycleSessionView: View {
                     simpleSessionSection
                 }
 
-                if session.isAdHoc {
-                    Button("Supprimer cette séance", role: .destructive) {
-                        context.delete(session)
-                        dismiss()
-                    }
-                    .font(.system(size: 13))
-                    .frame(maxWidth: .infinity)
-                }
             }
             .padding(16)
         }
@@ -148,7 +140,7 @@ struct LogCycleSessionView: View {
                 }
                 .font(.system(size: 13))
             }
-        } else if isToday || isPast {
+        } else if !session.isAdHoc && (isToday || isPast) {
             Button {
                 if hasEnteredData {
                     showingSwitchConfirm = true
@@ -161,6 +153,28 @@ struct LogCycleSessionView: View {
             }
             .font(.system(size: 13))
             .foregroundStyle(AppTheme.textSecondary)
+        }
+    }
+
+    /// Une seule action destructrice à la fois, jamais deux : pour une séance créée (hors
+    /// programme), elle n'a pas de plan de référence donc "annuler" n'a pas de sens — on supprime
+    /// carrément la séance. Pour une séance programmée, on garde la séance planifiée et on ne
+    /// supprime que la saisie en cours.
+    private var cancelOrDeleteButton: some View {
+        Button(session.isAdHoc ? "Supprimer la séance" : "Annuler la séance", role: .destructive) {
+            cancelOrDeleteSession()
+        }
+        .font(.system(size: 13))
+        .frame(maxWidth: .infinity)
+    }
+
+    private func cancelOrDeleteSession() {
+        if session.isAdHoc {
+            context.delete(session)
+            dismiss()
+        } else if let completion = session.completion {
+            context.delete(completion)
+            session.completion = nil
         }
     }
 
@@ -272,21 +286,8 @@ struct LogCycleSessionView: View {
                 Button {
                     showingAddSet = true
                 } label: {
-                    HStack {
-                        Text("Ajouter un exercice réalisé").fontWeight(.medium)
-                        Spacer()
-                        Image(systemName: "plus.circle.fill")
-                    }
-                }
-                .foregroundStyle(AppTheme.accent)
-                .padding(.horizontal, 4)
-                .contentShape(Rectangle())
-                .buttonStyle(.plain)
-
-                Button {
-                    completion.endTime = .now
-                } label: {
-                    Text("Terminer la séance")
+                    Text("Ajouter un exercice réalisé")
+                        .fontWeight(.medium)
                         .frame(maxWidth: .infinity)
                         .padding()
                         .background(AppTheme.accent)
@@ -296,19 +297,24 @@ struct LogCycleSessionView: View {
                 }
                 .buttonStyle(.plain)
 
-                Button("Annuler la séance", role: .destructive) {
-                    context.delete(completion)
-                    session.completion = nil
+                Button {
+                    completion.endTime = .now
+                } label: {
+                    Text("Terminer la séance")
+                        .frame(maxWidth: .infinity)
+                        .padding()
+                        .overlay(
+                            RoundedRectangle(cornerRadius: AppTheme.cardRadius)
+                                .stroke(AppTheme.accent, lineWidth: 1.5)
+                        )
+                        .foregroundStyle(AppTheme.accent)
+                        .contentShape(Rectangle())
                 }
-                .font(.system(size: 13))
-                .frame(maxWidth: .infinity)
+                .buttonStyle(.plain)
+
+                cancelOrDeleteButton
             } else {
-                Button("Supprimer la séance", role: .destructive) {
-                    context.delete(completion)
-                    session.completion = nil
-                }
-                .font(.system(size: 13))
-                .frame(maxWidth: .infinity)
+                cancelOrDeleteButton
             }
         } else if isToday || isPast {
             Button {
@@ -323,6 +329,10 @@ struct LogCycleSessionView: View {
                     .contentShape(Rectangle())
             }
             .buttonStyle(.plain)
+
+            if session.isAdHoc {
+                cancelOrDeleteButton
+            }
         } else {
             Text("Séance à venir.")
                 .font(.system(size: 13))
@@ -362,12 +372,7 @@ struct LogCycleSessionView: View {
                 Text(completionEntry.simpleComment?.isEmpty == false ? completionEntry.simpleComment! : "Aucun commentaire")
                     .foregroundStyle(AppTheme.textPrimary)
             }
-            Button("Supprimer la séance", role: .destructive) {
-                context.delete(completionEntry)
-                session.completion = nil
-            }
-            .font(.system(size: 13))
-            .frame(maxWidth: .infinity)
+            cancelOrDeleteButton
         } else if isToday || isPast {
             AppCard {
                 VStack(alignment: .leading, spacing: 4) {
@@ -387,6 +392,10 @@ struct LogCycleSessionView: View {
                     .contentShape(Rectangle())
             }
             .buttonStyle(.plain)
+
+            if session.isAdHoc {
+                cancelOrDeleteButton
+            }
         } else {
             Text("Séance à venir.")
                 .font(.system(size: 13))

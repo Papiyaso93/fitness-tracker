@@ -48,17 +48,19 @@ struct EditCycleView: View {
     var body: some View {
         NavigationStack {
             Form {
-                Section("Informations") {
+                Section {
                     VStack(alignment: .leading, spacing: 4) {
-                        Text("Nom *").font(.system(size: 13)).foregroundStyle(AppTheme.textSecondary)
+                        fieldCaption("Nom", required: true)
                         TextField("Cycle 2 — Reprise", text: $cycle.name)
                     }
-                    DatePicker("Date de début", selection: $cycle.startDate, displayedComponents: .date)
+                    DatePicker(selection: $cycle.startDate, displayedComponents: .date) {
+                        fieldLabel("Date de début", required: true)
+                    }
                     Stepper("Durée : \(weekCount) semaine\(weekCount > 1 ? "s" : "")", value: $weekCount, in: 1...52)
                     LabeledContent("Fin prévue") {
                         Text(formatted(endDate)).foregroundStyle(AppTheme.textSecondary)
                     }
-                }
+                } header: { formSectionHeader("Informations") }
 
                 Section {
                     NavigationLink {
@@ -71,7 +73,7 @@ struct EditCycleView: View {
                         }
                     }
                 } header: {
-                    Text("Qualités principales *")
+                    formSectionHeader("Qualités principales", required: true)
                 }
 
                 Section {
@@ -85,7 +87,7 @@ struct EditCycleView: View {
                         }
                     }
                 } header: {
-                    Text("Qualités secondaires")
+                    formSectionHeader("Qualités secondaires")
                 }
 
                 Section {
@@ -109,7 +111,7 @@ struct EditCycleView: View {
                         Label("Ajouter un objectif", systemImage: "plus.circle")
                     }
                 } header: {
-                    Text("Objectifs du cycle")
+                    formSectionHeader("Objectifs du cycle")
                 } footer: {
                     Text("Jalon intermédiaire vers l'objectif du programme.")
                 }

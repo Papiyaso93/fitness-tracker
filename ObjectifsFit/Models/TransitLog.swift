@@ -20,6 +20,18 @@ enum BristolType: Int, Codable, CaseIterable, Identifiable {
         }
     }
 
+    var shortDescription: String {
+        switch self {
+        case .type1: return "Morceaux durs"
+        case .type2: return "Saucisse bosselée"
+        case .type3: return "Saucisse craquelée"
+        case .type4: return "Lisse et molle"
+        case .type5: return "Morceaux mous"
+        case .type6: return "Pâteux"
+        case .type7: return "Liquide"
+        }
+    }
+
     var category: String {
         switch self {
         case .type1, .type2: return "Constipation"

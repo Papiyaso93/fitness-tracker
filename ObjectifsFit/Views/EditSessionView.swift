@@ -67,26 +67,26 @@ struct EditSessionView: View {
     var body: some View {
         NavigationStack {
             Form {
-                Section("Jour") {
+                Section {
                     Picker("Jour", selection: $weekday) {
                         ForEach(Weekday.ordered, id: \.weekday) { day in
                             Text(day.label).tag(day.weekday)
                         }
                     }
-                }
+                } header: { formSectionHeader("Jour", required: true) }
 
-                Section("Type") {
+                Section {
                     Picker("Type", selection: $kind) {
                         ForEach(SessionKind.allCases) { k in
                             Text(k.rawValue).tag(k)
                         }
                     }
                     .pickerStyle(.segmented)
-                }
+                } header: { formSectionHeader("Type", required: true) }
 
                 Section {
                     VStack(alignment: .leading, spacing: 4) {
-                        Text("Titre *").font(.system(size: 13)).foregroundStyle(AppTheme.textSecondary)
+                        fieldCaption("Titre", required: true)
                         TextField("Ex: Push, Plyo, Cardio seuil…", text: $title)
                     }
                 }
@@ -94,18 +94,16 @@ struct EditSessionView: View {
                 Section {
                     Picker("Objectif", selection: $objective) {
                         Text("Choisir…").tag(PhysicalQuality?.none)
-                        ForEach(PhysicalQuality.allCases) { quality in
+                        ForEach(PhysicalQuality.allCasesSortedAlphabetically) { quality in
                             Text(quality.rawValue).tag(PhysicalQuality?.some(quality))
                         }
                     }
-                } header: {
-                    Text("Objectif de la séance *")
-                }
+                } header: { formSectionHeader("Objectif de la séance", required: true) }
 
                 if kind == .autre {
-                    Section("Plan de la séance") {
+                    Section {
                         TextField("Plan de la séance", text: $sessionDescription, axis: .vertical)
-                    }
+                    } header: { formSectionHeader("Plan de la séance") }
                 } else {
                     Section {
                         ForEach(exerciseDrafts) { draft in
@@ -145,7 +143,7 @@ struct EditSessionView: View {
                         }
                     } header: {
                         HStack {
-                            Text("Plan de la séance")
+                            formSectionHeader("Plan de la séance")
                             Spacer()
                             if exerciseDrafts.count > 1 {
                                 EditButton()
@@ -167,13 +165,13 @@ struct EditSessionView: View {
                 }
             }
             .navigationTitle(existingSession == nil ? "Nouvelle séance" : "Modifier la séance")
-            .navigationBarTitleDisplayMode(.inline)
+            .navigationBarTitleDisplayMode(existingSession == nil ? .large : .inline)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
                     Button("Annuler") { dismiss() }
                 }
                 ToolbarItem(placement: .confirmationAction) {
-                    Button("Enregistrer") { save() }
+                    Button(existingSession == nil ? "Créer" : "Enregistrer") { save() }
                         .disabled(!canSave)
                 }
             }
