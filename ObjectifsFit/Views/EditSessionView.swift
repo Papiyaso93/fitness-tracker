@@ -96,6 +96,7 @@ struct EditSessionView: View {
                         placeholder: "Choisir un objectif",
                         options: PhysicalQuality.allCasesSortedAlphabetically.map { ($0, $0.rawValue) },
                         selection: $objective,
+                        required: true,
                         showsLabel: false
                     )
                 } header: { formSectionHeader("Objectif de la séance", required: true) }
@@ -139,8 +140,16 @@ struct EditSessionView: View {
                         Button {
                             showingAddExercise = true
                         } label: {
-                            Label("Ajouter un exercice", systemImage: "plus.circle")
+                            HStack {
+                                Text("Ajouter un exercice")
+                                    .font(.system(size: 17))
+                                    .foregroundStyle(AppTheme.textPrimary)
+                                Spacer()
+                                Image(systemName: "plus.circle.fill")
+                                    .foregroundStyle(AppTheme.accent)
+                            }
                         }
+                        .buttonStyle(.plain)
                     } header: {
                         HStack {
                             formSectionHeader("Plan de la séance")

@@ -33,38 +33,71 @@ struct WeekDetailView: View {
     }
 
     var body: some View {
-        List {
-            if canDuplicatePreviousWeek {
-                Button {
-                    duplicatePreviousWeek()
-                } label: {
-                    Label("Dupliquer la semaine précédente", systemImage: "doc.on.doc")
-                }
-            }
-            ForEach(Weekday.ordered, id: \.weekday) { day in
-                Button {
-                    selectedWeekday = WeekdaySelection(weekday: day.weekday)
-                } label: {
-                    HStack {
-                        Text(day.label)
-                            .foregroundStyle(AppTheme.textPrimary)
-                        Spacer()
-                        Text(summary(for: day.weekday))
-                            .foregroundStyle(AppTheme.textSecondary)
-                        Image(systemName: "chevron.right")
-                            .font(.system(size: 12))
-                            .foregroundStyle(AppTheme.textSecondary)
+        ScrollView {
+            VStack(alignment: .leading, spacing: 12) {
+                if canDuplicatePreviousWeek {
+                    AppCard {
+                        Button {
+                            duplicatePreviousWeek()
+                        } label: {
+                            HStack(spacing: 8) {
+                                Image(systemName: "doc.on.doc")
+                                Text("Dupliquer la semaine précédente")
+                                    .font(.system(size: 14, weight: .medium))
+                            }
+                            .foregroundStyle(AppTheme.accent)
+                        }
+                        .buttonStyle(.plain)
                     }
                 }
-                .buttonStyle(.plain)
-            }
 
-            Button {
-                showingSwapDays = true
-            } label: {
-                Label("Permuter deux jours", systemImage: "arrow.left.arrow.right")
+                AppCard {
+                    VStack(alignment: .leading, spacing: 0) {
+                        ForEach(Array(Weekday.ordered.enumerated()), id: \.element.weekday) { index, day in
+                            if index > 0 {
+                                Divider().overlay(AppTheme.border)
+                            }
+                            Button {
+                                selectedWeekday = WeekdaySelection(weekday: day.weekday)
+                            } label: {
+                                HStack {
+                                    Text(day.label)
+                                        .font(.system(size: 15))
+                                        .foregroundStyle(AppTheme.textPrimary)
+                                    Spacer()
+                                    Text(summary(for: day.weekday))
+                                        .font(.system(size: 14))
+                                        .foregroundStyle(AppTheme.textSecondary)
+                                    Image(systemName: "chevron.right")
+                                        .font(.system(size: 12))
+                                        .foregroundStyle(AppTheme.textSecondary)
+                                }
+                                .padding(.vertical, 12)
+                                .contentShape(Rectangle())
+                            }
+                            .buttonStyle(.plain)
+                        }
+                    }
+                }
+
+                AppCard {
+                    Button {
+                        showingSwapDays = true
+                    } label: {
+                        HStack(spacing: 8) {
+                            Image(systemName: "arrow.left.arrow.right")
+                            Text("Permuter deux jours")
+                                .font(.system(size: 14, weight: .medium))
+                        }
+                        .foregroundStyle(AppTheme.accent)
+                    }
+                    .buttonStyle(.plain)
+                }
             }
+            .padding(16)
+            .frame(maxWidth: .infinity, alignment: .leading)
         }
+        .background(AppTheme.background)
         .navigationTitle("Semaine \(weekNumber)")
         .navigationBarTitleDisplayMode(.inline)
         .sheet(item: $selectedWeekday) { selection in

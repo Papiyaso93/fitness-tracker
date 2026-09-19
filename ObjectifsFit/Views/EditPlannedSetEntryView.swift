@@ -27,18 +27,18 @@ struct EditPlannedSetEntryView: View {
                             TextField("0", text: $weightText).keyboardType(.decimalPad).multilineTextAlignment(.trailing)
                         }
                     case .poidsDuCorps:
-                        LabeledContent("Poids de corps (kg)") {
+                        LabeledContent("Poids corps (kg)") {
                             TextField("0", text: $bodyWeightText).keyboardType(.decimalPad).multilineTextAlignment(.trailing)
                         }
                     case .leste:
-                        LabeledContent("Poids de corps (kg)") {
+                        LabeledContent("Poids corps (kg)") {
                             TextField("0", text: $bodyWeightText).keyboardType(.decimalPad).multilineTextAlignment(.trailing)
                         }
-                        LabeledContent("Charge ajoutée (kg)") {
+                        LabeledContent("Lest ajouté (kg)") {
                             TextField("0", text: $weightText).keyboardType(.decimalPad).multilineTextAlignment(.trailing)
                         }
                     case .elastique:
-                        LabeledContent("Poids indiqué (kg)") {
+                        LabeledContent("Résistance (kg)") {
                             TextField("0", text: $weightText).keyboardType(.decimalPad).multilineTextAlignment(.trailing)
                         }
                     }

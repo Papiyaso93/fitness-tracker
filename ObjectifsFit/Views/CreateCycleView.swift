@@ -50,7 +50,7 @@ struct CreateCycleView: View {
                     }
                     durationRow
                 } header: {
-                    formSectionHeader("Période", required: true)
+                    formSectionHeader("Période")
                 } footer: {
                     Text("Se termine le \(formatted(endDate)).")
                 }

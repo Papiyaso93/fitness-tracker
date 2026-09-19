@@ -128,7 +128,7 @@ struct AddObjectiveDraftView: View {
                             }
                         }
                     } header: {
-                        formSectionHeader("Métrique", required: true)
+                        formSectionHeader("Métrique", required: metricType != .autre)
                     } footer: {
                         if allowedMetrics != nil && !(allowedMetrics?.isEmpty ?? true) {
                             Text("Limitée aux métriques déjà suivies par le programme.")
@@ -156,7 +156,7 @@ struct AddObjectiveDraftView: View {
                         } label: {
                             fieldLabel(mode == .progression ? "Valeur cible\(unitSuffix)" : "Valeur à maintenir\(unitSuffix)", required: true)
                         }
-                    } header: { formSectionHeader("Cible", required: true) }
+                    } header: { formSectionHeader("Cible") }
                 } else {
                     Section {
                         TextField("Ex: redevenir plus explosif", text: $freeText, axis: .vertical)

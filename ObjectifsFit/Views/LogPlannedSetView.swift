@@ -142,7 +142,7 @@ struct LogPlannedSetView: View {
                         .clipShape(RoundedRectangle(cornerRadius: 8))
                         .listRowInsets(EdgeInsets(top: 4, leading: 12, bottom: 4, trailing: 12))
                     }
-                } header: { formSectionHeader("Muscle ciblé", required: true) }
+                } header: { formSectionHeader("Muscle ciblé") }
 
                 if !exerciseName.isEmpty {
                     Section {
@@ -201,7 +201,7 @@ struct LogPlannedSetView: View {
                 }
                 ToolbarItem(placement: .confirmationAction) {
                     Button("Ajouter") { save() }
-                        .disabled(exerciseName.isEmpty || Int(reps) == nil)
+                        .disabled(exerciseName.isEmpty || Int(reps) == nil || !requiredWeightsFilled)
                 }
             }
             .onAppear {
@@ -275,6 +275,21 @@ struct LogPlannedSetView: View {
         case .poidsLibre, .machine, .elastique: return Double(weight)
         case .leste: return Double(addedWeight)
         case .poidsDuCorps: return nil
+        }
+    }
+
+    /// Reflète les astérisques de `weightFields` : un poids marqué obligatoire là-bas doit
+    /// effectivement bloquer l'enregistrement s'il est vide, sinon l'astérisque mentirait.
+    private var requiredWeightsFilled: Bool {
+        switch resistanceMode {
+        case .poidsLibre, .machine:
+            return technique != .normal || Double(weight) != nil
+        case .poidsDuCorps:
+            return Double(bodyWeight) != nil
+        case .leste:
+            return Double(bodyWeight) != nil && Double(addedWeight) != nil
+        case .elastique:
+            return Double(weight) != nil
         }
     }
 

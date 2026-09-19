@@ -31,6 +31,7 @@ struct AddAdHocSessionView: View {
                         placeholder: "Choisir un objectif",
                         options: PhysicalQuality.allCasesSortedAlphabetically.map { ($0, $0.rawValue) },
                         selection: $objective,
+                        required: true,
                         showsLabel: false
                     )
                 } header: { formSectionHeader("Objectif de la séance", required: true) }
