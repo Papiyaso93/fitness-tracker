@@ -72,28 +72,28 @@ struct AddPlannedExerciseView: View {
         NavigationStack {
             Form {
                 Section {
-                    Picker(selection: $muscleGroup) {
-                        Text("Choisir…").tag(String?.none)
-                        ForEach(MuscleGroupStyle.order, id: \.self) { group in
-                            Text(group).tag(String?.some(group))
-                        }
-                    } label: {
-                        fieldLabel("Groupe musculaire", required: true)
-                    }
+                    AppMenuField(
+                        label: "Groupe musculaire",
+                        options: MuscleGroupStyle.order.map { ($0, $0) },
+                        selection: $muscleGroup,
+                        required: true
+                    )
                     .onChange(of: muscleGroup) { _, _ in
                         exerciseName = ""
                         isCreatingNewExercise = false
                     }
 
-                    Picker(selection: $exerciseName) {
-                        Text("Choisir…").tag("")
-                        ForEach(exerciseNamesForGroup, id: \.self) { name in
-                            Text(name).tag(name)
-                        }
-                    } label: {
-                        fieldLabel("Exercice", required: true)
+                    if muscleGroup != nil {
+                        AppMenuField(
+                            label: "Exercice",
+                            options: exerciseNamesForGroup.map { ($0, $0) },
+                            selection: Binding(
+                                get: { exerciseName.isEmpty ? nil : exerciseName },
+                                set: { exerciseName = $0 ?? "" }
+                            ),
+                            required: true
+                        )
                     }
-                    .disabled(muscleGroup == nil)
 
                     if isCreatingNewExercise {
                         TextField("Nom de l'exercice", text: $newExerciseName)
@@ -117,15 +117,23 @@ struct AddPlannedExerciseView: View {
                 } header: { formSectionHeader("Muscle ciblé", required: true) }
 
                 Section {
-                    Picker("Type", selection: $technique) {
-                        ForEach(SetTechnique.allCases, id: \.self) { Text($0.rawValue).tag($0) }
-                    }
+                    AppMenuField(
+                        label: "Type",
+                        options: SetTechnique.allCases.map { ($0, $0.label) },
+                        selection: $technique,
+                        required: true,
+                        showsLabel: false
+                    )
                 } header: { formSectionHeader("Type de série", required: true) }
 
                 Section {
-                    Picker("Mode", selection: $resistanceMode) {
-                        ForEach(ResistanceMode.allCases, id: \.self) { Text($0.rawValue).tag($0) }
-                    }
+                    AppMenuField(
+                        label: "Mode",
+                        options: ResistanceMode.allCases.map { ($0, $0.rawValue) },
+                        selection: $resistanceMode,
+                        required: true,
+                        showsLabel: false
+                    )
                 } header: { formSectionHeader("Mode de résistance", required: true) }
 
                 Section {
@@ -146,11 +154,9 @@ struct AddPlannedExerciseView: View {
                 } header: { formSectionHeader("Séries") }
 
                 Section {
-                    Picker("Type", selection: $isRepsRange) {
-                        Text("Fourchette").tag(true)
-                        Text("Précis").tag(false)
-                    }
-                    .pickerStyle(.segmented)
+                    AppSegmentedControl(options: [(true, "Fourchette"), (false, "Précis")], selection: $isRepsRange)
+                        .listRowInsets(EdgeInsets())
+                        .padding(4)
                     if isRepsRange {
                         LabeledContent {
                             TextField("0", text: $targetRepsMin)

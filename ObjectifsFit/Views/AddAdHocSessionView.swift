@@ -20,26 +20,24 @@ struct AddAdHocSessionView: View {
         NavigationStack {
             Form {
                 Section {
-                    Picker("Type", selection: $kind) {
-                        ForEach(SessionKind.allCases) { k in
-                            Text(k.rawValue).tag(k)
-                        }
-                    }
-                    .pickerStyle(.segmented)
+                    AppSegmentedControl(options: SessionKind.allCases.map { ($0, $0.rawValue) }, selection: $kind)
+                        .listRowInsets(EdgeInsets())
+                        .padding(4)
                 } header: { formSectionHeader("Type", required: true) }
+
+                Section {
+                    AppMenuField(
+                        label: "Objectif",
+                        placeholder: "Choisir un objectif",
+                        options: PhysicalQuality.allCasesSortedAlphabetically.map { ($0, $0.rawValue) },
+                        selection: $objective,
+                        showsLabel: false
+                    )
+                } header: { formSectionHeader("Objectif de la séance", required: true) }
 
                 Section {
                     TextField("Ex: Push improvisé", text: $title)
                 } header: { formSectionHeader("Titre", required: true) }
-
-                Section {
-                    Picker("Objectif", selection: $objective) {
-                        Text("Choisir…").tag(PhysicalQuality?.none)
-                        ForEach(PhysicalQuality.allCasesSortedAlphabetically) { quality in
-                            Text(quality.rawValue).tag(PhysicalQuality?.some(quality))
-                        }
-                    }
-                } header: { formSectionHeader("Objectif de la séance", required: true) }
             }
             .navigationTitle("Nouvelle séance")
             .toolbar {

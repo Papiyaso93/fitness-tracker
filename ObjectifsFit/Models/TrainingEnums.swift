@@ -39,4 +39,13 @@ enum SetTechnique: String, Codable, CaseIterable {
     case superset = "Superset"
     case dropset = "Dropset"
     case autre = "Autre"
+
+    /// Libellé affiché — distinct du rawValue stocké, pour pouvoir renommer l'affichage sans
+    /// invalider les données déjà enregistrées.
+    var label: String {
+        switch self {
+        case .normal: return "Classique"
+        default: return rawValue
+        }
+    }
 }

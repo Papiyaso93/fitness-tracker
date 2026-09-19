@@ -84,20 +84,20 @@ struct AddObjectiveDraftView: View {
         NavigationStack {
             Form {
                 Section {
-                    Picker("Type", selection: $isMeasurable) {
-                        Text("Chiffré").tag(true)
-                        Text("Texte libre").tag(false)
-                    }
-                    .pickerStyle(.segmented)
+                    AppSegmentedControl(options: [(true, "Chiffré"), (false, "Texte libre")], selection: $isMeasurable)
+                        .listRowInsets(EdgeInsets())
+                        .padding(4)
                 } header: { formSectionHeader("Type", required: true) }
 
                 if isMeasurable {
                     Section {
-                        Picker("Métrique", selection: $metricType) {
-                            ForEach(availableMetrics) { type in
-                                Text(type.rawValue).tag(type)
-                            }
-                        }
+                        AppMenuField(
+                            label: "Métrique",
+                            options: availableMetrics.map { ($0, $0.rawValue) },
+                            selection: $metricType,
+                            required: true,
+                            showsLabel: false
+                        )
                         if metricType == .autre {
                             VStack(alignment: .leading, spacing: 4) {
                                 fieldCaption("Nom", required: true)
@@ -117,12 +117,9 @@ struct AddObjectiveDraftView: View {
                     }
 
                     Section {
-                        Picker("Mode", selection: $mode) {
-                            ForEach(ObjectiveMode.allCases) { m in
-                                Text(m.rawValue).tag(m)
-                            }
-                        }
-                        .pickerStyle(.segmented)
+                        AppSegmentedControl(options: ObjectiveMode.allCases.map { ($0, $0.rawValue) }, selection: $mode)
+                            .listRowInsets(EdgeInsets())
+                            .padding(4)
 
                         if mode == .progression {
                             LabeledContent {

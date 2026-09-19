@@ -50,7 +50,9 @@ struct LogCycleSessionView: View {
             VStack(alignment: .leading, spacing: 20) {
                 if session.isAdHoc {
                     adHocBadge
-                } else {
+                }
+                typeObjectiveCard
+                if !session.isAdHoc {
                     collapsibleHeader(text: "Plan de la séance")
                     if isPlanExpanded {
                         planCard
@@ -117,6 +119,30 @@ struct LogCycleSessionView: View {
             .background(Color.purple.opacity(0.15))
             .foregroundStyle(Color.purple.opacity(0.9))
             .clipShape(Capsule())
+    }
+
+    private var typeObjectiveCard: some View {
+        AppCard {
+            HStack(spacing: 10) {
+                ZStack {
+                    Circle().fill(AppTheme.accent.opacity(0.12)).frame(width: 30, height: 30)
+                    Image(systemName: session.kind.icon)
+                        .font(.system(size: 14))
+                        .foregroundStyle(AppTheme.accent)
+                }
+                VStack(alignment: .leading, spacing: 1) {
+                    Text(session.kind.rawValue)
+                        .font(.system(size: 13, weight: .medium))
+                        .foregroundStyle(AppTheme.textPrimary)
+                    if let objective = session.objective {
+                        Text("Objectif : \(objective.rawValue)")
+                            .font(.system(size: 11))
+                            .foregroundStyle(AppTheme.textSecondary)
+                    }
+                }
+                Spacer(minLength: 0)
+            }
+        }
     }
 
     @ViewBuilder
@@ -286,10 +312,10 @@ struct LogCycleSessionView: View {
                 Button {
                     showingAddSet = true
                 } label: {
-                    Text("Ajouter un exercice réalisé")
-                        .fontWeight(.medium)
+                    Text("Ajouter une série")
+                        .font(.system(size: 15, weight: .semibold))
                         .frame(maxWidth: .infinity)
-                        .padding()
+                        .padding(.vertical, 14)
                         .background(AppTheme.accent)
                         .foregroundStyle(.white)
                         .clipShape(RoundedRectangle(cornerRadius: AppTheme.cardRadius))
@@ -301,8 +327,9 @@ struct LogCycleSessionView: View {
                     completion.endTime = .now
                 } label: {
                     Text("Terminer la séance")
+                        .font(.system(size: 15, weight: .semibold))
                         .frame(maxWidth: .infinity)
-                        .padding()
+                        .padding(.vertical, 14)
                         .overlay(
                             RoundedRectangle(cornerRadius: AppTheme.cardRadius)
                                 .stroke(AppTheme.accent, lineWidth: 1.5)
@@ -321,8 +348,9 @@ struct LogCycleSessionView: View {
                 startSession()
             } label: {
                 Text(isToday ? "Commencer la séance" : "Renseigner ma séance")
+                    .font(.system(size: 15, weight: .semibold))
                     .frame(maxWidth: .infinity)
-                    .padding()
+                    .padding(.vertical, 14)
                     .background(AppTheme.accent)
                     .foregroundStyle(.white)
                     .clipShape(RoundedRectangle(cornerRadius: AppTheme.cardRadius))
@@ -342,18 +370,21 @@ struct LogCycleSessionView: View {
     }
 
     private func setSummary(_ entry: PlannedSetEntry) -> String {
-        let weightLabel: String
+        // Au poids du corps, le poids de corps est déjà connu (c'est le mode lui-même) — l'afficher
+        // n'apporte rien et alourdit la carte, contrairement aux autres modes où c'est la charge réelle.
+        let weightLabel: String?
         switch entry.resistanceMode {
         case .poidsLibre, .machine, .elastique:
             weightLabel = entry.weight.map { "\(Int($0))kg" } ?? "—"
         case .poidsDuCorps:
-            weightLabel = entry.bodyWeight.map { "\(Int($0))kg (corps)" } ?? "—"
+            weightLabel = nil
         case .leste:
-            let body = entry.bodyWeight.map { "\(Int($0))" } ?? "?"
-            let added = entry.weight.map { "\(Int($0))" } ?? "?"
-            weightLabel = "\(body)+\(added)kg"
+            // Comme pour le poids du corps, on n'affiche que la valeur qui progresse réellement
+            // d'une séance à l'autre (le lest) — le poids de corps quasi constant n'apporte rien ici.
+            weightLabel = entry.weight.map { "+\(Int($0))kg" } ?? "—"
         }
-        return "\(entry.resistanceMode.rawValue) · \(weightLabel) · \(entry.reps) reps · \(entry.sensation.label)"
+        let parts = [entry.resistanceMode.rawValue, weightLabel, "\(entry.reps) reps", entry.sensation.label].compactMap { $0 }
+        return parts.joined(separator: " · ")
     }
 
     private func startSession() {
@@ -384,8 +415,9 @@ struct LogCycleSessionView: View {
                 saveSimpleSession()
             } label: {
                 Text("Enregistrer la séance")
+                    .font(.system(size: 15, weight: .semibold))
                     .frame(maxWidth: .infinity)
-                    .padding()
+                    .padding(.vertical, 14)
                     .background(AppTheme.accent)
                     .foregroundStyle(.white)
                     .clipShape(RoundedRectangle(cornerRadius: AppTheme.cardRadius))

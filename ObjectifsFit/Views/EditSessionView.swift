@@ -68,20 +68,19 @@ struct EditSessionView: View {
         NavigationStack {
             Form {
                 Section {
-                    Picker("Jour", selection: $weekday) {
-                        ForEach(Weekday.ordered, id: \.weekday) { day in
-                            Text(day.label).tag(day.weekday)
-                        }
-                    }
+                    AppMenuField(
+                        label: "Jour",
+                        options: Weekday.ordered.map { ($0.weekday, $0.label) },
+                        selection: $weekday,
+                        required: true,
+                        showsLabel: false
+                    )
                 } header: { formSectionHeader("Jour", required: true) }
 
                 Section {
-                    Picker("Type", selection: $kind) {
-                        ForEach(SessionKind.allCases) { k in
-                            Text(k.rawValue).tag(k)
-                        }
-                    }
-                    .pickerStyle(.segmented)
+                    AppSegmentedControl(options: SessionKind.allCases.map { ($0, $0.rawValue) }, selection: $kind)
+                        .listRowInsets(EdgeInsets())
+                        .padding(4)
                 } header: { formSectionHeader("Type", required: true) }
 
                 Section {
@@ -92,12 +91,13 @@ struct EditSessionView: View {
                 }
 
                 Section {
-                    Picker("Objectif", selection: $objective) {
-                        Text("Choisir…").tag(PhysicalQuality?.none)
-                        ForEach(PhysicalQuality.allCasesSortedAlphabetically) { quality in
-                            Text(quality.rawValue).tag(PhysicalQuality?.some(quality))
-                        }
-                    }
+                    AppMenuField(
+                        label: "Objectif",
+                        placeholder: "Choisir un objectif",
+                        options: PhysicalQuality.allCasesSortedAlphabetically.map { ($0, $0.rawValue) },
+                        selection: $objective,
+                        showsLabel: false
+                    )
                 } header: { formSectionHeader("Objectif de la séance", required: true) }
 
                 if kind == .autre {

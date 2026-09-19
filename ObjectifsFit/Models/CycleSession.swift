@@ -6,6 +6,13 @@ enum SessionKind: String, Codable, CaseIterable, Identifiable {
     case autre = "Autre"
 
     var id: String { rawValue }
+
+    var icon: String {
+        switch self {
+        case .musculation: return "dumbbell.fill"
+        case .autre: return "bolt.fill"
+        }
+    }
 }
 
 /// Une séance planifiée dans un cycle — rattachée à un jour de semaine précis (semaine + jour),

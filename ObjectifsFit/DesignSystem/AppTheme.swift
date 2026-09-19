@@ -12,6 +12,127 @@ extension Color {
     }
 }
 
+/// Champ de sélection en menu natif, réutilisable — remplace le style natif orange (chevron
+/// haut/bas) par un texte neutre + chevron bas, comme "Objectif de la séance". Deux inits :
+/// sélection facultative (placeholder gris tant que rien n'est choisi) ou obligatoire (toujours
+/// une valeur affichée, ex: Sensation, Mode de résistance).
+struct AppMenuField<Value: Hashable>: View {
+    let label: String
+    let placeholder: String
+    let options: [(value: Value, label: String)]
+    @Binding var selection: Value?
+    var disabled: Bool = false
+    var required: Bool = false
+    /// À false, n'affiche que la valeur/placeholder + chevron, sans répéter le nom du champ — pour
+    /// les champs seuls dans leur Section (le header de Section fait déjà office de label), comme
+    /// "Objectif de la séance". Garder à true quand plusieurs champs partagent une même Section
+    /// (ambiguïté sinon, y compris en VoiceOver).
+    var showsLabel: Bool = true
+
+    init(label: String, placeholder: String = "Choisir…", options: [(Value, String)], selection: Binding<Value?>, disabled: Bool = false, required: Bool = false, showsLabel: Bool = true) {
+        self.label = label
+        self.placeholder = placeholder
+        self.options = options
+        self._selection = selection
+        self.disabled = disabled
+        self.required = required
+        self.showsLabel = showsLabel
+    }
+
+    init(label: String, options: [(Value, String)], selection: Binding<Value>, disabled: Bool = false, required: Bool = false, showsLabel: Bool = true) {
+        self.label = label
+        self.placeholder = ""
+        self.options = options
+        self._selection = Binding(
+            get: { selection.wrappedValue },
+            set: { if let newValue = $0 { selection.wrappedValue = newValue } }
+        )
+        self.disabled = disabled
+        self.required = required
+        self.showsLabel = showsLabel
+    }
+
+    private var currentLabel: String? {
+        guard let selection else { return nil }
+        return options.first { $0.value == selection }?.label
+    }
+
+    var body: some View {
+        Menu {
+            ForEach(options, id: \.value) { option in
+                Button {
+                    selection = option.value
+                } label: {
+                    if selection == option.value {
+                        Label(option.label, systemImage: "checkmark")
+                    } else {
+                        Text(option.label)
+                    }
+                }
+            }
+        } label: {
+            HStack {
+                if showsLabel {
+                    Group {
+                        if required {
+                            Text(label) + Text(" *").foregroundStyle(AppTheme.accent)
+                        } else {
+                            Text(label)
+                        }
+                    }
+                    .foregroundStyle(disabled ? AppTheme.textSecondary.opacity(0.5) : AppTheme.textPrimary)
+                    Spacer()
+                }
+                Text(currentLabel ?? placeholder)
+                    .foregroundStyle(currentLabel == nil ? Color(hex: "B4AFA6") : AppTheme.textPrimary)
+                if !showsLabel {
+                    Spacer()
+                }
+                Image(systemName: "chevron.down")
+                    .font(.system(size: 12, weight: .semibold))
+                    .foregroundStyle(AppTheme.textSecondary.opacity(disabled ? 0.5 : 1))
+            }
+            .contentShape(Rectangle())
+        }
+        .disabled(disabled)
+        .buttonStyle(.plain)
+    }
+}
+
+/// Segmented control réutilisable aux couleurs de l'app (pilule orange pleine sur la sélection)
+/// — remplace le `Picker(.segmented)` natif gris partout où un choix à 2-3 options apparaît dans
+/// un formulaire, pour un rendu identique sur tout l'app plutôt qu'un mix natif/custom.
+struct AppSegmentedControl<Item: Hashable>: View {
+    let options: [(value: Item, label: String)]
+    @Binding var selection: Item
+
+    var body: some View {
+        HStack(spacing: 3) {
+            ForEach(options, id: \.value) { option in
+                Button {
+                    selection = option.value
+                } label: {
+                    Text(option.label)
+                        .font(.system(size: 14, weight: .semibold))
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, 8)
+                        .foregroundStyle(selection == option.value ? .white : AppTheme.textSecondary)
+                        .background(selection == option.value ? AppTheme.accent : Color.clear)
+                        .clipShape(RoundedRectangle(cornerRadius: 9))
+                }
+                .buttonStyle(.plain)
+            }
+        }
+        .padding(3)
+        .background(AppTheme.surface)
+        .overlay(
+            RoundedRectangle(cornerRadius: 12)
+                .stroke(AppTheme.border, lineWidth: 0.5)
+        )
+        .clipShape(RoundedRectangle(cornerRadius: 12))
+    }
+}
+
 /// Couleur commune à tous les labels de formulaire (headers de Section, légendes au-dessus des
 /// champs, labels de Picker/LabeledContent) — un seul gris plus foncé que le gris système par
 /// défaut, pour rester lisible sur le fond crème, et surtout identique que le champ soit
@@ -99,7 +220,7 @@ struct AppCard<Content: View>: View {
 
 /// Couleur distincte par groupe musculaire, pour identifier un exercice au premier coup d'œil.
 enum MuscleGroupStyle {
-    static let order = ["Épaules", "Pectoraux", "Triceps", "Dos", "Biceps", "Jambes", "Abdos"]
+    static let order = ["Abdos", "Biceps", "Dos", "Épaules", "Jambes", "Pectoraux", "Triceps"]
 
     static func color(for group: String) -> Color {
         switch group {

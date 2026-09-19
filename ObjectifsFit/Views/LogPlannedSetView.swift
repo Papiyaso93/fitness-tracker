@@ -50,6 +50,10 @@ struct LogPlannedSetView: View {
         }
     }
 
+    private var selectedExerciseDefinition: ExerciseDefinition? {
+        exerciseLibrary.first { $0.name == exerciseName && $0.muscleGroup == muscleGroup }
+    }
+
     private var exerciseNamesForGroup: [String] {
         guard let muscleGroup else { return [] }
         let planNames = suggestedExercises.filter { $0.muscleGroup == muscleGroup }.map(\.exerciseName)
@@ -98,51 +102,73 @@ struct LogPlannedSetView: View {
                 }
 
                 Section {
-                    Picker(selection: $muscleGroup) {
-                        Text("Choisir…").tag(String?.none)
-                        ForEach(MuscleGroupStyle.order, id: \.self) { group in
-                            Text(group).tag(String?.some(group))
-                        }
-                    } label: {
-                        fieldLabel("Groupe musculaire", required: true)
-                    }
+                    AppMenuField(
+                        label: "Groupe musculaire",
+                        options: MuscleGroupStyle.order.map { ($0, $0) },
+                        selection: $muscleGroup,
+                        required: true
+                    )
                     .onChange(of: muscleGroup) { _, _ in
                         if !exerciseNamesForGroup.contains(exerciseName) { exerciseName = "" }
                     }
 
-                    Picker(selection: $exerciseName) {
-                        Text("Choisir…").tag("")
-                        ForEach(exerciseNamesForGroup, id: \.self) { name in
-                            Text(name).tag(name)
-                        }
-                    } label: {
-                        fieldLabel("Exercice", required: true)
+                    if muscleGroup != nil {
+                        AppMenuField(
+                            label: "Exercice",
+                            options: exerciseNamesForGroup.map { ($0, $0) },
+                            selection: Binding(
+                                get: { exerciseName.isEmpty ? nil : exerciseName },
+                                set: { exerciseName = $0 ?? "" }
+                            ),
+                            required: true
+                        )
                     }
-                    .disabled(muscleGroup == nil)
+
+                    if let definition = selectedExerciseDefinition, !definition.primaryMuscles.isEmpty {
+                        VStack(alignment: .leading, spacing: 3) {
+                            (Text("Principal : ").foregroundStyle(AppTheme.textSecondary)
+                                + Text(definition.primaryMuscles.joined(separator: ", ")).foregroundStyle(AppTheme.secondary))
+                                .font(.system(size: 12, weight: .medium))
+                            if !definition.secondaryMuscles.isEmpty {
+                                (Text("Secondaire : ").foregroundStyle(AppTheme.textSecondary)
+                                    + Text(definition.secondaryMuscles.joined(separator: ", ")).foregroundStyle(AppTheme.textSecondary))
+                                    .font(.system(size: 12))
+                            }
+                        }
+                        .padding(.vertical, 6)
+                        .padding(.horizontal, 10)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .background(AppTheme.secondary.opacity(0.08))
+                        .clipShape(RoundedRectangle(cornerRadius: 8))
+                        .listRowInsets(EdgeInsets(top: 4, leading: 12, bottom: 4, trailing: 12))
+                    }
                 } header: { formSectionHeader("Muscle ciblé", required: true) }
 
                 if !exerciseName.isEmpty {
                     Section {
-                        Picker("Type de série", selection: $technique) {
-                            ForEach(SetTechnique.allCases, id: \.self) { Text($0.rawValue).tag($0) }
-                        }
+                        AppMenuField(
+                            label: "Type de série",
+                            options: SetTechnique.allCases.map { ($0, $0.label) },
+                            selection: $technique,
+                            required: true,
+                            showsLabel: false
+                        )
                         if technique == .autre {
                             TextField("Préciser la technique", text: $techniqueOtherLabel)
                         }
                         if technique != .normal {
                             Toggle("Lier à la série précédente", isOn: $linkToPrevious)
                         }
-                    } header: { formSectionHeader("Technique", required: true) }
+                    } header: { formSectionHeader("Type de série", required: true) }
 
                     Section {
-                        Picker("Mode", selection: $resistanceMode) {
-                            ForEach(ResistanceMode.allCases, id: \.self) { Text($0.rawValue).tag($0) }
-                        }
-                        if resistanceMode == .poidsDuCorps || resistanceMode == .leste {
-                            LabeledContent("Coefficient tonnage") {
-                                Text("\(defaultCoefficient, specifier: "%.2f")")
-                            }
-                        }
+                        AppMenuField(
+                            label: "Mode",
+                            options: ResistanceMode.allCases.map { ($0, $0.rawValue) },
+                            selection: $resistanceMode,
+                            required: true,
+                            showsLabel: false
+                        )
                     } header: { formSectionHeader("Mode de résistance", required: true) }
 
                     Section {
@@ -154,16 +180,17 @@ struct LogPlannedSetView: View {
                         } label: {
                             fieldLabel("Répétitions", required: true)
                         }
-                        Picker(selection: $sensation) {
-                            ForEach(SensationLevel.allCases, id: \.self) { Text($0.label).tag($0) }
-                        } label: {
-                            fieldLabel("Sensation", required: true)
-                        }
-                        VStack(alignment: .leading, spacing: 4) {
-                            fieldCaption("Commentaire")
-                            TextField("Optionnel", text: $comment, axis: .vertical)
-                        }
+                        AppMenuField(
+                            label: "Sensation",
+                            options: SensationLevel.allCases.map { ($0, $0.label) },
+                            selection: $sensation,
+                            required: true
+                        )
                     } header: { formSectionHeader("Série") }
+
+                    Section {
+                        TextField("Optionnel", text: $comment, axis: .vertical)
+                    } header: { formSectionHeader("Commentaire") }
                 }
             }
             .navigationTitle("Nouvelle série")
@@ -189,39 +216,57 @@ struct LogPlannedSetView: View {
     private var weightFields: some View {
         switch resistanceMode {
         case .poidsLibre, .machine:
-            LabeledContent("Poids (kg)") {
-                TextField("0", text: $weight)
-                    .keyboardType(.decimalPad)
-                    .multilineTextAlignment(.trailing)
-            }
+            weightRow(label: "Poids (kg)", required: technique == .normal, binding: $weight)
         case .poidsDuCorps:
-            LabeledContent("Poids de corps (kg)") {
-                TextField("0", text: $bodyWeight)
-                    .keyboardType(.decimalPad)
-                    .multilineTextAlignment(.trailing)
-            }
-            if latestBodyWeight != nil {
-                Text("Pré-rempli depuis ta dernière pesée").font(.system(size: 12)).foregroundStyle(AppTheme.textSecondary)
-            }
+            weightRow(
+                label: "Poids corps (kg)",
+                required: true,
+                binding: $bodyWeight,
+                notes: [
+                    latestBodyWeight != nil ? "Pré-rempli depuis ta dernière pesée" : nil,
+                    "Coefficient tonnage : \(String(format: "%.2f", defaultCoefficient))"
+                ].compactMap { $0 }
+            )
         case .leste:
-            LabeledContent("Poids de corps (kg)") {
-                TextField("0", text: $bodyWeight)
-                    .keyboardType(.decimalPad)
-                    .multilineTextAlignment(.trailing)
-            }
-            LabeledContent("Charge ajoutée (kg)") {
-                TextField("0", text: $addedWeight)
-                    .keyboardType(.decimalPad)
-                    .multilineTextAlignment(.trailing)
-            }
+            weightRow(label: "Poids corps (kg)", required: true, binding: $bodyWeight)
+            weightRow(
+                label: "Lest ajouté (kg)",
+                required: true,
+                binding: $addedWeight,
+                notes: ["Coefficient tonnage (poids total) : \(String(format: "%.2f", defaultCoefficient))"]
+            )
         case .elastique:
-            LabeledContent("Poids indiqué (kg)") {
-                TextField("0", text: $weight)
+            weightRow(
+                label: "Résistance (kg)",
+                required: true,
+                binding: $weight,
+                notes: ["Indicatif, non utilisé dans les calculs de tonnage."]
+            )
+        }
+    }
+
+    /// Même disposition que "Répétitions" (label à gauche, valeur à droite, une seule ligne) —
+    /// `.lineLimit(1)` + `.layoutPriority(1)` empêchent l'astérisque de passer à la ligne suivante
+    /// en laissant le champ céder l'espace en premier. Les labels sont volontairement courts
+    /// ("Poids corps", "Lest ajouté", "Résistance") pour tenir sur une ligne avec l'astérisque sans
+    /// réduction de police. Les notes restent dans la même Form row que le champ pour ne pas faire
+    /// apparaître de séparateur entre elles et lui.
+    private func weightRow(label: String, required: Bool, binding: Binding<String>, notes: [String] = []) -> some View {
+        VStack(alignment: .leading, spacing: 4) {
+            LabeledContent {
+                TextField("0", text: binding)
                     .keyboardType(.decimalPad)
                     .multilineTextAlignment(.trailing)
+            } label: {
+                fieldLabel(label, required: required)
+                    .lineLimit(1)
+                    .layoutPriority(1)
             }
-            Text("Exclu du tonnage/charge moyenne (résistance non constante, pas comparable à une haltère).")
-                .font(.system(size: 12)).foregroundStyle(AppTheme.textSecondary)
+            ForEach(notes, id: \.self) { note in
+                Text(note)
+                    .font(.system(size: 12))
+                    .foregroundStyle(AppTheme.textSecondary)
+            }
         }
     }
 

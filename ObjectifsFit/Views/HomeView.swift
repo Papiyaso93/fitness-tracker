@@ -15,6 +15,9 @@ struct HomeView: View {
     @State private var showingCreateProgram = false
     @State private var createdAdHocSession: CycleSession?
     @State private var selectedDate = Calendar.current.startOfDay(for: .now)
+    /// Non persisté : le contenu du transit redevient masqué à chaque relance de l'app, données
+    /// sensibles à ne jamais exposer par défaut (ex: si on montre l'app à quelqu'un).
+    @State private var transitRevealed = false
 
     private var isToday: Bool { Calendar.current.isDateInToday(selectedDate) }
 
@@ -592,6 +595,16 @@ struct HomeView: View {
         HStack {
             SectionLabel(text: "Transit")
             Spacer()
+            if transitRevealed {
+                Button {
+                    transitRevealed = false
+                } label: {
+                    Image(systemName: "eye.slash")
+                        .font(.system(size: 13, weight: .semibold))
+                        .foregroundStyle(AppTheme.textSecondary)
+                }
+                .padding(.trailing, isToday ? 14 : 4)
+            }
             if isToday {
                 Button {
                     showingTransitSheet = true
@@ -623,12 +636,42 @@ struct HomeView: View {
     }
 
     private var transitCard: some View {
-        AppCard {
-            if dayTransitLogs.isEmpty {
-                Text("Aucun passage noté").font(.system(size: 12)).foregroundStyle(AppTheme.textSecondary)
-            } else {
-                VStack(spacing: 0) {
-                    ForEach(dayTransitLogs) { log in
+        ZStack {
+            AppCard {
+                if dayTransitLogs.isEmpty {
+                    Text("Aucun passage noté").font(.system(size: 12)).foregroundStyle(AppTheme.textSecondary)
+                } else {
+                    transitLogsList
+                }
+            }
+            .blur(radius: (dayTransitLogs.isEmpty || transitRevealed) ? 0 : 8)
+            .allowsHitTesting(dayTransitLogs.isEmpty || transitRevealed)
+
+            if !dayTransitLogs.isEmpty && !transitRevealed {
+                Button {
+                    transitRevealed = true
+                } label: {
+                    VStack(spacing: 6) {
+                        Image(systemName: "eye")
+                            .font(.system(size: 17, weight: .medium))
+                            .foregroundStyle(AppTheme.textPrimary)
+                            .frame(width: 40, height: 40)
+                            .background(AppTheme.surface)
+                            .overlay(Circle().stroke(AppTheme.border, lineWidth: 0.5))
+                            .clipShape(Circle())
+                        Text("Afficher")
+                            .font(.system(size: 13, weight: .medium))
+                            .foregroundStyle(AppTheme.textSecondary)
+                    }
+                }
+                .buttonStyle(.plain)
+            }
+        }
+    }
+
+    private var transitLogsList: some View {
+        VStack(spacing: 0) {
+            ForEach(dayTransitLogs) { log in
                         if log.id != dayTransitLogs.first?.id {
                             Divider().overlay(AppTheme.border)
                         }
@@ -661,8 +704,6 @@ struct HomeView: View {
                             .padding(.vertical, 8)
                         }
                         .buttonStyle(.plain)
-                    }
-                }
             }
         }
     }

@@ -49,11 +49,12 @@ struct EditPlannedSetEntryView: View {
                         fieldLabel("Répétitions", required: true)
                     }
 
-                    Picker(selection: $entry.sensation) {
-                        ForEach(SensationLevel.allCases, id: \.self) { Text($0.label).tag($0) }
-                    } label: {
-                        fieldLabel("Sensation", required: true)
-                    }
+                    AppMenuField(
+                        label: "Sensation",
+                        options: SensationLevel.allCases.map { ($0, $0.label) },
+                        selection: $entry.sensation,
+                        required: true
+                    )
 
                     VStack(alignment: .leading, spacing: 4) {
                         fieldCaption("Commentaire")

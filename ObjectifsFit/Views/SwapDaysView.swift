@@ -19,16 +19,16 @@ struct SwapDaysView: View {
         NavigationStack {
             Form {
                 Section {
-                    Picker("Premier jour", selection: $dayA) {
-                        ForEach(Weekday.ordered, id: \.weekday) { day in
-                            Text(day.label).tag(day.weekday)
-                        }
-                    }
-                    Picker("Second jour", selection: $dayB) {
-                        ForEach(Weekday.ordered, id: \.weekday) { day in
-                            Text(day.label).tag(day.weekday)
-                        }
-                    }
+                    AppMenuField(
+                        label: "Premier jour",
+                        options: Weekday.ordered.map { ($0.weekday, $0.label) },
+                        selection: $dayA
+                    )
+                    AppMenuField(
+                        label: "Second jour",
+                        options: Weekday.ordered.map { ($0.weekday, $0.label) },
+                        selection: $dayB
+                    )
                 } footer: {
                     Text("Toutes les séances de ces deux jours échangent de place, pour cette semaine uniquement.")
                 }
