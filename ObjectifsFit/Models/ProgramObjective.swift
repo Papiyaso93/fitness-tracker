@@ -103,7 +103,12 @@ final class ProgramObjective {
         self.order = order
     }
 
-    /// Résumé lisible : "Masse grasse : 20% → 15%", "Pecs : maintenir 102cm", ou le texte libre.
+    /// Nom seul (sans la valeur cible) — pour un affichage compact façon badge/tag.
+    var name: String {
+        isMeasurable ? metricName : (freeText ?? "")
+    }
+
+    /// Résumé lisible : "Masse grasse : Passer de 20% à 15%", "Pecs : maintenir 102cm", ou le texte libre.
     var summary: String {
         guard isMeasurable, let mode, let targetValue else {
             return freeText ?? ""
@@ -111,7 +116,7 @@ final class ProgramObjective {
         switch mode {
         case .progression:
             let start = startValue.map { "\($0.formatted())\(metricUnit)" } ?? "?"
-            return "\(metricName) : \(start) → \(targetValue.formatted())\(metricUnit)"
+            return "\(metricName) : Passer de \(start) à \(targetValue.formatted())\(metricUnit)"
         case .maintien:
             return "\(metricName) : maintenir \(targetValue.formatted())\(metricUnit)"
         }

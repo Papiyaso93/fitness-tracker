@@ -99,16 +99,7 @@ struct ProgramBuilderView: View {
                         .font(.system(size: 18))
                         .foregroundStyle(AppTheme.accent)
                 }
-                VStack(alignment: .leading, spacing: 3) {
-                    Text(program.title)
-                        .font(.system(size: 16, weight: .semibold))
-                        .foregroundStyle(AppTheme.textPrimary)
-                    ForEach(program.principalObjectives) { objective in
-                        Text(objective.summary)
-                            .font(.system(size: 12))
-                            .foregroundStyle(AppTheme.textSecondary)
-                            .lineLimit(1)
-                    }
+                VStack(alignment: .leading, spacing: 6) {
                     if let dateRangeLabel = dateRangeLabel(program) {
                         HStack(spacing: 4) {
                             Image(systemName: "calendar")
@@ -118,6 +109,12 @@ struct ProgramBuilderView: View {
                         }
                         .foregroundStyle(AppTheme.textSecondary)
                     }
+                    Text(program.title)
+                        .font(.system(size: 16, weight: .semibold))
+                        .foregroundStyle(AppTheme.textPrimary)
+                    if !program.principalObjectives.isEmpty {
+                        objectiveBadges(program.principalObjectives)
+                    }
                 }
                 Spacer(minLength: 0)
                 VStack(spacing: 8) {
@@ -126,6 +123,34 @@ struct ProgramBuilderView: View {
                         .font(.system(size: 12))
                         .foregroundStyle(AppTheme.textSecondary)
                 }
+            }
+        }
+    }
+
+    /// Noms des objectifs principaux en badges, sans les valeurs (le détail est dans la fiche
+    /// programme) — 2 max pour garder la carte compacte même avec plusieurs objectifs, le reste
+    /// résumé par un badge "+N".
+    private func objectiveBadges(_ objectives: [ProgramObjective]) -> some View {
+        let shown = objectives.prefix(2)
+        let remaining = objectives.count - shown.count
+        return HStack(spacing: 6) {
+            ForEach(Array(shown)) { objective in
+                Text(objective.name)
+                    .font(.system(size: 11, weight: .medium))
+                    .padding(.horizontal, 9)
+                    .padding(.vertical, 3)
+                    .background(AppTheme.accent.opacity(0.1))
+                    .foregroundStyle(Color(hex: "993C1D"))
+                    .clipShape(Capsule())
+            }
+            if remaining > 0 {
+                Text("+\(remaining)")
+                    .font(.system(size: 11, weight: .medium))
+                    .padding(.horizontal, 9)
+                    .padding(.vertical, 3)
+                    .background(AppTheme.accent.opacity(0.1))
+                    .foregroundStyle(Color(hex: "993C1D"))
+                    .clipShape(Capsule())
             }
         }
     }

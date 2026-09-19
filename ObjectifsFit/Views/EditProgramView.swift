@@ -34,43 +34,36 @@ struct EditProgramView: View {
         NavigationStack {
             Form {
                 Section {
-                    VStack(alignment: .leading, spacing: 4) {
-                        fieldCaption("Titre", required: true)
-                        TextField("Programme 1 — Perte de gras", text: $program.title)
-                    }
-                    VStack(alignment: .leading, spacing: 4) {
-                        fieldCaption("Description")
-                        TextField("Résumé en une phrase", text: Binding(
-                            get: { program.programDescription ?? "" },
-                            set: { program.programDescription = $0.isEmpty ? nil : $0 }
-                        ), axis: .vertical)
-                    }
-                } header: { formSectionHeader("Informations") }
+                    TextField("Programme 1 — Perte de gras", text: $program.title)
+                } header: { formSectionHeader("Titre", required: true) }
+
+                Section {
+                    TextField("Résumé en une phrase", text: Binding(
+                        get: { program.programDescription ?? "" },
+                        set: { program.programDescription = $0.isEmpty ? nil : $0 }
+                    ), axis: .vertical)
+                } header: { formSectionHeader("Description") }
 
                 Section {
                     objectiveList(program.principalObjectives)
-                    Button {
-                        addingCategory = .principal
-                    } label: {
-                        Label("Ajouter un objectif principal", systemImage: "plus.circle")
+                    if program.principalObjectives.isEmpty {
+                        addObjectiveRow(label: "Ajouter un objectif") { addingCategory = .principal }
                     }
                 } header: {
-                    formSectionHeader("Objectifs principaux")
+                    sectionHeaderWithAdd("Objectifs principaux", isEmpty: program.principalObjectives.isEmpty) { addingCategory = .principal }
                 } footer: {
-                    Text("Deux objectifs maximum recommandés, pour rester concentré sur l'essentiel. Idéalement mesurables.")
+                    Text("Deux maximum recommandés, idéalement mesurables.")
                 }
 
                 Section {
                     objectiveList(program.secondaryObjectives)
-                    Button {
-                        addingCategory = .indicateur
-                    } label: {
-                        Label("Ajouter un indicateur", systemImage: "plus.circle")
+                    if program.secondaryObjectives.isEmpty {
+                        addObjectiveRow(label: "Ajouter un indicateur") { addingCategory = .indicateur }
                     }
                 } header: {
-                    formSectionHeader("Indicateurs à suivre")
+                    sectionHeaderWithAdd("Indicateurs à suivre", isEmpty: program.secondaryObjectives.isEmpty) { addingCategory = .indicateur }
                 } footer: {
-                    Text("Aucune limite — des repères à suivre en complément des objectifs principaux.")
+                    Text("Des repères en complément des objectifs principaux.")
                 }
 
                 Section {
@@ -142,12 +135,42 @@ struct EditProgramView: View {
         }
     }
 
+    /// Ligne "Ajouter…" affichée tant qu'aucun objectif/indicateur n'existe — une fois le premier
+    /// ajouté, l'ajout suivant se fait via le "+" du header de Section (sectionHeaderWithAdd).
+    private func addObjectiveRow(label: String, action: @escaping () -> Void) -> some View {
+        Button(action: action) {
+            HStack {
+                Text(label)
+                    .font(.system(size: 17))
+                    .foregroundStyle(AppTheme.textPrimary)
+                Spacer()
+                Image(systemName: "plus.circle.fill")
+                    .foregroundStyle(AppTheme.accent)
+            }
+        }
+        .buttonStyle(.plain)
+    }
+
+    private func sectionHeaderWithAdd(_ title: String, isEmpty: Bool, action: @escaping () -> Void) -> some View {
+        HStack {
+            formSectionHeader(title)
+            Spacer()
+            if !isEmpty {
+                Button(action: action) {
+                    Image(systemName: "plus")
+                        .font(.system(size: 13, weight: .semibold))
+                        .foregroundStyle(AppTheme.accent)
+                }
+            }
+        }
+        .padding(.bottom, 6)
+    }
+
     private func objectiveList(_ objectives: [ProgramObjective]) -> some View {
         ForEach(objectives) { objective in
             HStack {
-                Text(objective.summary)
-                    .font(.system(size: 14))
-                    .foregroundStyle(AppTheme.textPrimary)
+                objectiveSummaryText(objective)
+                    .padding(.vertical, 4)
                 Spacer()
                 Button {
                     context.delete(objective)
@@ -156,6 +179,22 @@ struct EditProgramView: View {
                         .foregroundStyle(.red)
                 }
                 .buttonStyle(.plain)
+            }
+        }
+    }
+
+    /// Découpe "Nom : valeur" pour mettre le nom en avant sur sa propre ligne — même traitement
+    /// que la carte de brouillon en création, sans couleur d'accent sur la valeur.
+    private func objectiveSummaryText(_ objective: ProgramObjective) -> some View {
+        let parts = objective.summary.split(separator: ":", maxSplits: 1).map { $0.trimmingCharacters(in: .whitespaces) }
+        return VStack(alignment: .leading, spacing: 4) {
+            if parts.count == 2 {
+                Text(parts[0]).font(.system(size: 15, weight: .semibold)).foregroundStyle(AppTheme.textPrimary)
+                Text(parts[1]).font(.system(size: 13)).foregroundStyle(AppTheme.textSecondary)
+            } else {
+                Text(objective.summary)
+                    .font(.system(size: 15, weight: .semibold))
+                    .foregroundStyle(AppTheme.textPrimary)
             }
         }
     }

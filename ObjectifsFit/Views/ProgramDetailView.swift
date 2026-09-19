@@ -8,6 +8,13 @@ struct ProgramDetailView: View {
 
     @State private var showingCreateCycle = false
     @State private var showingEdit = false
+    @State private var principalExpanded = false
+    @State private var indicatorsExpanded = false
+
+    /// Au-delà de ce nombre, la liste se replie derrière "Voir plus" — les objectifs principaux
+    /// n'ont pas de limite stricte (juste une recommandation de 2), donc rien n'empêche d'en créer
+    /// beaucoup, pareil pour les indicateurs qui peuvent facilement s'accumuler.
+    private let collapsedObjectiveCount = 2
 
     private var sortedCycles: [Cycle] {
         let programID = program.id
@@ -20,7 +27,16 @@ struct ProgramDetailView: View {
         ScrollView {
             VStack(alignment: .leading, spacing: 20) {
                 AppCard {
-                    VStack(alignment: .leading, spacing: 8) {
+                    VStack(alignment: .leading, spacing: 6) {
+                        if program.startDate != nil || program.endDate != nil {
+                            HStack(spacing: 6) {
+                                Image(systemName: "calendar")
+                                    .font(.system(size: 12))
+                                Text(dateRangeLabel)
+                                    .font(.system(size: 12))
+                            }
+                            .foregroundStyle(AppTheme.textSecondary)
+                        }
                         HStack {
                             Text(program.title)
                                 .font(AppTheme.Font.cardTitle)
@@ -33,68 +49,39 @@ struct ProgramDetailView: View {
                                 .font(.system(size: 14))
                                 .foregroundStyle(AppTheme.textSecondary)
                         }
-                        if program.startDate != nil || program.endDate != nil {
-                            HStack(spacing: 6) {
-                                Image(systemName: "calendar")
-                                    .font(.system(size: 12))
-                                Text(dateRangeLabel)
-                                    .font(.system(size: 12))
-                            }
-                            .foregroundStyle(AppTheme.textSecondary)
-                            .padding(.top, 4)
-                            .overlay(alignment: .top) {
-                                Rectangle().fill(AppTheme.border).frame(height: 0.5)
-                            }
-                        }
                     }
                 }
 
-                SectionLabel(text: "Objectifs principaux")
-                if program.principalObjectives.isEmpty {
-                    AppCard {
-                        Text("Aucun objectif principal défini.")
-                            .font(.system(size: 14))
-                            .foregroundStyle(AppTheme.textSecondary)
-                    }
-                } else {
-                    AppCard {
-                        VStack(alignment: .leading, spacing: 0) {
-                            ForEach(Array(program.principalObjectives.enumerated()), id: \.element.id) { index, objective in
-                                if index > 0 {
-                                    Divider().overlay(AppTheme.border)
-                                }
-                                objectiveRow(objective, icon: "target", iconColor: AppTheme.accent, valueColor: AppTheme.accent)
-                            }
-                        }
-                    }
-                }
+                objectivesSection(
+                    title: "Objectifs principaux",
+                    objectives: program.principalObjectives,
+                    expanded: $principalExpanded,
+                    emptyText: "Aucun objectif principal défini."
+                )
 
-                SectionLabel(text: "Indicateurs à suivre")
-                if program.secondaryObjectives.isEmpty {
-                    AppCard {
-                        Text("Aucun indicateur défini.")
-                            .font(.system(size: 14))
-                            .foregroundStyle(AppTheme.textSecondary)
-                    }
-                } else {
-                    AppCard {
-                        VStack(alignment: .leading, spacing: 0) {
-                            ForEach(Array(program.secondaryObjectives.enumerated()), id: \.element.id) { index, objective in
-                                if index > 0 {
-                                    Divider().overlay(AppTheme.border)
-                                }
-                                indicatorRow(objective)
-                            }
-                        }
-                    }
-                }
+                objectivesSection(
+                    title: "Indicateurs à suivre",
+                    objectives: program.secondaryObjectives,
+                    expanded: $indicatorsExpanded,
+                    emptyText: "Aucun indicateur défini."
+                )
 
                 SectionLabel(text: "Cycles")
                 if sortedCycles.isEmpty {
                     AppCard {
-                        Text("Aucun cycle pour l'instant.")
-                            .font(.system(size: 14))
-                            .foregroundStyle(AppTheme.textSecondary)
+                        Button {
+                            showingCreateCycle = true
+                        } label: {
+                            HStack {
+                                Text("Créer un nouveau cycle")
+                                    .font(.system(size: 14, weight: .medium))
+                                    .foregroundStyle(AppTheme.textPrimary)
+                                Spacer()
+                                Image(systemName: "plus.circle.fill")
+                                    .foregroundStyle(AppTheme.accent)
+                            }
+                        }
+                        .buttonStyle(.plain)
                     }
                 } else {
                     VStack(spacing: 10) {
@@ -102,13 +89,12 @@ struct ProgramDetailView: View {
                             cycleRow(cycle)
                         }
                     }
-                }
-
-                Button {
-                    showingCreateCycle = true
-                } label: {
-                    Label("Créer un nouveau cycle", systemImage: "plus.circle")
-                        .font(.system(size: 15, weight: .medium))
+                    Button {
+                        showingCreateCycle = true
+                    } label: {
+                        Label("Créer un nouveau cycle", systemImage: "plus.circle")
+                            .font(.system(size: 15, weight: .medium))
+                    }
                 }
             }
             .padding(16)
@@ -161,44 +147,57 @@ struct ProgramDetailView: View {
         }
     }
 
-    private func objectiveRow(_ objective: ProgramObjective, icon: String, iconColor: Color, valueColor: Color) -> some View {
-        HStack(alignment: .top, spacing: 10) {
-            ZStack {
-                Circle().fill(iconColor.opacity(0.12)).frame(width: 26, height: 26)
-                Image(systemName: icon)
-                    .font(.system(size: 12, weight: .medium))
-                    .foregroundStyle(iconColor)
+    @ViewBuilder
+    private func objectivesSection(title: String, objectives: [ProgramObjective], expanded: Binding<Bool>, emptyText: String) -> some View {
+        SectionLabel(text: objectives.isEmpty ? title : "\(title) (\(objectives.count))")
+        if objectives.isEmpty {
+            AppCard {
+                Text(emptyText)
+                    .font(.system(size: 14))
+                    .foregroundStyle(AppTheme.textSecondary)
             }
-            objectiveSummaryText(objective, valueColor: valueColor)
-            Spacer(minLength: 0)
+        } else {
+            let visible = expanded.wrappedValue ? objectives : Array(objectives.prefix(collapsedObjectiveCount))
+            VStack(spacing: 10) {
+                ForEach(visible) { objective in
+                    AppCard { objectiveRow(objective) }
+                }
+            }
+            if objectives.count > collapsedObjectiveCount {
+                Button {
+                    expanded.wrappedValue.toggle()
+                } label: {
+                    HStack(spacing: 4) {
+                        Text(expanded.wrappedValue ? "Voir moins" : "Voir plus")
+                        Image(systemName: expanded.wrappedValue ? "chevron.up" : "chevron.down")
+                            .font(.system(size: 11, weight: .semibold))
+                    }
+                    .font(.system(size: 13, weight: .medium))
+                    .foregroundStyle(AppTheme.accent)
+                }
+                .padding(.top, 2)
+            }
         }
-        .padding(.vertical, 8)
     }
 
-    private func indicatorRow(_ objective: ProgramObjective) -> some View {
-        HStack(alignment: .top, spacing: 10) {
-            Image(systemName: objective.isMeasurable ? "ruler" : "note.text")
-                .font(.system(size: 13))
-                .foregroundStyle(AppTheme.textSecondary)
-                .frame(width: 26, alignment: .center)
-            Text(objective.summary)
-                .font(.system(size: 13))
-                .foregroundStyle(AppTheme.textPrimary)
+    private func objectiveRow(_ objective: ProgramObjective) -> some View {
+        HStack {
+            objectiveSummaryText(objective)
             Spacer(minLength: 0)
         }
-        .padding(.vertical, 8)
     }
 
-    /// Découpe "Nom : valeur" pour mettre le nom en gras et la valeur en couleur d'accent, sur deux lignes.
-    private func objectiveSummaryText(_ objective: ProgramObjective, valueColor: Color) -> some View {
+    /// Découpe "Nom : valeur" pour mettre le nom en gras et la valeur en dessous — même traitement
+    /// neutre (pas de couleur d'accent sur la valeur) que la carte de brouillon en création.
+    private func objectiveSummaryText(_ objective: ProgramObjective) -> some View {
         let parts = objective.summary.split(separator: ":", maxSplits: 1).map { $0.trimmingCharacters(in: .whitespaces) }
         return VStack(alignment: .leading, spacing: 2) {
             if parts.count == 2 {
-                Text(parts[0]).font(.system(size: 13, weight: .medium)).foregroundStyle(AppTheme.textPrimary)
-                Text(parts[1]).font(.system(size: 13, weight: .medium)).foregroundStyle(valueColor)
+                Text(parts[0]).font(.system(size: 15, weight: .semibold)).foregroundStyle(AppTheme.textPrimary)
+                Text(parts[1]).font(.system(size: 13)).foregroundStyle(AppTheme.textSecondary)
             } else {
                 Text(objective.summary)
-                    .font(.system(size: 13, weight: .medium))
+                    .font(.system(size: 15, weight: .semibold))
                     .foregroundStyle(AppTheme.textPrimary)
             }
         }
