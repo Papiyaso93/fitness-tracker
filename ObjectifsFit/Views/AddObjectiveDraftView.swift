@@ -35,6 +35,25 @@ struct ObjectiveDraft: Identifiable {
             return "\(metricName) : maintenir \(target)"
         }
     }
+
+    /// Nom de l'objectif seul, pour un affichage en 2 lignes (nom en avant, cible en dessous)
+    /// plutôt que la phrase compacte de `summary`.
+    var name: String {
+        isMeasurable ? metricName : freeText
+    }
+
+    var progressionText: String? {
+        guard isMeasurable else { return nil }
+        switch mode {
+        case .progression:
+            let start = startValue.isEmpty ? "?" : "\(startValue)\(metricUnit)"
+            let target = targetValue.isEmpty ? "?" : "\(targetValue)\(metricUnit)"
+            return "Passer de \(start) à \(target)"
+        case .maintien:
+            let target = targetValue.isEmpty ? "?" : "\(targetValue)\(metricUnit)"
+            return "Maintenir \(target)"
+        }
+    }
 }
 
 /// Formulaire d'ajout d'un objectif ou indicateur — texte libre, ou cible chiffrée

@@ -10,7 +10,7 @@ struct MealDetailView: View {
     var body: some View {
         Form {
             Section {
-                DatePicker("Heure", selection: $meal.dateTime, displayedComponents: [.date, .hourAndMinute])
+                DatePicker("Heure", selection: $meal.dateTime, in: ...Date.now, displayedComponents: [.date, .hourAndMinute])
                     .labelsHidden()
             } header: { formSectionHeader("Heure", required: true) }
             Section {

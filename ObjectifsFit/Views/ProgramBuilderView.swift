@@ -56,15 +56,6 @@ struct ProgramBuilderView: View {
             }
             .background(AppTheme.background)
             .navigationTitle("Programme")
-            .toolbar {
-                ToolbarItem(placement: .topBarTrailing) {
-                    Button {
-                        showingCreateSheet = true
-                    } label: {
-                        Image(systemName: "plus")
-                    }
-                }
-            }
             .sheet(isPresented: $showingCreateSheet) {
                 CreateProgramView()
             }
@@ -75,10 +66,10 @@ struct ProgramBuilderView: View {
         VStack(spacing: 14) {
             Text("📋")
                 .font(.system(size: 36))
-            Text("Aucun programme pour l'instant")
+            Text("Aucun programme")
                 .font(AppTheme.Font.cardTitle)
                 .foregroundStyle(AppTheme.textPrimary)
-            Text("Un programme porte un ou plusieurs objectifs à long terme et se compose d'un ou plusieurs cycles.")
+            Text("Organise tes séances et suis tes objectifs sur la durée.")
                 .font(.system(size: 14))
                 .foregroundStyle(AppTheme.textSecondary)
                 .multilineTextAlignment(.center)

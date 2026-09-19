@@ -25,40 +25,33 @@ struct CreateProgramView: View {
         NavigationStack {
             Form {
                 Section {
-                    VStack(alignment: .leading, spacing: 4) {
-                        fieldCaption("Titre", required: true)
-                        TextField("Programme 1 — Perte de gras", text: $title)
-                    }
-                    VStack(alignment: .leading, spacing: 4) {
-                        fieldCaption("Description")
-                        TextField("Résumé en une phrase", text: $description, axis: .vertical)
-                    }
-                } header: { formSectionHeader("Informations") }
+                    TextField("Programme 1 — Perte de gras", text: $title)
+                } header: { formSectionHeader("Titre", required: true) }
+
+                Section {
+                    TextField("Résumé en une phrase", text: $description, axis: .vertical)
+                } header: { formSectionHeader("Description") }
 
                 Section {
                     objectiveList(principalDrafts) { principalDrafts.remove(atOffsets: $0) }
-                    Button {
-                        addingCategory = .principal
-                    } label: {
-                        Label("Ajouter un objectif principal", systemImage: "plus.circle")
+                    if principalDrafts.isEmpty {
+                        addObjectiveRow(label: "Ajouter un objectif") { addingCategory = .principal }
                     }
                 } header: {
-                    formSectionHeader("Objectifs principaux")
+                    sectionHeaderWithAdd("Objectifs principaux", isEmpty: principalDrafts.isEmpty) { addingCategory = .principal }
                 } footer: {
-                    Text("Deux objectifs maximum recommandés, pour rester concentré sur l'essentiel. Idéalement mesurables.")
+                    Text("Deux maximum recommandés, idéalement mesurables.")
                 }
 
                 Section {
                     objectiveList(secondaryDrafts) { secondaryDrafts.remove(atOffsets: $0) }
-                    Button {
-                        addingCategory = .indicateur
-                    } label: {
-                        Label("Ajouter un indicateur", systemImage: "plus.circle")
+                    if secondaryDrafts.isEmpty {
+                        addObjectiveRow(label: "Ajouter un indicateur") { addingCategory = .indicateur }
                     }
                 } header: {
-                    formSectionHeader("Indicateurs à suivre")
+                    sectionHeaderWithAdd("Indicateurs à suivre", isEmpty: secondaryDrafts.isEmpty) { addingCategory = .indicateur }
                 } footer: {
-                    Text("Aucune limite — des repères à suivre en complément des objectifs principaux.")
+                    Text("Des repères en complément des objectifs principaux.")
                 }
 
                 Section {
@@ -98,12 +91,52 @@ struct CreateProgramView: View {
         }
     }
 
+    /// Ligne "Ajouter…" affichée tant qu'aucun objectif/indicateur n'existe — une fois le premier
+    /// ajouté, l'ajout suivant se fait via le "+" du header de Section (sectionHeaderWithAdd),
+    /// pour ne pas dupliquer l'action une fois que la liste n'est plus vide.
+    private func addObjectiveRow(label: String, action: @escaping () -> Void) -> some View {
+        Button(action: action) {
+            HStack {
+                Text(label)
+                    .font(.system(size: 17))
+                    .foregroundStyle(AppTheme.textPrimary)
+                Spacer()
+                Image(systemName: "plus.circle.fill")
+                    .foregroundStyle(AppTheme.accent)
+            }
+        }
+        .buttonStyle(.plain)
+    }
+
+    private func sectionHeaderWithAdd(_ title: String, isEmpty: Bool, action: @escaping () -> Void) -> some View {
+        HStack {
+            formSectionHeader(title)
+            Spacer()
+            if !isEmpty {
+                Button(action: action) {
+                    Image(systemName: "plus")
+                        .font(.system(size: 13, weight: .semibold))
+                        .foregroundStyle(AppTheme.accent)
+                }
+            }
+        }
+        .padding(.bottom, 6)
+    }
+
     private func objectiveList(_ drafts: [ObjectiveDraft], onDelete: @escaping (IndexSet) -> Void) -> some View {
         ForEach(drafts) { draft in
             HStack {
-                Text(draft.summary)
-                    .font(.system(size: 14))
-                    .foregroundStyle(AppTheme.textPrimary)
+                VStack(alignment: .leading, spacing: 4) {
+                    Text(draft.name)
+                        .font(.system(size: 15, weight: .semibold))
+                        .foregroundStyle(AppTheme.textPrimary)
+                    if let progressionText = draft.progressionText {
+                        Text(progressionText)
+                            .font(.system(size: 13))
+                            .foregroundStyle(AppTheme.textSecondary)
+                    }
+                }
+                .padding(.vertical, 4)
                 Spacer()
                 Button {
                     if let index = drafts.firstIndex(where: { $0.id == draft.id }) {

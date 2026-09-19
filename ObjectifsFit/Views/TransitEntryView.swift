@@ -71,7 +71,7 @@ struct TransitEntryView: View {
         NavigationStack {
             Form {
                 Section {
-                    DatePicker("Heure", selection: $dateTime, displayedComponents: [.date, .hourAndMinute])
+                    DatePicker("Heure", selection: $dateTime, in: ...Date.now, displayedComponents: [.date, .hourAndMinute])
                         .labelsHidden()
                 } header: { formSectionHeader("Heure", required: true) }
                 Section {

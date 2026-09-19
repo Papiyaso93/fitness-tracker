@@ -7,9 +7,11 @@ struct HomeView: View {
     @Query private var allPrograms: [TrainingProgram]
     @Query(sort: \TransitLog.dateTime, order: .reverse) private var transitLogs: [TransitLog]
     @Query(sort: \MealLog.dateTime, order: .reverse) private var meals: [MealLog]
+    @Query private var sleepLogs: [SleepLog]
 
     @State private var showingMealSheet = false
     @State private var showingTransitSheet = false
+    @State private var showingSleepSheet: SleepMoment?
     @State private var showingDatePicker = false
     @State private var showingAddAdHocSession = false
     @State private var showingCreateProgram = false
@@ -78,6 +80,24 @@ struct HomeView: View {
         transitLogs.filter { Calendar.current.isDate($0.dateTime, inSameDayAs: selectedDate) }
     }
 
+    private var daySleepLog: SleepLog? {
+        sleepLogs.first { Calendar.current.isDate($0.day, inSameDayAs: selectedDate) }
+    }
+
+    private var previousDaySleepLog: SleepLog? {
+        guard let previousDay = Calendar.current.date(byAdding: .day, value: -1, to: selectedDate) else { return nil }
+        return sleepLogs.first { Calendar.current.isDate($0.day, inSameDayAs: previousDay) }
+    }
+
+    /// Nuit = coucher de la veille → réveil du jour affiché. Pas de badge si le coucher de la
+    /// veille n'a pas été renseigné : rien à calculer, on n'affiche pas de placeholder.
+    private var sleepDurationLabel: String? {
+        guard let bedTime = previousDaySleepLog?.bedTime, let wakeTime = daySleepLog?.wakeTime else { return nil }
+        let minutesTotal = Int(wakeTime.timeIntervalSince(bedTime) / 60)
+        guard minutesTotal > 0 else { return nil }
+        return "\(minutesTotal / 60)h\(String(format: "%02d", minutesTotal % 60)) de sommeil"
+    }
+
     /// Le prochain programme à venir après le jour affiché — utilisé seulement quand aucun
     /// programme n'est actif ce jour-là.
     private var upcomingProgram: TrainingProgram? {
@@ -113,6 +133,9 @@ struct HomeView: View {
                         sessionSummaryCard
                     }
 
+                    SectionLabel(text: "Sommeil")
+                    sleepCard
+
                     if isToday && dayMeals.isEmpty {
                         SectionLabel(text: "Repas")
                         addMealCard
@@ -135,6 +158,9 @@ struct HomeView: View {
             .navigationTitle("Accueil")
             .sheet(isPresented: $showingMealSheet) { MealEntryView() }
             .sheet(isPresented: $showingTransitSheet) { TransitEntryView() }
+            .sheet(item: $showingSleepSheet) { moment in
+                SleepEntryView(day: selectedDate, moment: moment)
+            }
             .sheet(isPresented: $showingAddAdHocSession) {
                 AddAdHocSessionView(cycle: activeCycle, date: selectedDate) { session in
                     createdAdHocSession = session
@@ -511,6 +537,90 @@ struct HomeView: View {
             .clipShape(Capsule())
     }
 
+    private var sleepCard: some View {
+        AppCard {
+            VStack(spacing: 0) {
+                sleepRow(moment: .reveil, icon: "sunrise", time: daySleepLog?.wakeTime, energy: daySleepLog?.wakeEnergy, stomach: daySleepLog?.wakeStomach, durationLabel: sleepDurationLabel)
+                Divider().overlay(AppTheme.border)
+                sleepRow(moment: .coucher, icon: "moon", time: daySleepLog?.bedTime, energy: daySleepLog?.bedEnergy, stomach: daySleepLog?.bedStomach, durationLabel: nil)
+            }
+        }
+    }
+
+    @ViewBuilder
+    private func sleepRow(moment: SleepMoment, icon: String, time: Date?, energy: EnergyLevel?, stomach: StomachState?, durationLabel: String?) -> some View {
+        let isFilled = time != nil
+        Group {
+            if isFilled, let log = daySleepLog {
+                NavigationLink {
+                    SleepDetailView(log: log, moment: moment)
+                } label: {
+                    sleepRowContent(moment: moment, icon: icon, time: time, energy: energy, stomach: stomach, isFilled: true, durationLabel: durationLabel)
+                }
+                .buttonStyle(.plain)
+            } else if isToday {
+                Button { showingSleepSheet = moment } label: {
+                    sleepRowContent(moment: moment, icon: icon, time: time, energy: energy, stomach: stomach, isFilled: false, durationLabel: durationLabel)
+                }
+                .buttonStyle(.plain)
+            } else {
+                sleepRowContent(moment: moment, icon: icon, time: time, energy: energy, stomach: stomach, isFilled: false, durationLabel: durationLabel)
+            }
+        }
+    }
+
+    private func sleepRowContent(moment: SleepMoment, icon: String, time: Date?, energy: EnergyLevel?, stomach: StomachState?, isFilled: Bool, durationLabel: String?) -> some View {
+        HStack(spacing: 10) {
+            Image(systemName: icon)
+                .font(.system(size: 15))
+                .foregroundStyle((isFilled || isToday) ? AppTheme.textSecondary : AppTheme.textSecondary.opacity(0.6))
+                .frame(width: 20)
+            if isFilled, let time {
+                VStack(alignment: .leading, spacing: 3) {
+                    Text("\(moment.title) · \(time.formatted(date: .omitted, time: .shortened))")
+                        .font(.system(size: 14, weight: .medium))
+                        .foregroundStyle(AppTheme.textPrimary)
+                    Text("\(energy?.label ?? "") · \(stomach?.label ?? "")")
+                        .font(.system(size: 12))
+                        .foregroundStyle(AppTheme.textSecondary)
+                    if let durationLabel {
+                        HStack(spacing: 4) {
+                            Image(systemName: "bed.double.fill")
+                                .font(.system(size: 10))
+                            Text(durationLabel)
+                                .font(.system(size: 11, weight: .medium))
+                        }
+                        .foregroundStyle(AppTheme.textSecondary)
+                        .padding(.horizontal, 8)
+                        .padding(.vertical, 3)
+                        .background(AppTheme.background)
+                        .clipShape(Capsule())
+                        .padding(.top, 2)
+                    }
+                }
+            } else if isToday {
+                Text(moment.title)
+                    .font(.system(size: 14, weight: .medium))
+                    .foregroundStyle(AppTheme.textPrimary)
+            } else {
+                Text("\(moment.title) non renseigné")
+                    .font(.system(size: 14))
+                    .foregroundStyle(AppTheme.textSecondary)
+            }
+            Spacer()
+            if isFilled {
+                Image(systemName: "chevron.right")
+                    .font(.system(size: 12))
+                    .foregroundStyle(AppTheme.textSecondary)
+            } else if isToday {
+                Image(systemName: "plus.circle.fill")
+                    .foregroundStyle(AppTheme.accent)
+            }
+        }
+        .padding(.vertical, 10)
+        .contentShape(Rectangle())
+    }
+
     private var mealSectionHeader: some View {
         HStack {
             SectionLabel(text: "Repas")
@@ -548,7 +658,7 @@ struct HomeView: View {
     private var mealCard: some View {
         AppCard {
             if dayMeals.isEmpty {
-                Text("Aucun repas noté").font(.system(size: 12)).foregroundStyle(AppTheme.textSecondary)
+                Text("Aucun repas noté").font(.system(size: 14)).foregroundStyle(AppTheme.textSecondary)
             } else {
                 VStack(spacing: 0) {
                     ForEach(dayMeals) { meal in
@@ -639,7 +749,7 @@ struct HomeView: View {
         ZStack {
             AppCard {
                 if dayTransitLogs.isEmpty {
-                    Text("Aucun passage noté").font(.system(size: 12)).foregroundStyle(AppTheme.textSecondary)
+                    Text("Aucun passage noté").font(.system(size: 14)).foregroundStyle(AppTheme.textSecondary)
                 } else {
                     transitLogsList
                 }

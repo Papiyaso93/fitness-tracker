@@ -10,7 +10,7 @@ struct TransitDetailView: View {
     var body: some View {
         Form {
             Section {
-                DatePicker("Heure", selection: $log.dateTime, displayedComponents: [.date, .hourAndMinute])
+                DatePicker("Heure", selection: $log.dateTime, in: ...Date.now, displayedComponents: [.date, .hourAndMinute])
                     .labelsHidden()
             } header: { formSectionHeader("Heure", required: true) }
             Section {

@@ -26,6 +26,7 @@
 		4DB6035E5A4DFD90F5586C0F /* LogPlannedSetView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BECA52D4932A90AF4BD151F7 /* LogPlannedSetView.swift */; };
 		4E1372103350E2533327F2C4 /* Weekday.swift in Sources */ = {isa = PBXBuildFile; fileRef = 654FB5919D9080C6235FCE7D /* Weekday.swift */; };
 		4EB74FE8795A1FBA8583250B /* PhysicalQuality.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4C1A24E514FB7FB830AF4F11 /* PhysicalQuality.swift */; };
+		523118CBAA79C21B8654F4FF /* SleepLog.swift in Sources */ = {isa = PBXBuildFile; fileRef = E1B57EE27E9708C07E35FBBF /* SleepLog.swift */; };
 		5577BCA58811F29ECF918433 /* ProgramDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C2BB902E60BEACA7100DC3FC /* ProgramDetailView.swift */; };
 		571A3D54D76E91E4E8DEA0B4 /* ObjectifsFitApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = E02D003481EFEF0F8D3A6B1E /* ObjectifsFitApp.swift */; };
 		5CBE27BCC531387C64BE602C /* Cycle.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC16CD3D59968A49A6ABF849 /* Cycle.swift */; };
@@ -39,7 +40,9 @@
 		8C3B2FAD7C87E9BAAA2B12B2 /* CycleDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3CF20306A21B1DE6A4E28D36 /* CycleDetailView.swift */; };
 		8F9B4E91A8C3D2A31E4DD4FF /* TrainingEnums.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB30D50A5B19AFCA279AEF10 /* TrainingEnums.swift */; };
 		A207A5D214A81DE01CA03AAA /* MealEntryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CB8F8DB01F05F7E664A2B666 /* MealEntryView.swift */; };
+		A5C8E5C66458EF0F5BDF30B7 /* SleepEntryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0D78967BC60A2F6AFC88D38F /* SleepEntryView.swift */; };
 		AADECA0E88C1C99086C445ED /* HealthKitManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7FB32E652B4262E519056879 /* HealthKitManager.swift */; };
+		AC4A35A1FA7B18BA10E5EBE5 /* SleepDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 76A5BF4FD5A3E76B00505562 /* SleepDetailView.swift */; };
 		BF29C93EB9D06CB847C40103 /* TransitDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 05ABDAE31819768554067BCB /* TransitDetailView.swift */; };
 		C7BB837EEAC86E7ED077CBDC /* BodyweightCoefficients.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3064AAFD55552CE0A6AF6541 /* BodyweightCoefficients.swift */; };
 		C7BCF5CD98DE57D715155AF7 /* MealDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4C93723AD5FB189595DCD34 /* MealDetailView.swift */; };
@@ -60,6 +63,7 @@
 /* Begin PBXFileReference section */
 		04B3B37D8B79655C370C6BE4 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		05ABDAE31819768554067BCB /* TransitDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TransitDetailView.swift; sourceTree = "<group>"; };
+		0D78967BC60A2F6AFC88D38F /* SleepEntryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SleepEntryView.swift; sourceTree = "<group>"; };
 		0F4D05861B7DC9BB13BB0DC9 /* EditSessionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditSessionView.swift; sourceTree = "<group>"; };
 		11544DC3480E5A0C50A9DCD3 /* NotificationManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationManager.swift; sourceTree = "<group>"; };
 		11DDE25AFA7804284F0A43C1 /* AddAdHocSessionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddAdHocSessionView.swift; sourceTree = "<group>"; };
@@ -81,6 +85,7 @@
 		70CDB05EDA5523E51B7CAC8B /* LogCycleSessionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LogCycleSessionView.swift; sourceTree = "<group>"; };
 		712F2D4A0F52D3B2C904FACD /* EditCycleView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditCycleView.swift; sourceTree = "<group>"; };
 		72D565BAE03C3CAD2E5935A7 /* ProgramBuilderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProgramBuilderView.swift; sourceTree = "<group>"; };
+		76A5BF4FD5A3E76B00505562 /* SleepDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SleepDetailView.swift; sourceTree = "<group>"; };
 		7BBFEC10215ACC5006537C73 /* HomeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeView.swift; sourceTree = "<group>"; };
 		7C0EB556CCB09E2E3753772C /* CyclePlanningView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CyclePlanningView.swift; sourceTree = "<group>"; };
 		7FB32E652B4262E519056879 /* HealthKitManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HealthKitManager.swift; sourceTree = "<group>"; };
@@ -105,6 +110,7 @@
 		DAD7EBCE51DBFC1643AD92F8 /* MealLog.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MealLog.swift; sourceTree = "<group>"; };
 		DCB68115D8F9E2C5CFA1D171 /* CreateProgramView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CreateProgramView.swift; sourceTree = "<group>"; };
 		E02D003481EFEF0F8D3A6B1E /* ObjectifsFitApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ObjectifsFitApp.swift; sourceTree = "<group>"; };
+		E1B57EE27E9708C07E35FBBF /* SleepLog.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SleepLog.swift; sourceTree = "<group>"; };
 		E6DAB0FA4EBE223435E0C22F /* DaySessionsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DaySessionsView.swift; sourceTree = "<group>"; };
 		F4C93723AD5FB189595DCD34 /* MealDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MealDetailView.swift; sourceTree = "<group>"; };
 		F4F7B310F839D7B92E5F9BA4 /* SeedData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SeedData.swift; sourceTree = "<group>"; };
@@ -183,6 +189,7 @@
 				B23F85731AB7BFC7A7283513 /* PlannedExercise.swift */,
 				39FFED54583DD7FADE3FA348 /* ProgramObjective.swift */,
 				575F2B82818BCE87EC10FC72 /* SessionCompletion.swift */,
+				E1B57EE27E9708C07E35FBBF /* SleepLog.swift */,
 				AB30D50A5B19AFCA279AEF10 /* TrainingEnums.swift */,
 				F51F6949C11B923C8D379349 /* TrainingProgram.swift */,
 				C0BD91D030DBDF4CF22C69D7 /* TransitLog.swift */,
@@ -217,6 +224,8 @@
 				6448AEBC9E9549855073D233 /* QualitySelectionView.swift */,
 				15F3CAB44F6893AF7DFD1409 /* RootTabView.swift */,
 				92C91FF00C6EF747ED63B02E /* SettingsView.swift */,
+				76A5BF4FD5A3E76B00505562 /* SleepDetailView.swift */,
+				0D78967BC60A2F6AFC88D38F /* SleepEntryView.swift */,
 				AFF090CDB11A4EB6B5EC8687 /* SwapDaysView.swift */,
 				05ABDAE31819768554067BCB /* TransitDetailView.swift */,
 				6EA8F5E112F215D897219EDD /* TransitEntryView.swift */,
@@ -359,6 +368,9 @@
 				D61C8F09617A008BF82CD193 /* SeedData.swift in Sources */,
 				FE0B1E4FD7837148B620FF09 /* SessionCompletion.swift in Sources */,
 				7EDB5F9957C40AC552650021 /* SettingsView.swift in Sources */,
+				AC4A35A1FA7B18BA10E5EBE5 /* SleepDetailView.swift in Sources */,
+				A5C8E5C66458EF0F5BDF30B7 /* SleepEntryView.swift in Sources */,
+				523118CBAA79C21B8654F4FF /* SleepLog.swift in Sources */,
 				49A38F8FFF7459A919BD3AFD /* SwapDaysView.swift in Sources */,
 				8F9B4E91A8C3D2A31E4DD4FF /* TrainingEnums.swift in Sources */,
 				FD23E4D0B3EB723AB91363B5 /* TrainingProgram.swift in Sources */,
