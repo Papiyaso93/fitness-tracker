@@ -157,7 +157,7 @@ struct ProgramBuilderView: View {
 
     private func dateRangeLabel(_ program: TrainingProgram) -> String? {
         switch (program.startDate, program.endDate) {
-        case let (start?, end?): return "\(formatted(start)) → \(formatted(end))"
+        case let (start?, end?): return "Du \(formatted(start)) au \(formatted(end))"
         case let (start?, nil): return "Depuis le \(formatted(start))"
         case let (nil, end?): return "Jusqu'au \(formatted(end))"
         default: return nil

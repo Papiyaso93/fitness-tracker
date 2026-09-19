@@ -19,6 +19,13 @@ struct CycleDetailView: View {
             VStack(alignment: .leading, spacing: 20) {
                 AppCard {
                     VStack(alignment: .leading, spacing: 8) {
+                        HStack(spacing: 6) {
+                            Image(systemName: "calendar")
+                                .font(.system(size: 12))
+                            Text("Du \(formatted(cycle.startDate)) au \(formatted(cycle.endDate))")
+                                .font(.system(size: 12))
+                        }
+                        .foregroundStyle(AppTheme.textSecondary)
                         HStack {
                             Text(cycle.name)
                                 .font(AppTheme.Font.cardTitle)
@@ -26,13 +33,6 @@ struct CycleDetailView: View {
                             Spacer()
                             statusTag
                         }
-                        HStack(spacing: 6) {
-                            Image(systemName: "calendar")
-                                .font(.system(size: 12))
-                            Text("\(formatted(cycle.startDate)) → \(formatted(cycle.endDate))")
-                                .font(.system(size: 12))
-                        }
-                        .foregroundStyle(AppTheme.textSecondary)
 
                         if !cycle.objectifsPrincipaux.isEmpty {
                             qualityTags(cycle.objectifsPrincipaux, color: AppTheme.accent)
@@ -51,14 +51,9 @@ struct CycleDetailView: View {
                             .foregroundStyle(AppTheme.textSecondary)
                     }
                 } else {
-                    AppCard {
-                        VStack(alignment: .leading, spacing: 0) {
-                            ForEach(Array(cycle.sortedObjectives.enumerated()), id: \.element.id) { index, objective in
-                                if index > 0 {
-                                    Divider().overlay(AppTheme.border)
-                                }
-                                objectiveRow(objective)
-                            }
+                    VStack(spacing: 10) {
+                        ForEach(cycle.sortedObjectives) { objective in
+                            AppCard { objectiveRow(objective) }
                         }
                     }
                 }
@@ -114,29 +109,23 @@ struct CycleDetailView: View {
     }
 
     private func objectiveRow(_ objective: ProgramObjective) -> some View {
-        HStack(alignment: .top, spacing: 10) {
-            ZStack {
-                Circle().fill(AppTheme.accent.opacity(0.12)).frame(width: 26, height: 26)
-                Image(systemName: "target")
-                    .font(.system(size: 12, weight: .medium))
-                    .foregroundStyle(AppTheme.accent)
-            }
+        HStack {
             objectiveSummaryText(objective)
             Spacer(minLength: 0)
         }
-        .padding(.vertical, 8)
     }
 
-    /// Découpe "Nom : valeur" pour mettre le nom en gras et la valeur en couleur d'accent, sur deux lignes.
+    /// Découpe "Nom : valeur" pour mettre le nom en gras et la valeur en dessous — même traitement
+    /// neutre (pas de couleur d'accent sur la valeur) que la fiche programme.
     private func objectiveSummaryText(_ objective: ProgramObjective) -> some View {
         let parts = objective.summary.split(separator: ":", maxSplits: 1).map { $0.trimmingCharacters(in: .whitespaces) }
         return VStack(alignment: .leading, spacing: 2) {
             if parts.count == 2 {
-                Text(parts[0]).font(.system(size: 13, weight: .medium)).foregroundStyle(AppTheme.textPrimary)
-                Text(parts[1]).font(.system(size: 13, weight: .medium)).foregroundStyle(AppTheme.accent)
+                Text(parts[0]).font(.system(size: 15, weight: .semibold)).foregroundStyle(AppTheme.textPrimary)
+                Text(parts[1]).font(.system(size: 13)).foregroundStyle(AppTheme.textSecondary)
             } else {
                 Text(objective.summary)
-                    .font(.system(size: 13, weight: .medium))
+                    .font(.system(size: 15, weight: .semibold))
                     .foregroundStyle(AppTheme.textPrimary)
             }
         }

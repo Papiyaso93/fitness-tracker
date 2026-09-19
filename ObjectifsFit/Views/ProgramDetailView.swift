@@ -122,14 +122,18 @@ struct ProgramDetailView: View {
     }
 
     private var statusTag: some View {
+        statusTag(program.status)
+    }
+
+    private func statusTag(_ status: ProgramStatus) -> some View {
         let color: Color = {
-            switch program.status {
+            switch status {
             case .aVenir: return AppTheme.textSecondary
             case .enCours: return AppTheme.accent
             case .termine: return AppTheme.secondary
             }
         }()
-        return Text(program.status.rawValue)
+        return Text(status.rawValue)
             .font(.system(size: 11, weight: .medium))
             .padding(.horizontal, 8)
             .padding(.vertical, 3)
@@ -140,7 +144,7 @@ struct ProgramDetailView: View {
 
     private var dateRangeLabel: String {
         switch (program.startDate, program.endDate) {
-        case let (start?, end?): return "\(formatted(start)) → \(formatted(end))"
+        case let (start?, end?): return "Du \(formatted(start)) au \(formatted(end))"
         case let (start?, nil): return "Depuis le \(formatted(start))"
         case let (nil, end?): return "Jusqu'au \(formatted(end))"
         default: return ""
@@ -210,12 +214,16 @@ struct ProgramDetailView: View {
             AppCard {
                 HStack {
                     VStack(alignment: .leading, spacing: 6) {
+                        HStack(spacing: 4) {
+                            Image(systemName: "calendar")
+                                .font(.system(size: 11))
+                            Text("Du \(formatted(cycle.startDate)) au \(formatted(cycle.endDate))")
+                                .font(.system(size: 12))
+                        }
+                        .foregroundStyle(AppTheme.textSecondary)
                         Text(cycle.name)
                             .font(.system(size: 15, weight: .semibold))
                             .foregroundStyle(AppTheme.textPrimary)
-                        Text("\(formatted(cycle.startDate)) → \(formatted(cycle.endDate))")
-                            .font(.system(size: 13))
-                            .foregroundStyle(AppTheme.textSecondary)
                         if !cycle.objectifsPrincipaux.isEmpty {
                             HStack(spacing: 6) {
                                 ForEach(cycle.objectifsPrincipaux) { quality in
@@ -230,9 +238,13 @@ struct ProgramDetailView: View {
                             }
                         }
                     }
-                    Spacer()
-                    Image(systemName: "chevron.right")
-                        .foregroundStyle(AppTheme.textSecondary)
+                    Spacer(minLength: 0)
+                    VStack(spacing: 8) {
+                        statusTag(cycle.status)
+                        Image(systemName: "chevron.right")
+                            .font(.system(size: 12))
+                            .foregroundStyle(AppTheme.textSecondary)
+                    }
                 }
             }
         }
