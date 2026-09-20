@@ -42,6 +42,7 @@
 		8A0C91AC0ED13A11862387BE /* CyclePlanningView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7C0EB556CCB09E2E3753772C /* CyclePlanningView.swift */; };
 		8A6AA9A386EF91F93347D0D9 /* AddPlannedExerciseView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6AC4FD54BAB1617D04130F88 /* AddPlannedExerciseView.swift */; };
 		8C3B2FAD7C87E9BAAA2B12B2 /* CycleDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3CF20306A21B1DE6A4E28D36 /* CycleDetailView.swift */; };
+		8D96B20D9FBAE2751D051D08 /* DevTestDataSeeder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 98E2142A2BE2DA803E7E7311 /* DevTestDataSeeder.swift */; };
 		8F9B4E91A8C3D2A31E4DD4FF /* TrainingEnums.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB30D50A5B19AFCA279AEF10 /* TrainingEnums.swift */; };
 		991ED5699224F79E07720DF4 /* ExerciseLibraryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AC055BAA611334547C7A2FD1 /* ExerciseLibraryView.swift */; };
 		9DAAB23B2F8F0A27B852688F /* EditExerciseDefinitionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 38CCF83126F90631E93FDB75 /* EditExerciseDefinitionView.swift */; };
@@ -115,6 +116,7 @@
 		8A9B5B5A556E78D77F1E2EFD /* EditReminderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditReminderView.swift; sourceTree = "<group>"; };
 		8E99D930B616F72A8C2DD274 /* BilanCoachCardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BilanCoachCardView.swift; sourceTree = "<group>"; };
 		92C91FF00C6EF747ED63B02E /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
+		98E2142A2BE2DA803E7E7311 /* DevTestDataSeeder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DevTestDataSeeder.swift; sourceTree = "<group>"; };
 		A441BE90FAD4588C3EA0A29D /* EditPlannedSetEntryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditPlannedSetEntryView.swift; sourceTree = "<group>"; };
 		A461DD42B942374DCD70FC0F /* ObjectifsFit.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = ObjectifsFit.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		AB30D50A5B19AFCA279AEF10 /* TrainingEnums.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TrainingEnums.swift; sourceTree = "<group>"; };
@@ -298,6 +300,7 @@
 		D164D1D24BBF73EBE85545D5 /* Seed */ = {
 			isa = PBXGroup;
 			children = (
+				98E2142A2BE2DA803E7E7311 /* DevTestDataSeeder.swift */,
 				F4F7B310F839D7B92E5F9BA4 /* SeedData.swift */,
 			);
 			path = Seed;
@@ -404,6 +407,7 @@
 				FE4F26028257154CB651FA9E /* DashboardView.swift in Sources */,
 				03B66F799AFAE83810F993A7 /* DateFormatting.swift in Sources */,
 				2737D1EA71CCC28FA272EDFA /* DaySessionsView.swift in Sources */,
+				8D96B20D9FBAE2751D051D08 /* DevTestDataSeeder.swift in Sources */,
 				865C5DFFE5292BE6974BF91F /* EditCycleView.swift in Sources */,
 				9DAAB23B2F8F0A27B852688F /* EditExerciseDefinitionView.swift in Sources */,
 				424AF01710B8A265FA59966F /* EditPlannedSetEntryView.swift in Sources */,

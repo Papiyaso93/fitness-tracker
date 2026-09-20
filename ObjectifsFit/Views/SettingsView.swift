@@ -5,6 +5,8 @@ struct SettingsView: View {
     @Query(sort: \ExerciseDefinition.name) private var exercises: [ExerciseDefinition]
     @Query private var reminders: [Reminder]
 
+    @Environment(\.modelContext) private var context
+
     @State private var showingAddReminder = false
 
     var body: some View {
@@ -87,6 +89,22 @@ struct SettingsView: View {
                                     }
                                 }
                                 .buttonStyle(.plain)
+                            }
+                        }
+                    }
+                    SectionLabel(text: "Développement")
+                    AppCard {
+                        Button {
+                            DevTestDataSeeder.seedRealisticTrainingHistory(context: context)
+                        } label: {
+                            HStack {
+                                Text("Générer des données de test")
+                                    .font(.system(size: 15))
+                                    .foregroundStyle(AppTheme.textPrimary)
+                                Spacer()
+                                Image(systemName: "wand.and.stars")
+                                    .font(.system(size: 13))
+                                    .foregroundStyle(AppTheme.textSecondary)
                             }
                         }
                     }
