@@ -43,6 +43,8 @@ struct CycleDetailView: View {
                     }
                 }
 
+                CycleBilanCardView(cycle: cycle)
+
                 SectionLabel(text: "Objectifs du cycle")
                 if cycle.sortedObjectives.isEmpty {
                     AppCard {

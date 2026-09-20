@@ -15,6 +15,7 @@ struct DashboardView: View {
         NavigationStack {
             ScrollView {
                 VStack(alignment: .leading, spacing: 20) {
+                    BilanCoachCardView()
                     kpiSection("Séances par semaine", sessionsPerWeek.map { KPIRowData(label: $0.week.formatted(date: .abbreviated, time: .omitted), value: "\($0.count)") })
                     kpiSection("Séries par groupe musculaire / semaine", setsPerMuscleGroup.map { KPIRowData(label: $0.group, value: "\($0.count)") })
                     kpiSection("Tonnage par groupe musculaire / semaine", tonnagePerMuscleGroup.map { KPIRowData(label: $0.group, value: "\(Int($0.tonnage))kg") })

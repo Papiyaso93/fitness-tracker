@@ -19,7 +19,8 @@ struct ObjectifsFitApp: App {
             MealLog.self,
             TransitLog.self,
             SleepLog.self,
-            Reminder.self
+            Reminder.self,
+            ArchivedBilan.self
         ])
         // TODO: réactiver cloudKitDatabase: .automatic une fois tous les champs des modèles
         // dotés de valeurs par défaut (CloudKit l'exige pour attributs et relations).

@@ -19,6 +19,9 @@ final class TrainingProgram {
     /// Sert de repli quand les dates ne permettent pas de déduire le statut (pas de date, ou pas
     /// encore commencé/terminé) — sinon `status` prend le dessus automatiquement.
     private var manualStatus: ProgramStatus = ProgramStatus.enCours
+    /// Dernier envoi de l'export "Bilan de programme" (simple repère affiché à l'utilisateur, pas
+    /// un vrai statut — l'app ne sait pas si l'analyse a réellement été faite, voir `ArchivedBilan`).
+    var lastAnalysisRequestedAt: Date?
 
     /// Déduit des dates quand elles existent (toujours à jour), sinon retombe sur `manualStatus`.
     var status: ProgramStatus {
