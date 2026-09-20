@@ -1,4 +1,5 @@
 import Foundation
+import SwiftUI
 
 enum ResistanceMode: String, Codable, CaseIterable {
     case poidsLibre = "Poids libre"
@@ -12,7 +13,7 @@ enum ResistanceMode: String, Codable, CaseIterable {
     var comparableToKilograms: Bool { self != .elastique }
 }
 
-enum SensationLevel: Int, Codable, CaseIterable {
+enum SensationLevel: Int, Codable, CaseIterable, Hashable {
     case facile = 0
     case confortable = 1
     case normal = 2
@@ -32,6 +33,20 @@ enum SensationLevel: Int, Codable, CaseIterable {
     }
 
     var isHard: Bool { self == .difficile || self == .tresDifficile || self == .echec }
+
+    /// Couleurs distinctes par niveau (pas un dégradé continu) — le gris signale un niveau neutre
+    /// à peine notable, puis bleu/vert/jaune/orange/rouge montent en intensité perçue jusqu'à
+    /// l'échec, pour visualiser d'un coup d'œil quand une semaine "monte dans le rouge".
+    var color: Color {
+        switch self {
+        case .facile: return Color(hex: "C9C4B8")
+        case .confortable: return Color(hex: "378ADD")
+        case .normal: return Color(hex: "639922")
+        case .difficile: return Color(hex: "F5C242")
+        case .tresDifficile: return Color(hex: "EF9F27")
+        case .echec: return Color(hex: "E24B4A")
+        }
+    }
 }
 
 enum SetTechnique: String, Codable, CaseIterable {
