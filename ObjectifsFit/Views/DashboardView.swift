@@ -16,6 +16,8 @@ struct DashboardView: View {
     @State private var muscleGroupTonnageWindowOffset = 0
     @State private var exercisePeriod: ExercisePeriod = .fourWeeks
     @State private var visibleExerciseGroups: Set<String> = Set(MuscleGroupStyle.order)
+    @State private var selectedAverageWeightExercise: String?
+    @State private var averageWeightWindowOffset = 0
 
     private var calendar: Calendar { Calendar.current }
 
@@ -98,7 +100,7 @@ struct DashboardView: View {
                     muscleGroupChart
                     muscleGroupTonnageChart
                     exerciseRankingChart
-                    kpiSection("Charge moyenne par exercice / semaine", averageWeightPerExercise.map { KPIRowData(label: $0.exercise, value: String(format: "%.1fkg", $0.averageWeight)) })
+                    averageWeightChart
                     kpiSection("PR tracking (Epley)", bestEstimated1RM.map { KPIRowData(label: $0.exercise, value: String(format: "%.1fkg", $0.value)) })
                     kpiSection("Tendance des sensations / semaine", averageSensationPerWeek.map { KPIRowData(label: $0.week.formatted(date: .abbreviated, time: .omitted), value: String(format: "%.1f", $0.average)) })
                     kpiSection("% de difficulté par exercice", hardRatioPerExercise.map { KPIRowData(label: $0.exercise, value: "\(Int($0.ratio * 100))%") })
@@ -507,17 +509,120 @@ struct DashboardView: View {
         }
     }
 
-    private var averageWeightPerExercise: [(exercise: String, averageWeight: Double)] {
-        let weightedSets = setEntries.filter { $0.weight != nil }
-        let grouped: [String: [PlannedSetEntry]] = Dictionary(grouping: weightedSets, by: { $0.exerciseName })
-        var result: [(exercise: String, averageWeight: Double)] = []
-        for (exercise, sets) in grouped {
-            let weights: [Double] = sets.compactMap { $0.weight }
-            let total: Double = weights.reduce(0, +)
-            let average: Double = total / Double(weights.count)
-            result.append((exercise: exercise, averageWeight: average))
+    private struct AverageWeightPoint: Identifiable {
+        let week: Date
+        let averageWeight: Double
+        var id: Date { week }
+        var weekLabel: String { AppDateFormat.dayMonth.string(from: week) }
+    }
+
+    /// Exercice le plus pratiqué (avec poids logué) — présélectionné tant que l'utilisateur n'a
+    /// pas choisi un exercice précis.
+    private var defaultAverageWeightExercise: String? {
+        let weighted = setEntries.filter { $0.weight != nil }
+        let counts = Dictionary(grouping: weighted, by: { $0.exerciseName }).mapValues(\.count)
+        return counts.max(by: { $0.value < $1.value })?.key
+    }
+
+    /// Progression sur UN exercice à la fois plutôt qu'une comparaison entre exercices — avec
+    /// 30+ exercices, superposer toutes leurs courbes serait illisible (cf. Metabase), alors que
+    /// la vraie question ("est-ce que je progresse sur cet exercice précis ?") se lit exercice par
+    /// exercice. Une semaine sans série est comptée à 0 (creux visible sur la courbe) plutôt que
+    /// d'être sautée, pour bien voir les trous d'assiduité sur cet exercice précis.
+    private var averageWeightSeries: [AverageWeightPoint] {
+        guard let exerciseName = selectedAverageWeightExercise ?? defaultAverageWeightExercise else { return [] }
+        let relevant = setEntries.filter { $0.exerciseName == exerciseName && $0.weight != nil }
+        let grouped = Dictionary(grouping: relevant) { weekKey($0.date) }
+        return weeksWindow(offsetWindows: averageWeightWindowOffset).map { week in
+            let weights = (grouped[week] ?? []).compactMap(\.weight)
+            let average = weights.isEmpty ? 0 : weights.reduce(0, +) / Double(weights.count)
+            return AverageWeightPoint(week: week, averageWeight: average)
         }
-        return result.sorted { $0.averageWeight > $1.averageWeight }
+    }
+
+    /// Distinct de `averageWeightSeries.isEmpty` (qui ne l'est jamais désormais, vu les 0
+    /// explicites) — sert à distinguer "jamais loguée avec un poids" (ex: exercice au poids du
+    /// corps) d'une simple semaine creuse.
+    private var hasAnyWeightDataForSelectedExercise: Bool {
+        guard let exerciseName = selectedAverageWeightExercise else { return false }
+        return setEntries.contains { $0.exerciseName == exerciseName && $0.weight != nil }
+    }
+
+    private var averageWeightChart: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            SectionLabel(text: "Charge moyenne par exercice")
+            AppCard {
+                if let exerciseName = selectedAverageWeightExercise {
+                    Menu {
+                        ForEach(exerciseLibrary) { definition in
+                            Button(definition.name) {
+                                selectedAverageWeightExercise = definition.name
+                            }
+                        }
+                    } label: {
+                        HStack(spacing: 4) {
+                            Spacer(minLength: 0)
+                            Text(exerciseName)
+                                .font(.system(size: 15, weight: .semibold))
+                                .foregroundStyle(AppTheme.textPrimary)
+                            Image(systemName: "chevron.down")
+                                .font(.system(size: 11, weight: .semibold))
+                                .foregroundStyle(AppTheme.textSecondary)
+                            Spacer(minLength: 0)
+                        }
+                    }
+                    .padding(.bottom, 12)
+
+                    windowNavigator(weeks: weeksWindow(offsetWindows: averageWeightWindowOffset), offset: $averageWeightWindowOffset)
+                        .padding(.bottom, 10)
+
+                    if !hasAnyWeightDataForSelectedExercise {
+                        Text("Pas de charge enregistrée pour cet exercice")
+                            .font(.system(size: 12))
+                            .foregroundStyle(AppTheme.textSecondary)
+                            .frame(maxWidth: .infinity)
+                            .frame(height: 150)
+                    } else {
+                        let windowLabels = weeksWindow(offsetWindows: averageWeightWindowOffset).map { AppDateFormat.dayMonth.string(from: $0) }
+                        Chart(averageWeightSeries) { point in
+                            LineMark(
+                                x: .value("Semaine", point.weekLabel),
+                                y: .value("Charge moyenne", point.averageWeight)
+                            )
+                            .foregroundStyle(AppTheme.accent)
+                            .interpolationMethod(.monotone)
+                            .symbol(Circle())
+                        }
+                        .chartXScale(domain: windowLabels)
+                        .chartYAxis {
+                            AxisMarks(position: .leading) { _ in
+                                AxisGridLine()
+                                AxisValueLabel()
+                                    .font(.system(size: 9))
+                                    .foregroundStyle(AppTheme.textSecondary)
+                            }
+                        }
+                        .chartXAxis {
+                            AxisMarks { value in
+                                if let label = value.as(String.self) {
+                                    AxisValueLabel(label)
+                                        .font(.system(size: 9))
+                                        .foregroundStyle(AppTheme.textSecondary)
+                                }
+                            }
+                        }
+                        .frame(height: 150)
+                    }
+                } else {
+                    Text("Pas encore de données").font(.system(size: 12)).foregroundStyle(AppTheme.textSecondary)
+                }
+            }
+        }
+        .onAppear {
+            if selectedAverageWeightExercise == nil {
+                selectedAverageWeightExercise = defaultAverageWeightExercise
+            }
+        }
     }
 
     private var bestEstimated1RM: [(exercise: String, value: Double)] {
