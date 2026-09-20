@@ -5,14 +5,88 @@ import Charts
 struct DashboardView: View {
     @Query private var completions: [SessionCompletion]
     @Query private var setEntries: [PlannedSetEntry]
+    @Query(sort: \ExerciseDefinition.name) private var exerciseLibrary: [ExerciseDefinition]
 
     @State private var showMusculation = true
     @State private var showAutre = true
+    @State private var sessionsWindowOffset = 0
+    @State private var visibleMuscleGroups: Set<String> = Set(MuscleGroupStyle.order)
+    @State private var muscleGroupWindowOffset = 0
+    @State private var visibleTonnageMuscleGroups: Set<String> = Set(MuscleGroupStyle.order)
+    @State private var muscleGroupTonnageWindowOffset = 0
+    @State private var exercisePeriod: ExercisePeriod = .fourWeeks
+    @State private var visibleExerciseGroups: Set<String> = Set(MuscleGroupStyle.order)
 
     private var calendar: Calendar { Calendar.current }
 
     private func weekKey(_ date: Date) -> Date {
         calendar.dateInterval(of: .weekOfYear, for: date)?.start ?? date
+    }
+
+    /// Fenêtre de 4 semaines, décalée en arrière de `offsetWindows` blocs de 4 semaines —
+    /// `offsetWindows == 0` correspond aux 4 dernières semaines (fenêtre la plus récente).
+    private func weeksWindow(offsetWindows: Int) -> [Date] {
+        let currentWeek = weekKey(.now)
+        let endWeek = calendar.date(byAdding: .weekOfYear, value: -offsetWindows * 4, to: currentWeek) ?? currentWeek
+        return (0..<4).compactMap { i in
+            calendar.date(byAdding: .weekOfYear, value: -i, to: endWeek)
+        }.sorted()
+    }
+
+    private func windowRangeLabel(_ weeks: [Date]) -> String {
+        guard let start = weeks.first, let end = weeks.last else { return "" }
+        let endOfWeek = calendar.date(byAdding: .day, value: 6, to: end) ?? end
+        return "\(AppDateFormat.dayMonth.string(from: start)) — \(AppDateFormat.dayMonthYear.string(from: endOfWeek))"
+    }
+
+    private func windowNavigator(weeks: [Date], offset: Binding<Int>) -> some View {
+        HStack {
+            Button {
+                offset.wrappedValue += 1
+            } label: {
+                Image(systemName: "chevron.left")
+                    .font(.system(size: 12, weight: .semibold))
+                    .foregroundStyle(AppTheme.textSecondary)
+            }
+            Spacer(minLength: 0)
+            Text(windowRangeLabel(weeks))
+                .font(.system(size: 12, weight: .medium))
+                .foregroundStyle(AppTheme.textPrimary)
+            Spacer(minLength: 0)
+            Button {
+                if offset.wrappedValue > 0 { offset.wrappedValue -= 1 }
+            } label: {
+                Image(systemName: "chevron.right")
+                    .font(.system(size: 12, weight: .semibold))
+                    .foregroundStyle(offset.wrappedValue > 0 ? AppTheme.textSecondary : AppTheme.textSecondary.opacity(0.3))
+            }
+            .disabled(offset.wrappedValue == 0)
+        }
+        .buttonStyle(.plain)
+    }
+
+    private func periodMenu(selection: Binding<ExercisePeriod>) -> some View {
+        Menu {
+            ForEach(ExercisePeriod.allCases, id: \.self) { option in
+                Button {
+                    selection.wrappedValue = option
+                } label: {
+                    if selection.wrappedValue == option {
+                        Label(option.rawValue, systemImage: "checkmark")
+                    } else {
+                        Text(option.rawValue)
+                    }
+                }
+            }
+        } label: {
+            HStack(spacing: 4) {
+                Text(selection.wrappedValue.rawValue)
+                Image(systemName: "chevron.down")
+                    .font(.system(size: 10, weight: .semibold))
+            }
+            .font(.system(size: 12, weight: .medium))
+            .foregroundStyle(AppTheme.accent)
+        }
     }
 
     var body: some View {
@@ -22,8 +96,8 @@ struct DashboardView: View {
                     BilanCoachCardView()
                     sessionsChart
                     muscleGroupChart
-                    kpiSection("Tonnage par groupe musculaire / semaine", tonnagePerMuscleGroup.map { KPIRowData(label: $0.group, value: "\(Int($0.tonnage))kg") })
-                    kpiSection("Séries par exercice / semaine", setsPerExercise.map { KPIRowData(label: $0.exercise, value: "\($0.count)") })
+                    muscleGroupTonnageChart
+                    exerciseRankingChart
                     kpiSection("Charge moyenne par exercice / semaine", averageWeightPerExercise.map { KPIRowData(label: $0.exercise, value: String(format: "%.1fkg", $0.averageWeight)) })
                     kpiSection("PR tracking (Epley)", bestEstimated1RM.map { KPIRowData(label: $0.exercise, value: String(format: "%.1fkg", $0.value)) })
                     kpiSection("Tendance des sensations / semaine", averageSensationPerWeek.map { KPIRowData(label: $0.week.formatted(date: .abbreviated, time: .omitted), value: String(format: "%.1f", $0.average)) })
@@ -82,15 +156,6 @@ struct DashboardView: View {
         return completion.cycleSession?.kind ?? .autre
     }
 
-    /// Les 4 dernières semaines (la plus récente en dernier), calées sur le lundi comme le reste
-    /// de l'app — sert de fenêtre fixe pour les aperçus compacts du Tableau de bord.
-    private func lastNWeeks(_ count: Int) -> [Date] {
-        let currentWeek = weekKey(.now)
-        return (0..<count).compactMap { offset in
-            calendar.date(byAdding: .weekOfYear, value: -offset, to: currentWeek)
-        }.sorted()
-    }
-
     /// Comblé à 0 sur les 4 dernières semaines — un axe continu et une fenêtre fixe plutôt qu'un
     /// graphe qui s'étale sur tout l'historique et devient illisible une fois les données denses.
     private var weeklySessionEntries: [WeeklySessionEntry] {
@@ -99,7 +164,7 @@ struct DashboardView: View {
         let grouped = Dictionary(grouping: finished) { weekKey($0.endTime!) }
 
         var entries: [WeeklySessionEntry] = []
-        for week in lastNWeeks(4) {
+        for week in weeksWindow(offsetWindows: sessionsWindowOffset) {
             let weekCompletions = grouped[week] ?? []
             let musculationCount = weekCompletions.filter { effectiveKind($0) == .musculation }.count
             let autreCount = weekCompletions.count - musculationCount
@@ -122,13 +187,16 @@ struct DashboardView: View {
                 if weeklySessionEntries.isEmpty {
                     Text("Pas encore de données").font(.system(size: 12)).foregroundStyle(AppTheme.textSecondary)
                 } else {
+                    windowNavigator(weeks: weeksWindow(offsetWindows: sessionsWindowOffset), offset: $sessionsWindowOffset)
+                        .padding(.bottom, 10)
+
                     HStack {
                         Spacer(minLength: 0)
                         HStack(spacing: 10) {
-                            legendDot(color: AppTheme.accent, label: "Musculation", isActive: showMusculation) {
+                            legendToggleChip(color: AppTheme.accent, label: "Musculation", isActive: showMusculation) {
                                 showMusculation.toggle()
                             }
-                            legendDot(color: AppTheme.secondary, label: "Autre", isActive: showAutre) {
+                            legendToggleChip(color: AppTheme.secondary, label: "Autre", isActive: showAutre) {
                                 showAutre.toggle()
                             }
                         }
@@ -181,21 +249,6 @@ struct DashboardView: View {
         }
     }
 
-    private func legendDot(color: Color, label: String, isActive: Bool, action: @escaping () -> Void) -> some View {
-        Button(action: action) {
-            HStack(spacing: 5) {
-                RoundedRectangle(cornerRadius: 2).fill(color).frame(width: 8, height: 8)
-                Text(label)
-                    .font(.system(size: 11, weight: isActive ? .semibold : .regular))
-            }
-            .foregroundStyle(isActive ? color : AppTheme.textSecondary.opacity(0.5))
-            .padding(.horizontal, 9)
-            .padding(.vertical, 4)
-            .background(isActive ? color.opacity(0.12) : Color.clear)
-            .clipShape(Capsule())
-        }
-        .buttonStyle(.plain)
-    }
 
     private struct WeeklyMuscleEntry: Identifiable {
         let week: Date
@@ -213,7 +266,7 @@ struct DashboardView: View {
         let grouped = Dictionary(grouping: setEntries) { weekKey($0.date) }
 
         var entries: [WeeklyMuscleEntry] = []
-        for week in lastNWeeks(4) {
+        for week in weeksWindow(offsetWindows: muscleGroupWindowOffset) {
             let weekEntries = grouped[week] ?? []
             let countsByGroup = Dictionary(grouping: weekEntries, by: { $0.muscleGroup }).mapValues(\.count)
             for group in MuscleGroupStyle.order {
@@ -223,6 +276,10 @@ struct DashboardView: View {
         return entries
     }
 
+    private var filteredMuscleGroupEntries: [WeeklyMuscleEntry] {
+        weeklyMuscleGroupEntries.filter { visibleMuscleGroups.contains($0.group) }
+    }
+
     private var muscleGroupChart: some View {
         VStack(alignment: .leading, spacing: 8) {
             SectionLabel(text: "Séries par groupe musculaire / semaine")
@@ -230,7 +287,30 @@ struct DashboardView: View {
                 if weeklyMuscleGroupEntries.isEmpty {
                     Text("Pas encore de données").font(.system(size: 12)).foregroundStyle(AppTheme.textSecondary)
                 } else {
-                    Chart(weeklyMuscleGroupEntries) { entry in
+                    windowNavigator(weeks: weeksWindow(offsetWindows: muscleGroupWindowOffset), offset: $muscleGroupWindowOffset)
+                        .padding(.bottom, 10)
+
+                    FlowLayout(spacing: 6) {
+                        ForEach(MuscleGroupStyle.order, id: \.self) { group in
+                            legendToggleChip(color: MuscleGroupStyle.color(for: group), label: group, isActive: visibleMuscleGroups.contains(group)) {
+                                if visibleMuscleGroups.contains(group) {
+                                    visibleMuscleGroups.remove(group)
+                                } else {
+                                    visibleMuscleGroups.insert(group)
+                                }
+                            }
+                        }
+                    }
+                    .padding(.bottom, 10)
+
+                    if visibleMuscleGroups.isEmpty {
+                        Text("Aucun groupe sélectionné")
+                            .font(.system(size: 12))
+                            .foregroundStyle(AppTheme.textSecondary)
+                            .frame(maxWidth: .infinity)
+                            .frame(height: 170)
+                    } else {
+                    Chart(filteredMuscleGroupEntries) { entry in
                         BarMark(
                             x: .value("Semaine", entry.weekLabel),
                             y: .value("Séries", entry.count),
@@ -262,21 +342,169 @@ struct DashboardView: View {
                         }
                     }
                     .frame(height: 170)
+                    }
                 }
             }
         }
     }
 
-    private var tonnagePerMuscleGroup: [(group: String, tonnage: Double)] {
-        Dictionary(grouping: setEntries, by: { $0.muscleGroup })
-            .map { (group: $0.key, tonnage: $0.value.reduce(0) { $0 + ($1.tonnage ?? 0) }) }
-            .sorted { $0.tonnage > $1.tonnage }
+    private struct WeeklyMuscleTonnageEntry: Identifiable {
+        let week: Date
+        let group: String
+        let tonnage: Double
+        var id: String { "\(week)-\(group)" }
+        var weekLabel: String { AppDateFormat.dayMonth.string(from: week) }
     }
 
-    private var setsPerExercise: [(exercise: String, count: Int)] {
-        Dictionary(grouping: setEntries, by: { $0.exerciseName })
-            .map { (exercise: $0.key, count: $0.value.count) }
-            .sorted { $0.count > $1.count }
+    private var weeklyMuscleTonnageEntries: [WeeklyMuscleTonnageEntry] {
+        guard !setEntries.isEmpty else { return [] }
+        let grouped = Dictionary(grouping: setEntries) { weekKey($0.date) }
+
+        var entries: [WeeklyMuscleTonnageEntry] = []
+        for week in weeksWindow(offsetWindows: muscleGroupTonnageWindowOffset) {
+            let weekEntries = grouped[week] ?? []
+            let tonnageByGroup = Dictionary(grouping: weekEntries, by: { $0.muscleGroup })
+                .mapValues { $0.reduce(0) { $0 + ($1.tonnage ?? 0) } }
+            for group in MuscleGroupStyle.order {
+                entries.append(WeeklyMuscleTonnageEntry(week: week, group: group, tonnage: tonnageByGroup[group] ?? 0))
+            }
+        }
+        return entries
+    }
+
+    private var filteredMuscleTonnageEntries: [WeeklyMuscleTonnageEntry] {
+        weeklyMuscleTonnageEntries.filter { visibleTonnageMuscleGroups.contains($0.group) }
+    }
+
+    private var muscleGroupTonnageChart: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            SectionLabel(text: "Tonnage par groupe musculaire / semaine")
+            AppCard {
+                if weeklyMuscleTonnageEntries.isEmpty {
+                    Text("Pas encore de données").font(.system(size: 12)).foregroundStyle(AppTheme.textSecondary)
+                } else {
+                    windowNavigator(weeks: weeksWindow(offsetWindows: muscleGroupTonnageWindowOffset), offset: $muscleGroupTonnageWindowOffset)
+                        .padding(.bottom, 10)
+
+                    FlowLayout(spacing: 6) {
+                        ForEach(MuscleGroupStyle.order, id: \.self) { group in
+                            legendToggleChip(color: MuscleGroupStyle.color(for: group), label: group, isActive: visibleTonnageMuscleGroups.contains(group)) {
+                                if visibleTonnageMuscleGroups.contains(group) {
+                                    visibleTonnageMuscleGroups.remove(group)
+                                } else {
+                                    visibleTonnageMuscleGroups.insert(group)
+                                }
+                            }
+                        }
+                    }
+                    .padding(.bottom, 10)
+
+                    if visibleTonnageMuscleGroups.isEmpty {
+                        Text("Aucun groupe sélectionné")
+                            .font(.system(size: 12))
+                            .foregroundStyle(AppTheme.textSecondary)
+                            .frame(maxWidth: .infinity)
+                            .frame(height: 170)
+                    } else {
+                    Chart(filteredMuscleTonnageEntries) { entry in
+                        BarMark(
+                            x: .value("Semaine", entry.weekLabel),
+                            y: .value("Tonnage", entry.tonnage),
+                            width: .fixed(22)
+                        )
+                        .foregroundStyle(by: .value("Groupe", entry.group))
+                        .cornerRadius(3)
+                    }
+                    .chartForegroundStyleScale(
+                        domain: MuscleGroupStyle.order,
+                        range: MuscleGroupStyle.order.map(MuscleGroupStyle.color(for:))
+                    )
+                    .chartLegend(.hidden)
+                    .chartYAxis {
+                        AxisMarks(position: .leading) { _ in
+                            AxisGridLine()
+                            AxisValueLabel()
+                                .font(.system(size: 9))
+                                .foregroundStyle(AppTheme.textSecondary)
+                        }
+                    }
+                    .chartXAxis {
+                        AxisMarks { value in
+                            if let label = value.as(String.self) {
+                                AxisValueLabel(label)
+                                    .font(.system(size: 9))
+                                    .foregroundStyle(AppTheme.textSecondary)
+                            }
+                        }
+                    }
+                    .frame(height: 170)
+                    }
+                }
+            }
+        }
+    }
+
+    private let collapsedExerciseCount = 6
+
+    private var exerciseRanking: [ExerciseRankingRow] {
+        ExerciseRanking.build(setEntries: setEntries, exerciseLibrary: exerciseLibrary, period: exercisePeriod, calendar: calendar)
+            .filter { visibleExerciseGroups.contains($0.muscleGroup) }
+    }
+
+    private var visibleExerciseRanking: [ExerciseRankingRow] {
+        Array(exerciseRanking.prefix(collapsedExerciseCount))
+    }
+
+    private var exerciseRankingChart: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            SectionLabel(text: "Séries par exercice")
+            AppCard {
+                HStack {
+                    Spacer(minLength: 0)
+                    periodMenu(selection: $exercisePeriod)
+                }
+                .padding(.bottom, 10)
+
+                FlowLayout(spacing: 6) {
+                    ForEach(MuscleGroupStyle.order, id: \.self) { group in
+                        legendToggleChip(color: MuscleGroupStyle.color(for: group), label: group, isActive: visibleExerciseGroups.contains(group)) {
+                            if visibleExerciseGroups.contains(group) {
+                                visibleExerciseGroups.remove(group)
+                            } else {
+                                visibleExerciseGroups.insert(group)
+                            }
+                        }
+                    }
+                }
+                .padding(.bottom, 12)
+
+                if visibleExerciseGroups.isEmpty {
+                    Text("Aucun groupe sélectionné").font(.system(size: 12)).foregroundStyle(AppTheme.textSecondary)
+                } else if exerciseRanking.isEmpty {
+                    Text("Pas encore de données").font(.system(size: 12)).foregroundStyle(AppTheme.textSecondary)
+                } else {
+                    let maxCount = max(exerciseRanking.first?.count ?? 1, 1)
+                    VStack(spacing: 12) {
+                        ForEach(visibleExerciseRanking) { row in
+                            ExerciseRankingRowView(row: row, maxCount: maxCount)
+                        }
+                    }
+
+                    if exerciseRanking.count > collapsedExerciseCount {
+                        NavigationLink {
+                            ExerciseFrequencyView(initialPeriod: exercisePeriod, initialVisibleGroups: visibleExerciseGroups)
+                        } label: {
+                            Text("Voir tout")
+                                .font(.system(size: 13, weight: .semibold))
+                                .foregroundStyle(AppTheme.accent)
+                                .frame(maxWidth: .infinity)
+                                .padding(.top, 4)
+                        }
+                        .buttonStyle(.plain)
+                    }
+                }
+            }
+        }
     }
 
     private var averageWeightPerExercise: [(exercise: String, averageWeight: Double)] {
