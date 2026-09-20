@@ -52,6 +52,8 @@ struct ProgramDetailView: View {
                     }
                 }
 
+                ProgramBilanCardView(program: program)
+
                 objectivesSection(
                     title: "Objectifs principaux",
                     objectives: program.principalObjectives,

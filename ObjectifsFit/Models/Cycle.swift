@@ -18,6 +18,9 @@ final class Cycle {
     var isActive: Bool
     var notes: String?
     var program: TrainingProgram?
+    /// Dernier envoi de l'export "Bilan de cycle" (simple repère affiché à l'utilisateur, pas un
+    /// vrai statut — l'app ne sait pas si l'analyse a réellement été faite, voir `ArchivedBilan`).
+    var lastAnalysisRequestedAt: Date?
     private var objectifsPrincipauxRaw: [String] = []
     private var objectifsSecondairesRaw: [String] = []
 
