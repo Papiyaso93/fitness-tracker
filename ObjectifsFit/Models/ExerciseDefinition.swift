@@ -13,12 +13,16 @@ final class ExerciseDefinition {
     /// les muscles précis. Basé sur des sources anatomiques (ExRx.net et équivalents), pas deviné.
     var primaryMuscles: [String] = []
     var secondaryMuscles: [String] = []
+    /// Fraction du poids de corps réellement soulevée (mode Poids du corps/Lesté), éditable — pré-
+    /// rempli à la création par une estimation (`BodyweightCoefficients`), corrigeable ensuite.
+    var tonnageCoefficient: Double = 1.0
 
-    init(name: String, muscleGroup: String, primaryMuscles: [String] = [], secondaryMuscles: [String] = []) {
+    init(name: String, muscleGroup: String, primaryMuscles: [String] = [], secondaryMuscles: [String] = [], tonnageCoefficient: Double? = nil) {
         self.id = UUID()
         self.name = name
         self.muscleGroup = muscleGroup
         self.primaryMuscles = primaryMuscles
         self.secondaryMuscles = secondaryMuscles
+        self.tonnageCoefficient = tonnageCoefficient ?? BodyweightCoefficients.defaultCoefficient(forExerciseNamed: name)
     }
 }

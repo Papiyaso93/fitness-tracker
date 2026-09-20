@@ -34,7 +34,10 @@ struct LogPlannedSetView: View {
     }
 
     private var defaultCoefficient: Double {
-        BodyweightCoefficients.defaultCoefficient(forExerciseNamed: exerciseName.isEmpty ? (muscleGroup ?? "") : exerciseName)
+        if let definition = selectedExerciseDefinition {
+            return definition.tonnageCoefficient
+        }
+        return BodyweightCoefficients.defaultCoefficient(forExerciseNamed: exerciseName.isEmpty ? (muscleGroup ?? "") : exerciseName)
     }
 
     private var previousEntry: PlannedSetEntry? {

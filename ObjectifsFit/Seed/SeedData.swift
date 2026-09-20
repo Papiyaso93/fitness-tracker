@@ -3,6 +3,23 @@ import SwiftData
 
 enum SeedData {
 
+    /// Reprend l'ancien rappel transit codé en dur (21h) comme premier `Reminder` par défaut, une
+    /// seule fois — l'utilisateur peut ensuite le modifier ou le supprimer librement comme les autres.
+    static func seedDefaultReminderIfNeeded(context: ModelContext) {
+        let descriptor = FetchDescriptor<Reminder>()
+        let existing = (try? context.fetch(descriptor)) ?? []
+        guard existing.isEmpty else { return }
+
+        let reminder = Reminder(
+            title: "Transit du jour",
+            message: "Tu n'as pas encore renseigné ton transit aujourd'hui.",
+            hour: 21,
+            minute: 0
+        )
+        context.insert(reminder)
+        NotificationManager.schedule(reminder)
+    }
+
     /// Bibliothèque d'exercices livrée avec l'app — additif et idempotent, complète la liste sans
     /// jamais écraser les exercices que l'utilisateur a ajoutés/modifiés lui-même.
     static func seedExerciseLibraryIfNeeded(context: ModelContext) {
@@ -86,31 +103,31 @@ enum SeedData {
             // Dos
             ("Extension lombaire", "Dos", ["Lombaires"], ["Fessiers", "Ischio-jambiers"]),
             ("Soulevé de terre", "Dos", ["Lombaires", "Fessiers"], ["Ischio-jambiers", "Quadriceps", "Grand dorsal", "Trapèzes"]),
-            ("Pull-over poulie haute", "Dos", ["Grand dorsal"], ["Grand rond", "Pectoraux", "Triceps"]),
-            ("Tractions", "Dos", ["Grand dorsal"], ["Grand rond", "Rhomboïdes", "Trapèzes inférieurs", "Biceps"]),
-            ("Tractions supination", "Dos", ["Grand dorsal", "Biceps"], ["Grand rond", "Rhomboïdes", "Trapèzes inférieurs"]),
-            ("Tractions neutre", "Dos", ["Grand dorsal", "Brachial"], ["Biceps", "Grand rond", "Trapèzes"]),
+            ("Pull-over poulie haute", "Dos", ["Grand dorsal"], ["Grand rond", "Grand pectoral sternal", "Triceps brachial"]),
+            ("Tractions", "Dos", ["Grand dorsal"], ["Grand rond", "Rhomboïdes", "Trapèzes inférieurs", "Biceps brachial"]),
+            ("Tractions supination", "Dos", ["Grand dorsal", "Biceps brachial"], ["Grand rond", "Rhomboïdes", "Trapèzes inférieurs"]),
+            ("Tractions neutre", "Dos", ["Grand dorsal", "Brachial"], ["Biceps brachial", "Grand rond", "Trapèzes"]),
             ("Shrug", "Dos", ["Trapèzes supérieurs"], ["Trapèzes moyens", "Releveur de la scapula"]),
-            ("Tirage vertical", "Dos", ["Grand dorsal"], ["Biceps", "Grand rond", "Rhomboïdes", "Trapèzes inférieurs"]),
-            ("Tirage horizontal", "Dos", ["Grand dorsal", "Rhomboïdes", "Trapèzes moyens"], ["Biceps", "Deltoïde postérieur", "Lombaires"]),
-            ("Tirage bûcheron", "Dos", ["Grand dorsal"], ["Trapèzes", "Rhomboïdes", "Biceps", "Lombaires"]),
+            ("Tirage vertical", "Dos", ["Grand dorsal"], ["Biceps brachial", "Grand rond", "Rhomboïdes", "Trapèzes inférieurs"]),
+            ("Tirage horizontal", "Dos", ["Grand dorsal", "Rhomboïdes", "Trapèzes moyens"], ["Biceps brachial", "Deltoïde postérieur", "Lombaires"]),
+            ("Tirage bûcheron", "Dos", ["Grand dorsal"], ["Trapèzes", "Rhomboïdes", "Biceps brachial", "Lombaires"]),
             // Pectoraux
-            ("Développé couché haltères", "Pectoraux", ["Grand pectoral sternal"], ["Deltoïde antérieur", "Triceps"]),
-            ("Développé incliné haltères", "Pectoraux", ["Grand pectoral claviculaire"], ["Deltoïde antérieur", "Triceps"]),
-            ("Développé semi-incliné haltères", "Pectoraux", ["Grand pectoral claviculaire", "Grand pectoral sternal"], ["Deltoïde antérieur", "Triceps"]),
-            ("Butterfly", "Pectoraux", ["Grand pectoral sternal"], ["Deltoïde antérieur", "Dentelé antérieur"]),
-            ("Chest press", "Pectoraux", ["Grand pectoral sternal"], ["Deltoïde antérieur", "Triceps"]),
-            ("Pompe", "Pectoraux", ["Grand pectoral sternal"], ["Deltoïde antérieur", "Triceps"]),
-            ("Pompe incliné", "Pectoraux", ["Grand pectoral sternal"], ["Deltoïde antérieur", "Triceps"]),
-            ("Pompe décliné", "Pectoraux", ["Grand pectoral claviculaire"], ["Deltoïde antérieur", "Triceps"]),
-            ("Écarté poulie haute", "Pectoraux", ["Grand pectoral sternal"], ["Deltoïde antérieur", "Dentelé antérieur"]),
+            ("Développé couché haltères", "Pectoraux", ["Grand pectoral sternal"], ["Deltoïde antérieur", "Triceps brachial"]),
+            ("Développé incliné haltères", "Pectoraux", ["Grand pectoral claviculaire"], ["Deltoïde antérieur", "Triceps brachial"]),
+            ("Développé semi-incliné haltères", "Pectoraux", ["Grand pectoral claviculaire", "Grand pectoral sternal"], ["Deltoïde antérieur", "Triceps brachial"]),
+            ("Butterfly", "Pectoraux", ["Grand pectoral sternal"], ["Deltoïde antérieur"]),
+            ("Chest press", "Pectoraux", ["Grand pectoral sternal"], ["Deltoïde antérieur", "Triceps brachial"]),
+            ("Pompe", "Pectoraux", ["Grand pectoral sternal"], ["Deltoïde antérieur", "Triceps brachial"]),
+            ("Pompe incliné", "Pectoraux", ["Grand pectoral sternal"], ["Deltoïde antérieur", "Triceps brachial"]),
+            ("Pompe décliné", "Pectoraux", ["Grand pectoral claviculaire"], ["Deltoïde antérieur", "Triceps brachial"]),
+            ("Écarté poulie haute", "Pectoraux", ["Grand pectoral sternal"], ["Deltoïde antérieur"]),
             ("Écarté poulie basse", "Pectoraux", ["Grand pectoral claviculaire"], ["Deltoïde antérieur"]),
             // Épaules
-            ("Tirage menton", "Épaules", ["Deltoïde latéral"], ["Trapèzes", "Biceps"]),
+            ("Tirage menton", "Épaules", ["Deltoïde latéral"], ["Trapèzes", "Biceps brachial"]),
             ("Élévations latérales", "Épaules", ["Deltoïde latéral"], ["Trapèzes supérieurs", "Supra-épineux", "Deltoïde antérieur"]),
             ("L'oiseau", "Épaules", ["Deltoïde postérieur"], ["Trapèzes", "Rhomboïdes", "Infra-épineux", "Petit rond"]),
             ("Rear delt fly", "Épaules", ["Deltoïde postérieur"], ["Trapèzes", "Rhomboïdes", "Infra-épineux", "Petit rond"]),
-            ("Développé militaire", "Épaules", ["Deltoïde antérieur"], ["Deltoïde latéral", "Triceps", "Trapèzes"]),
+            ("Développé militaire", "Épaules", ["Deltoïde antérieur"], ["Deltoïde latéral", "Triceps brachial", "Trapèzes"]),
             ("Élévations frontales", "Épaules", ["Deltoïde antérieur"], ["Grand pectoral claviculaire", "Deltoïde latéral"]),
             ("Rotation externe (coiffe des rotateurs)", "Épaules", ["Infra-épineux", "Petit rond"], ["Deltoïde postérieur"]),
             // Biceps
@@ -142,9 +159,9 @@ enum SeedData {
             // Abdos
             ("Relevé de genoux à la chaise romaine", "Abdos", ["Grand droit de l'abdomen"], ["Obliques", "Fléchisseurs de hanche"]),
             ("Relevé de genoux à la barre", "Abdos", ["Grand droit de l'abdomen"], ["Obliques", "Fléchisseurs de hanche"]),
-            ("Abs wheel", "Abdos", ["Fléchisseurs de hanche"], ["Grand droit de l'abdomen", "Obliques", "Grand dorsal"]),
+            ("Abs wheel", "Abdos", ["Fléchisseurs de hanche"], ["Grand droit de l'abdomen", "Obliques", "Grand dorsal", "Transverse de l'abdomen"]),
             ("Crunch à la poulie haute", "Abdos", ["Grand droit de l'abdomen"], ["Obliques"]),
-            ("Woodchop à la poulie", "Abdos", ["Obliques"], ["Grand droit de l'abdomen"])
+            ("Woodchop à la poulie", "Abdos", ["Obliques"], ["Grand droit de l'abdomen", "Transverse de l'abdomen"])
         ]
 
         // Resynchronise les muscles ciblés sur les exercices déjà en base (pas juste les nouveaux)

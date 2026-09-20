@@ -18,7 +18,8 @@ struct ObjectifsFitApp: App {
             ExerciseDefinition.self,
             MealLog.self,
             TransitLog.self,
-            SleepLog.self
+            SleepLog.self,
+            Reminder.self
         ])
         // TODO: réactiver cloudKitDatabase: .automatic une fois tous les champs des modèles
         // dotés de valeurs par défaut (CloudKit l'exige pour attributs et relations).
@@ -30,7 +31,7 @@ struct ObjectifsFitApp: App {
         }
 
         SeedData.seedExerciseLibraryIfNeeded(context: container.mainContext)
-        NotificationManager.scheduleTransitReminder()
+        SeedData.seedDefaultReminderIfNeeded(context: container.mainContext)
         AppAppearance.apply()
     }
 
