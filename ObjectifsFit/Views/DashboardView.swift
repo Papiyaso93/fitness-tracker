@@ -19,6 +19,10 @@ struct DashboardView: View {
     @State private var selectedAverageWeightExercise: String?
     @State private var averageWeightWindowOffset = 0
     @State private var selectedPRExercise: String?
+    @State private var visibleSensations: Set<SensationLevel> = Set(SensationLevel.allCases)
+    @State private var sensationWindowOffset = 0
+    @State private var intensityPeriod: ExercisePeriod = .fourWeeks
+    @State private var visibleIntensityGroups: Set<String> = Set(MuscleGroupStyle.order)
 
     private var calendar: Calendar { Calendar.current }
 
@@ -102,14 +106,20 @@ struct DashboardView: View {
             ScrollView {
                 VStack(alignment: .leading, spacing: 20) {
                     BilanCoachCardView()
+
+                    dashboardSectionHeader("Volume", systemImage: "dumbbell.fill")
                     sessionsChart
                     muscleGroupChart
                     muscleGroupTonnageChart
                     exerciseRankingChart
+
+                    dashboardSectionHeader("Effort", systemImage: "flame.fill")
+                    sensationChart
+                    intensityRankingChart
+
+                    dashboardSectionHeader("Performance", systemImage: "chart.line.uptrend.xyaxis")
                     averageWeightChart
                     prTrackingChart
-                    kpiSection("Tendance des sensations / semaine", averageSensationPerWeek.map { KPIRowData(label: $0.week.formatted(date: .abbreviated, time: .omitted), value: String(format: "%.1f", $0.average)) })
-                    kpiSection("% de difficulté par exercice", hardRatioPerExercise.map { KPIRowData(label: $0.exercise, value: "\(Int($0.ratio * 100))%") })
                 }
                 .padding(16)
             }
@@ -118,33 +128,24 @@ struct DashboardView: View {
         }
     }
 
-    private struct KPIRowData: Identifiable {
-        let label: String
-        let value: String
-        var id: String { label }
-    }
-
-    private func kpiSection(_ title: String, _ rows: [KPIRowData]) -> some View {
-        VStack(alignment: .leading, spacing: 8) {
-            SectionLabel(text: title)
-            AppCard {
-                if rows.isEmpty {
-                    Text("Pas encore de données").font(.system(size: 12)).foregroundStyle(AppTheme.textSecondary)
-                } else {
-                    VStack(spacing: 0) {
-                        ForEach(Array(rows.enumerated()), id: \.element.id) { index, row in
-                            if index > 0 { Divider().overlay(AppTheme.border) }
-                            HStack {
-                                Text(row.label).foregroundStyle(AppTheme.textPrimary)
-                                Spacer()
-                                Text(row.value).foregroundStyle(AppTheme.textSecondary)
-                            }
-                            .padding(.vertical, 6)
-                        }
-                    }
+    /// Titre de section (Volume/Effort/Performance) — pastille d'icône pleine + texte, plus gros
+    /// et gras que `SectionLabel` (titre de carte), pour marquer clairement les 3 blocs du
+    /// Tableau de bord.
+    private func dashboardSectionHeader(_ title: String, systemImage: String) -> some View {
+        HStack(spacing: 10) {
+            RoundedRectangle(cornerRadius: 9)
+                .fill(AppTheme.accent)
+                .frame(width: 30, height: 30)
+                .overlay {
+                    Image(systemName: systemImage)
+                        .font(.system(size: 14, weight: .semibold))
+                        .foregroundStyle(.white)
                 }
-            }
+            Text(title)
+                .font(.system(size: 18, weight: .bold))
+                .foregroundStyle(AppTheme.textPrimary)
         }
+        .padding(.horizontal, 4)
     }
 
     private struct WeeklySessionEntry: Identifiable {
@@ -290,7 +291,7 @@ struct DashboardView: View {
 
     private var muscleGroupChart: some View {
         VStack(alignment: .leading, spacing: 8) {
-            SectionLabel(text: "Séries par groupe musculaire / semaine")
+            SectionLabel(text: "Séries par groupe musculaire")
             AppCard {
                 if weeklyMuscleGroupEntries.isEmpty {
                     Text("Pas encore de données").font(.system(size: 12)).foregroundStyle(AppTheme.textSecondary)
@@ -386,7 +387,7 @@ struct DashboardView: View {
 
     private var muscleGroupTonnageChart: some View {
         VStack(alignment: .leading, spacing: 8) {
-            SectionLabel(text: "Tonnage par groupe musculaire / semaine")
+            SectionLabel(text: "Tonnage par groupe musculaire")
             AppCard {
                 if weeklyMuscleTonnageEntries.isEmpty {
                     Text("Pas encore de données").font(.system(size: 12)).foregroundStyle(AppTheme.textSecondary)
@@ -452,7 +453,7 @@ struct DashboardView: View {
         }
     }
 
-    private let collapsedExerciseCount = 6
+    private let collapsedExerciseCount = 5
 
     private var exerciseRanking: [ExerciseRankingRow] {
         ExerciseRanking.build(setEntries: setEntries, exerciseLibrary: exerciseLibrary, period: exercisePeriod, calendar: calendar)
@@ -636,7 +637,7 @@ struct DashboardView: View {
         return PRHistoryBuilder.build(setEntries: setEntries, exerciseName: exerciseName)
     }
 
-    private let collapsedPRCount = 4
+    private let collapsedPRCount = 5
 
     private var prTrackingChart: some View {
         VStack(alignment: .leading, spacing: 8) {
@@ -738,15 +739,163 @@ struct DashboardView: View {
         }
     }
 
-    private var averageSensationPerWeek: [(week: Date, average: Double)] {
-        Dictionary(grouping: setEntries, by: { weekKey($0.date) })
-            .map { (week: $0.key, average: Double($0.value.map { $0.sensation.rawValue }.reduce(0, +)) / Double($0.value.count)) }
-            .sorted { $0.week < $1.week }
+    private struct WeeklySensationEntry: Identifiable {
+        let week: Date
+        let sensation: SensationLevel
+        let count: Int
+        var id: String { "\(week)-\(sensation.rawValue)" }
+        var weekLabel: String { AppDateFormat.dayMonth.string(from: week) }
     }
 
-    private var hardRatioPerExercise: [(exercise: String, ratio: Double)] {
-        Dictionary(grouping: setEntries, by: { $0.exerciseName })
-            .map { (exercise: $0.key, ratio: Double($0.value.filter { $0.sensation.isHard }.count) / Double($0.value.count)) }
-            .sorted { $0.ratio > $1.ratio }
+    /// Même fenêtre fixe de 4 semaines que les autres graphes, empilée par niveau de sensation
+    /// (facile en bas, échec en haut) — l'ordre suit l'intensité pour que "monter dans le rouge"
+    /// soit visible d'un coup d'œil.
+    private var weeklySensationEntries: [WeeklySensationEntry] {
+        guard !setEntries.isEmpty else { return [] }
+        let grouped = Dictionary(grouping: setEntries) { weekKey($0.date) }
+
+        var entries: [WeeklySensationEntry] = []
+        for week in weeksWindow(offsetWindows: sensationWindowOffset) {
+            let weekEntries = grouped[week] ?? []
+            let countsBySensation = Dictionary(grouping: weekEntries, by: { $0.sensation }).mapValues(\.count)
+            for sensation in SensationLevel.allCases {
+                entries.append(WeeklySensationEntry(week: week, sensation: sensation, count: countsBySensation[sensation] ?? 0))
+            }
+        }
+        return entries
+    }
+
+    private var filteredSensationEntries: [WeeklySensationEntry] {
+        weeklySensationEntries.filter { visibleSensations.contains($0.sensation) }
+    }
+
+    private var sensationChart: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            SectionLabel(text: "Sensations par semaine")
+            AppCard {
+                if weeklySensationEntries.isEmpty {
+                    Text("Pas encore de données").font(.system(size: 12)).foregroundStyle(AppTheme.textSecondary)
+                } else {
+                    windowNavigator(weeks: weeksWindow(offsetWindows: sensationWindowOffset), offset: $sensationWindowOffset)
+                        .padding(.bottom, 10)
+
+                    FlowLayout(spacing: 6) {
+                        ForEach(SensationLevel.allCases, id: \.self) { sensation in
+                            legendToggleChip(color: sensation.color, label: sensation.label, isActive: visibleSensations.contains(sensation)) {
+                                if visibleSensations.contains(sensation) {
+                                    visibleSensations.remove(sensation)
+                                } else {
+                                    visibleSensations.insert(sensation)
+                                }
+                            }
+                        }
+                    }
+                    .padding(.bottom, 10)
+
+                    if visibleSensations.isEmpty {
+                        Text("Aucun niveau sélectionné")
+                            .font(.system(size: 12))
+                            .foregroundStyle(AppTheme.textSecondary)
+                            .frame(maxWidth: .infinity)
+                            .frame(height: 170)
+                    } else {
+                        let windowLabels = weeksWindow(offsetWindows: sensationWindowOffset).map { AppDateFormat.dayMonth.string(from: $0) }
+                        Chart(filteredSensationEntries) { entry in
+                            BarMark(
+                                x: .value("Semaine", entry.weekLabel),
+                                y: .value("Séries", entry.count),
+                                width: .fixed(22)
+                            )
+                            .foregroundStyle(by: .value("Sensation", entry.sensation.label))
+                            .cornerRadius(3)
+                        }
+                        .chartForegroundStyleScale(
+                            domain: SensationLevel.allCases.map(\.label),
+                            range: SensationLevel.allCases.map(\.color)
+                        )
+                        .chartXScale(domain: windowLabels)
+                        .chartLegend(.hidden)
+                        .chartYAxis {
+                            AxisMarks(position: .leading) { _ in
+                                AxisGridLine()
+                                AxisValueLabel()
+                                    .font(.system(size: 9))
+                                    .foregroundStyle(AppTheme.textSecondary)
+                            }
+                        }
+                        .chartXAxis {
+                            AxisMarks { value in
+                                if let label = value.as(String.self) {
+                                    AxisValueLabel(label)
+                                        .font(.system(size: 9))
+                                        .foregroundStyle(AppTheme.textSecondary)
+                                }
+                            }
+                        }
+                        .frame(height: 170)
+                    }
+                }
+            }
+        }
+    }
+
+    private var intensityRanking: [IntensityRankingRow] {
+        IntensityRanking.build(setEntries: setEntries, period: intensityPeriod, calendar: calendar)
+            .filter { visibleIntensityGroups.contains($0.muscleGroup) }
+    }
+
+    private var visibleIntensityRanking: [IntensityRankingRow] {
+        Array(intensityRanking.prefix(collapsedExerciseCount))
+    }
+
+    private var intensityRankingChart: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            SectionLabel(text: "Intensité par exercice")
+            AppCard {
+                HStack {
+                    Spacer(minLength: 0)
+                    periodMenu(selection: $intensityPeriod)
+                }
+                .padding(.bottom, 10)
+
+                FlowLayout(spacing: 6) {
+                    ForEach(MuscleGroupStyle.order, id: \.self) { group in
+                        legendToggleChip(color: MuscleGroupStyle.color(for: group), label: group, isActive: visibleIntensityGroups.contains(group)) {
+                            if visibleIntensityGroups.contains(group) {
+                                visibleIntensityGroups.remove(group)
+                            } else {
+                                visibleIntensityGroups.insert(group)
+                            }
+                        }
+                    }
+                }
+                .padding(.bottom, 12)
+
+                if visibleIntensityGroups.isEmpty {
+                    Text("Aucun groupe sélectionné").font(.system(size: 12)).foregroundStyle(AppTheme.textSecondary)
+                } else if intensityRanking.isEmpty {
+                    Text("Pas encore de données").font(.system(size: 12)).foregroundStyle(AppTheme.textSecondary)
+                } else {
+                    VStack(spacing: 14) {
+                        ForEach(visibleIntensityRanking) { row in
+                            IntensityRankingRowView(row: row)
+                        }
+                    }
+
+                    if intensityRanking.count > collapsedExerciseCount {
+                        NavigationLink {
+                            IntensityRankingView(initialPeriod: intensityPeriod, initialVisibleGroups: visibleIntensityGroups)
+                        } label: {
+                            Text("Voir tout")
+                                .font(.system(size: 13, weight: .semibold))
+                                .foregroundStyle(AppTheme.accent)
+                                .frame(maxWidth: .infinity)
+                                .padding(.top, 8)
+                        }
+                        .buttonStyle(.plain)
+                    }
+                }
+            }
+        }
     }
 }
