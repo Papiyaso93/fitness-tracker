@@ -1,9 +1,13 @@
 import SwiftUI
 import SwiftData
+import Charts
 
 struct DashboardView: View {
     @Query private var completions: [SessionCompletion]
     @Query private var setEntries: [PlannedSetEntry]
+
+    @State private var showMusculation = true
+    @State private var showAutre = true
 
     private var calendar: Calendar { Calendar.current }
 
@@ -16,8 +20,8 @@ struct DashboardView: View {
             ScrollView {
                 VStack(alignment: .leading, spacing: 20) {
                     BilanCoachCardView()
-                    kpiSection("Séances par semaine", sessionsPerWeek.map { KPIRowData(label: $0.week.formatted(date: .abbreviated, time: .omitted), value: "\($0.count)") })
-                    kpiSection("Séries par groupe musculaire / semaine", setsPerMuscleGroup.map { KPIRowData(label: $0.group, value: "\($0.count)") })
+                    sessionsChart
+                    muscleGroupChart
                     kpiSection("Tonnage par groupe musculaire / semaine", tonnagePerMuscleGroup.map { KPIRowData(label: $0.group, value: "\(Int($0.tonnage))kg") })
                     kpiSection("Séries par exercice / semaine", setsPerExercise.map { KPIRowData(label: $0.exercise, value: "\($0.count)") })
                     kpiSection("Charge moyenne par exercice / semaine", averageWeightPerExercise.map { KPIRowData(label: $0.exercise, value: String(format: "%.1fkg", $0.averageWeight)) })
@@ -61,17 +65,206 @@ struct DashboardView: View {
         }
     }
 
-    private var sessionsPerWeek: [(week: Date, count: Int)] {
-        let finished = completions.compactMap(\.endTime)
-        return Dictionary(grouping: finished, by: { weekKey($0) })
-            .map { (week: $0.key, count: $0.value.count) }
-            .sorted { $0.week < $1.week }
+    private struct WeeklySessionEntry: Identifiable {
+        let week: Date
+        let kind: String
+        let count: Int
+        var id: String { "\(week)-\(kind)" }
+        var weekLabel: String { AppDateFormat.dayMonth.string(from: week) }
     }
 
-    private var setsPerMuscleGroup: [(group: String, count: Int)] {
-        Dictionary(grouping: setEntries, by: { $0.muscleGroup })
-            .map { (group: $0.key, count: $0.value.count) }
-            .sorted { $0.count > $1.count }
+    /// Type effectif d'une séance réalisée — reprend l'adaptation ("Autre séance réalisée ?") si
+    /// elle existe, sinon le type planifié.
+    private func effectiveKind(_ completion: SessionCompletion) -> SessionKind {
+        if completion.isAdapted {
+            return completion.adaptedKind ?? .autre
+        }
+        return completion.cycleSession?.kind ?? .autre
+    }
+
+    /// Les 4 dernières semaines (la plus récente en dernier), calées sur le lundi comme le reste
+    /// de l'app — sert de fenêtre fixe pour les aperçus compacts du Tableau de bord.
+    private func lastNWeeks(_ count: Int) -> [Date] {
+        let currentWeek = weekKey(.now)
+        return (0..<count).compactMap { offset in
+            calendar.date(byAdding: .weekOfYear, value: -offset, to: currentWeek)
+        }.sorted()
+    }
+
+    /// Comblé à 0 sur les 4 dernières semaines — un axe continu et une fenêtre fixe plutôt qu'un
+    /// graphe qui s'étale sur tout l'historique et devient illisible une fois les données denses.
+    private var weeklySessionEntries: [WeeklySessionEntry] {
+        let finished = completions.filter { $0.endTime != nil }
+        guard !finished.isEmpty else { return [] }
+        let grouped = Dictionary(grouping: finished) { weekKey($0.endTime!) }
+
+        var entries: [WeeklySessionEntry] = []
+        for week in lastNWeeks(4) {
+            let weekCompletions = grouped[week] ?? []
+            let musculationCount = weekCompletions.filter { effectiveKind($0) == .musculation }.count
+            let autreCount = weekCompletions.count - musculationCount
+            entries.append(WeeklySessionEntry(week: week, kind: "Musculation", count: musculationCount))
+            entries.append(WeeklySessionEntry(week: week, kind: "Autre", count: autreCount))
+        }
+        return entries
+    }
+
+    private var filteredSessionEntries: [WeeklySessionEntry] {
+        weeklySessionEntries.filter { entry in
+            (entry.kind == "Musculation" && showMusculation) || (entry.kind == "Autre" && showAutre)
+        }
+    }
+
+    private var sessionsChart: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            SectionLabel(text: "Séances par semaine")
+            AppCard {
+                if weeklySessionEntries.isEmpty {
+                    Text("Pas encore de données").font(.system(size: 12)).foregroundStyle(AppTheme.textSecondary)
+                } else {
+                    HStack {
+                        Spacer(minLength: 0)
+                        HStack(spacing: 10) {
+                            legendDot(color: AppTheme.accent, label: "Musculation", isActive: showMusculation) {
+                                showMusculation.toggle()
+                            }
+                            legendDot(color: AppTheme.secondary, label: "Autre", isActive: showAutre) {
+                                showAutre.toggle()
+                            }
+                        }
+                        Spacer(minLength: 0)
+                    }
+                    .padding(.bottom, 10)
+
+                    if !showMusculation && !showAutre {
+                        Text("Aucun type sélectionné")
+                            .font(.system(size: 12))
+                            .foregroundStyle(AppTheme.textSecondary)
+                            .frame(maxWidth: .infinity)
+                            .frame(height: 170)
+                    } else {
+                    Chart(filteredSessionEntries) { entry in
+                        BarMark(
+                            x: .value("Semaine", entry.weekLabel),
+                            y: .value("Séances", entry.count),
+                            width: .fixed(22)
+                        )
+                        .foregroundStyle(by: .value("Type", entry.kind))
+                        .cornerRadius(3)
+                    }
+                    .chartForegroundStyleScale([
+                        "Musculation": AppTheme.accent,
+                        "Autre": AppTheme.secondary
+                    ])
+                    .chartLegend(.hidden)
+                    .chartYAxis {
+                        AxisMarks(position: .leading) { _ in
+                            AxisGridLine()
+                            AxisValueLabel()
+                                .font(.system(size: 9))
+                                .foregroundStyle(AppTheme.textSecondary)
+                        }
+                    }
+                    .chartXAxis {
+                        AxisMarks { value in
+                            if let label = value.as(String.self) {
+                                AxisValueLabel(label)
+                                    .font(.system(size: 9))
+                                    .foregroundStyle(AppTheme.textSecondary)
+                            }
+                        }
+                    }
+                    .frame(height: 170)
+                    }
+                }
+            }
+        }
+    }
+
+    private func legendDot(color: Color, label: String, isActive: Bool, action: @escaping () -> Void) -> some View {
+        Button(action: action) {
+            HStack(spacing: 5) {
+                RoundedRectangle(cornerRadius: 2).fill(color).frame(width: 8, height: 8)
+                Text(label)
+                    .font(.system(size: 11, weight: isActive ? .semibold : .regular))
+            }
+            .foregroundStyle(isActive ? color : AppTheme.textSecondary.opacity(0.5))
+            .padding(.horizontal, 9)
+            .padding(.vertical, 4)
+            .background(isActive ? color.opacity(0.12) : Color.clear)
+            .clipShape(Capsule())
+        }
+        .buttonStyle(.plain)
+    }
+
+    private struct WeeklyMuscleEntry: Identifiable {
+        let week: Date
+        let group: String
+        let count: Int
+        var id: String { "\(week)-\(group)" }
+        var weekLabel: String { AppDateFormat.dayMonth.string(from: week) }
+    }
+
+    /// Même fenêtre fixe de 4 semaines que `weeklySessionEntries`, empilée par groupe musculaire
+    /// avec les couleurs déjà utilisées ailleurs dans l'app (`MuscleGroupStyle`) pour rester
+    /// cohérent avec les tags d'exercices.
+    private var weeklyMuscleGroupEntries: [WeeklyMuscleEntry] {
+        guard !setEntries.isEmpty else { return [] }
+        let grouped = Dictionary(grouping: setEntries) { weekKey($0.date) }
+
+        var entries: [WeeklyMuscleEntry] = []
+        for week in lastNWeeks(4) {
+            let weekEntries = grouped[week] ?? []
+            let countsByGroup = Dictionary(grouping: weekEntries, by: { $0.muscleGroup }).mapValues(\.count)
+            for group in MuscleGroupStyle.order {
+                entries.append(WeeklyMuscleEntry(week: week, group: group, count: countsByGroup[group] ?? 0))
+            }
+        }
+        return entries
+    }
+
+    private var muscleGroupChart: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            SectionLabel(text: "Séries par groupe musculaire / semaine")
+            AppCard {
+                if weeklyMuscleGroupEntries.isEmpty {
+                    Text("Pas encore de données").font(.system(size: 12)).foregroundStyle(AppTheme.textSecondary)
+                } else {
+                    Chart(weeklyMuscleGroupEntries) { entry in
+                        BarMark(
+                            x: .value("Semaine", entry.weekLabel),
+                            y: .value("Séries", entry.count),
+                            width: .fixed(22)
+                        )
+                        .foregroundStyle(by: .value("Groupe", entry.group))
+                        .cornerRadius(3)
+                    }
+                    .chartForegroundStyleScale(
+                        domain: MuscleGroupStyle.order,
+                        range: MuscleGroupStyle.order.map(MuscleGroupStyle.color(for:))
+                    )
+                    .chartLegend(.hidden)
+                    .chartYAxis {
+                        AxisMarks(position: .leading) { _ in
+                            AxisGridLine()
+                            AxisValueLabel()
+                                .font(.system(size: 9))
+                                .foregroundStyle(AppTheme.textSecondary)
+                        }
+                    }
+                    .chartXAxis {
+                        AxisMarks { value in
+                            if let label = value.as(String.self) {
+                                AxisValueLabel(label)
+                                    .font(.system(size: 9))
+                                    .foregroundStyle(AppTheme.textSecondary)
+                            }
+                        }
+                    }
+                    .frame(height: 170)
+                }
+            }
+        }
     }
 
     private var tonnagePerMuscleGroup: [(group: String, tonnage: Double)] {
