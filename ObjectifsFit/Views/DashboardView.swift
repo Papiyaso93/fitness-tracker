@@ -18,6 +18,7 @@ struct DashboardView: View {
     @State private var visibleExerciseGroups: Set<String> = Set(MuscleGroupStyle.order)
     @State private var selectedAverageWeightExercise: String?
     @State private var averageWeightWindowOffset = 0
+    @State private var selectedPRExercise: String?
 
     private var calendar: Calendar { Calendar.current }
 
@@ -51,9 +52,14 @@ struct DashboardView: View {
                     .foregroundStyle(AppTheme.textSecondary)
             }
             Spacer(minLength: 0)
-            Text(windowRangeLabel(weeks))
-                .font(.system(size: 12, weight: .medium))
-                .foregroundStyle(AppTheme.textPrimary)
+            HStack(spacing: 5) {
+                Image(systemName: "calendar")
+                    .font(.system(size: 11))
+                    .foregroundStyle(AppTheme.textSecondary)
+                Text(windowRangeLabel(weeks))
+                    .font(.system(size: 12, weight: .medium))
+                    .foregroundStyle(AppTheme.textPrimary)
+            }
             Spacer(minLength: 0)
             Button {
                 if offset.wrappedValue > 0 { offset.wrappedValue -= 1 }
@@ -101,7 +107,7 @@ struct DashboardView: View {
                     muscleGroupTonnageChart
                     exerciseRankingChart
                     averageWeightChart
-                    kpiSection("PR tracking (Epley)", bestEstimated1RM.map { KPIRowData(label: $0.exercise, value: String(format: "%.1fkg", $0.value)) })
+                    prTrackingChart
                     kpiSection("Tendance des sensations / semaine", averageSensationPerWeek.map { KPIRowData(label: $0.week.formatted(date: .abbreviated, time: .omitted), value: String(format: "%.1f", $0.average)) })
                     kpiSection("% de difficulté par exercice", hardRatioPerExercise.map { KPIRowData(label: $0.exercise, value: "\(Int($0.ratio * 100))%") })
                 }
@@ -625,16 +631,111 @@ struct DashboardView: View {
         }
     }
 
-    private var bestEstimated1RM: [(exercise: String, value: Double)] {
-        var byExercise: [String: Double] = [:]
-        for entry in setEntries {
-            guard let rm = entry.estimated1RM else { continue }
-            let current = byExercise[entry.exerciseName] ?? 0
-            byExercise[entry.exerciseName] = max(current, rm)
+    private var prHistory: [PRHistoryEntry] {
+        guard let exerciseName = selectedPRExercise else { return [] }
+        return PRHistoryBuilder.build(setEntries: setEntries, exerciseName: exerciseName)
+    }
+
+    private let collapsedPRCount = 4
+
+    private var prTrackingChart: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            SectionLabel(text: "Charge max par exercice")
+            AppCard {
+                if let exerciseName = selectedPRExercise {
+                    Menu {
+                        ForEach(exerciseLibrary) { definition in
+                            Button(definition.name) {
+                                selectedPRExercise = definition.name
+                            }
+                        }
+                    } label: {
+                        HStack(spacing: 4) {
+                            Spacer(minLength: 0)
+                            Text(exerciseName)
+                                .font(.system(size: 15, weight: .semibold))
+                                .foregroundStyle(AppTheme.textPrimary)
+                            Image(systemName: "chevron.down")
+                                .font(.system(size: 11, weight: .semibold))
+                                .foregroundStyle(AppTheme.textSecondary)
+                            Spacer(minLength: 0)
+                        }
+                    }
+                    .padding(.bottom, 12)
+
+                    if let record = prHistory.first {
+                        VStack(spacing: 2) {
+                            Text("RECORD ACTUEL")
+                                .font(.system(size: 10, weight: .semibold))
+                                .tracking(0.4)
+                                .foregroundStyle(AppTheme.accent)
+                            HStack(alignment: .firstTextBaseline, spacing: 4) {
+                                Text(WeightFormat.string(record.weight))
+                                    .font(.system(size: 22, weight: .bold))
+                                    .foregroundStyle(AppTheme.textPrimary)
+                                Text("kg")
+                                    .font(.system(size: 13, weight: .medium))
+                                    .foregroundStyle(AppTheme.textSecondary)
+                                Text("× \(record.reps) reps")
+                                    .font(.system(size: 13, weight: .medium))
+                                    .foregroundStyle(AppTheme.textSecondary)
+                            }
+                            HStack(spacing: 4) {
+                                Image(systemName: "calendar")
+                                    .font(.system(size: 10))
+                                Text(AppDateFormat.dayMonthYear.string(from: record.date))
+                                    .font(.system(size: 11))
+                            }
+                            .foregroundStyle(AppTheme.textSecondary)
+                        }
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, 10)
+                        .background(AppTheme.accent.opacity(0.08))
+                        .clipShape(RoundedRectangle(cornerRadius: 10))
+                        .padding(.bottom, 12)
+
+                        Text("HISTORIQUE DES RECORDS")
+                            .font(.system(size: 10, weight: .semibold))
+                            .tracking(0.4)
+                            .foregroundStyle(AppTheme.textSecondary)
+                            .padding(.bottom, 6)
+
+                        VStack(spacing: 0) {
+                            ForEach(Array(prHistory.prefix(collapsedPRCount).enumerated()), id: \.element.id) { index, entry in
+                                if index > 0 { Divider().overlay(AppTheme.border) }
+                                PRHistoryRowView(entry: entry)
+                            }
+                        }
+
+                        if prHistory.count > collapsedPRCount {
+                            NavigationLink {
+                                PRHistoryView(exerciseName: exerciseName)
+                            } label: {
+                                Text("Voir tout")
+                                    .font(.system(size: 13, weight: .semibold))
+                                    .foregroundStyle(AppTheme.accent)
+                                    .frame(maxWidth: .infinity)
+                                    .padding(.top, 8)
+                            }
+                            .buttonStyle(.plain)
+                        }
+                    } else {
+                        Text("Pas de charge enregistrée pour cet exercice")
+                            .font(.system(size: 12))
+                            .foregroundStyle(AppTheme.textSecondary)
+                            .frame(maxWidth: .infinity)
+                            .padding(.vertical, 8)
+                    }
+                } else {
+                    Text("Pas encore de données").font(.system(size: 12)).foregroundStyle(AppTheme.textSecondary)
+                }
+            }
         }
-        return byExercise
-            .map { (exercise: $0.key, value: $0.value) }
-            .sorted { $0.value > $1.value }
+        .onAppear {
+            if selectedPRExercise == nil {
+                selectedPRExercise = defaultAverageWeightExercise
+            }
+        }
     }
 
     private var averageSensationPerWeek: [(week: Date, average: Double)] {
