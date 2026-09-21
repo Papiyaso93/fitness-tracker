@@ -5,8 +5,6 @@ struct SettingsView: View {
     @Query(sort: \ExerciseDefinition.name) private var exercises: [ExerciseDefinition]
     @Query private var reminders: [Reminder]
 
-    @Environment(\.modelContext) private var context
-
     @State private var showingAddReminder = false
 
     var body: some View {
@@ -92,22 +90,24 @@ struct SettingsView: View {
                             }
                         }
                     }
-                    SectionLabel(text: "Développement")
-                    AppCard {
-                        Button {
-                            DevTestDataSeeder.seedRealisticTrainingHistory(context: context)
-                        } label: {
+
+                    SectionLabel(text: "Données")
+                    NavigationLink {
+                        ImportHistoryView()
+                    } label: {
+                        AppCard {
                             HStack {
-                                Text("Générer des données de test")
+                                Text("Importer mon historique")
                                     .font(.system(size: 15))
                                     .foregroundStyle(AppTheme.textPrimary)
                                 Spacer()
-                                Image(systemName: "wand.and.stars")
-                                    .font(.system(size: 13))
+                                Image(systemName: "chevron.right")
+                                    .font(.system(size: 12))
                                     .foregroundStyle(AppTheme.textSecondary)
                             }
                         }
                     }
+                    .buttonStyle(.plain)
                 }
                 .padding(16)
             }

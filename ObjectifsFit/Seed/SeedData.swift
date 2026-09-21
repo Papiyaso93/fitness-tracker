@@ -3,21 +3,23 @@ import SwiftData
 
 enum SeedData {
 
-    /// Reprend l'ancien rappel transit codé en dur (21h) comme premier `Reminder` par défaut, une
-    /// seule fois — l'utilisateur peut ensuite le modifier ou le supprimer librement comme les autres.
-    static func seedDefaultReminderIfNeeded(context: ModelContext) {
+    /// Rappels livrés avec l'app — additif comme la bibliothèque d'exercices, identifié par titre
+    /// pour ne jamais recréer un rappel que l'utilisateur aurait modifié ou supprimé lui-même.
+    static func seedDefaultRemindersIfNeeded(context: ModelContext) {
         let descriptor = FetchDescriptor<Reminder>()
         let existing = (try? context.fetch(descriptor)) ?? []
-        guard existing.isEmpty else { return }
+        let existingTitles = Set(existing.map { $0.title })
 
-        let reminder = Reminder(
-            title: "Transit du jour",
-            message: "Tu n'as pas encore renseigné ton transit aujourd'hui.",
-            hour: 21,
-            minute: 0
-        )
-        context.insert(reminder)
-        NotificationManager.schedule(reminder)
+        let defaults: [(title: String, message: String, hour: Int, minute: Int)] = [
+            ("Réveil en douceur ☀️", "Prends quelques secondes pour noter tes sensations.", 8, 0),
+            ("Bonne nuit 🌙", "Comment tu te sens ce soir ? Pense à bien te reposer.", 22, 0)
+        ]
+
+        for entry in defaults where !existingTitles.contains(entry.title) {
+            let reminder = Reminder(title: entry.title, message: entry.message, hour: entry.hour, minute: entry.minute)
+            context.insert(reminder)
+            NotificationManager.schedule(reminder)
+        }
     }
 
     /// Bibliothèque d'exercices livrée avec l'app — additif et idempotent, complète la liste sans
@@ -112,6 +114,7 @@ enum SeedData {
             ("Tirage horizontal", "Dos", ["Grand dorsal", "Rhomboïdes", "Trapèzes moyens"], ["Biceps brachial", "Deltoïde postérieur", "Lombaires"]),
             ("Tirage bûcheron", "Dos", ["Grand dorsal"], ["Trapèzes", "Rhomboïdes", "Biceps brachial", "Lombaires"]),
             // Pectoraux
+            ("Développé couché", "Pectoraux", ["Grand pectoral sternal"], ["Deltoïde antérieur", "Triceps brachial"]),
             ("Développé couché haltères", "Pectoraux", ["Grand pectoral sternal"], ["Deltoïde antérieur", "Triceps brachial"]),
             ("Développé incliné haltères", "Pectoraux", ["Grand pectoral claviculaire"], ["Deltoïde antérieur", "Triceps brachial"]),
             ("Développé semi-incliné haltères", "Pectoraux", ["Grand pectoral claviculaire", "Grand pectoral sternal"], ["Deltoïde antérieur", "Triceps brachial"]),
@@ -136,6 +139,7 @@ enum SeedData {
             ("Curl prise marteau", "Biceps", ["Brachio-radial"], ["Brachial", "Biceps brachial"]),
             ("Curl incliné haltères", "Biceps", ["Biceps brachial"], ["Brachial"]),
             ("Curl haltères", "Biceps", ["Biceps brachial"], ["Brachial", "Brachio-radial"]),
+            ("Curl", "Biceps", ["Biceps brachial"], ["Brachial", "Brachio-radial"]),
             // Triceps
             ("Dips", "Triceps", ["Triceps brachial vaste externe", "Triceps brachial vaste interne"], ["Grand pectoral sternal", "Deltoïde antérieur"]),
             ("Kick-back triceps", "Triceps", ["Triceps brachial vaste externe"], []),

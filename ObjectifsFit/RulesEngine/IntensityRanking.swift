@@ -28,6 +28,9 @@ enum IntensityRanking {
             let nearFailure = entries.filter { $0.sensation == .tresDifficile || $0.sensation == .echec }.count
             return IntensityRankingRow(exerciseName: name, muscleGroup: entries.first?.muscleGroup ?? "", nearFailureCount: nearFailure, totalCount: entries.count)
         }
-        .sorted { $0.percentage > $1.percentage }
+        // Départage explicite par nom sur les égalités de pourcentage — sans ça, l'ordre dépend de
+        // l'itération du Dictionary construit à partir de `setEntries` (non trié), qui peut varier
+        // d'un recalcul à l'autre et donnait l'impression que la liste se mélangeait toute seule.
+        .sorted { $0.percentage == $1.percentage ? $0.exerciseName < $1.exerciseName : $0.percentage > $1.percentage }
     }
 }
