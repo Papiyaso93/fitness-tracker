@@ -41,6 +41,7 @@
 		5CBE27BCC531387C64BE602C /* Cycle.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC16CD3D59968A49A6ABF849 /* Cycle.swift */; };
 		61CBE56254D3A711CAA2757D /* ProgramBuilderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 72D565BAE03C3CAD2E5935A7 /* ProgramBuilderView.swift */; };
 		649ABB0964D9C664FB6A3BF3 /* EditSessionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F4D05861B7DC9BB13BB0DC9 /* EditSessionView.swift */; };
+		7079E565CAA3201356859D0F /* AllBilansView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DE2BB0E86ED12E4ED51DE249 /* AllBilansView.swift */; };
 		78BCC5DE6BA3CDBA55F3A498 /* IntensityRanking.swift in Sources */ = {isa = PBXBuildFile; fileRef = 731F0489E22924D81273495E /* IntensityRanking.swift */; };
 		7EDB5F9957C40AC552650021 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 92C91FF00C6EF747ED63B02E /* SettingsView.swift */; };
 		84CB89808A43CA5AAF886B24 /* IntensityRankingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB12A7BABB5D4DADABC03A1D /* IntensityRankingView.swift */; };
@@ -51,6 +52,7 @@
 		8C3B2FAD7C87E9BAAA2B12B2 /* CycleDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3CF20306A21B1DE6A4E28D36 /* CycleDetailView.swift */; };
 		8D96B20D9FBAE2751D051D08 /* DevTestDataSeeder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 98E2142A2BE2DA803E7E7311 /* DevTestDataSeeder.swift */; };
 		8F9B4E91A8C3D2A31E4DD4FF /* TrainingEnums.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB30D50A5B19AFCA279AEF10 /* TrainingEnums.swift */; };
+		96B6C81A07BA415DF3FF5E01 /* BilanRowView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C5B26219C2EC986444FE7040 /* BilanRowView.swift */; };
 		991ED5699224F79E07720DF4 /* ExerciseLibraryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AC055BAA611334547C7A2FD1 /* ExerciseLibraryView.swift */; };
 		999CFAD40455C0E46212B3FA /* ExerciseRanking.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3F3D694AAB2660D9C7D6C532 /* ExerciseRanking.swift */; };
 		9DAAB23B2F8F0A27B852688F /* EditExerciseDefinitionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 38CCF83126F90631E93FDB75 /* EditExerciseDefinitionView.swift */; };
@@ -77,6 +79,7 @@
 		D61C8F09617A008BF82CD193 /* SeedData.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4F7B310F839D7B92E5F9BA4 /* SeedData.swift */; };
 		D837EE4246A1F11EC8D45AB7 /* CreateCycleView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3BD8345C082D1B908D2F189D /* CreateCycleView.swift */; };
 		D9592898CD39CF1388DC1A70 /* QualitySelectionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6448AEBC9E9549855073D233 /* QualitySelectionView.swift */; };
+		DB3079DCA05E64B88ABAA4D8 /* BilanRestoreImporter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5A4726EA6DB2F081191B5C9F /* BilanRestoreImporter.swift */; };
 		DD694D0E72341E22E1EB3F3A /* ExerciseFrequencyView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 360F35991DD9A9B47DAA5FC6 /* ExerciseFrequencyView.swift */; };
 		E318EF30D096D1B06288B229 /* MealLog.swift in Sources */ = {isa = PBXBuildFile; fileRef = DAD7EBCE51DBFC1643AD92F8 /* MealLog.swift */; };
 		E4704DF2DFC96A815B6E9EE2 /* TransitEntryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6EA8F5E112F215D897219EDD /* TransitEntryView.swift */; };
@@ -117,6 +120,7 @@
 		4D18042FEC55758B45353D8F /* BilanPrompt.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BilanPrompt.swift; sourceTree = "<group>"; };
 		530CED727015A1870095C077 /* BilanPDFDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BilanPDFDetailView.swift; sourceTree = "<group>"; };
 		575F2B82818BCE87EC10FC72 /* SessionCompletion.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SessionCompletion.swift; sourceTree = "<group>"; };
+		5A4726EA6DB2F081191B5C9F /* BilanRestoreImporter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BilanRestoreImporter.swift; sourceTree = "<group>"; };
 		6448AEBC9E9549855073D233 /* QualitySelectionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QualitySelectionView.swift; sourceTree = "<group>"; };
 		654FB5919D9080C6235FCE7D /* Weekday.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Weekday.swift; sourceTree = "<group>"; };
 		68E3F58218E9D6D62AFECAB8 /* AppTheme.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppTheme.swift; sourceTree = "<group>"; };
@@ -151,6 +155,7 @@
 		C0BD91D030DBDF4CF22C69D7 /* TransitLog.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TransitLog.swift; sourceTree = "<group>"; };
 		C2BB902E60BEACA7100DC3FC /* ProgramDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProgramDetailView.swift; sourceTree = "<group>"; };
 		C4036A2832918A1D3F285D4B /* DateFormatting.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DateFormatting.swift; sourceTree = "<group>"; };
+		C5B26219C2EC986444FE7040 /* BilanRowView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BilanRowView.swift; sourceTree = "<group>"; };
 		C5D709037CE6BCE018FE8CEA /* AddExerciseDefinitionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddExerciseDefinitionView.swift; sourceTree = "<group>"; };
 		CB8F8DB01F05F7E664A2B666 /* MealEntryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MealEntryView.swift; sourceTree = "<group>"; };
 		CC16CD3D59968A49A6ABF849 /* Cycle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Cycle.swift; sourceTree = "<group>"; };
@@ -160,6 +165,7 @@
 		D9A4CBD6EFE65E54A6F604EB /* CycleSession.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CycleSession.swift; sourceTree = "<group>"; };
 		DAD7EBCE51DBFC1643AD92F8 /* MealLog.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MealLog.swift; sourceTree = "<group>"; };
 		DCB68115D8F9E2C5CFA1D171 /* CreateProgramView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CreateProgramView.swift; sourceTree = "<group>"; };
+		DE2BB0E86ED12E4ED51DE249 /* AllBilansView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AllBilansView.swift; sourceTree = "<group>"; };
 		E02D003481EFEF0F8D3A6B1E /* ObjectifsFitApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ObjectifsFitApp.swift; sourceTree = "<group>"; };
 		E1B57EE27E9708C07E35FBBF /* SleepLog.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SleepLog.swift; sourceTree = "<group>"; };
 		E3683A31D793EDA1C0830BCF /* CycleBilanCardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CycleBilanCardView.swift; sourceTree = "<group>"; };
@@ -280,8 +286,10 @@
 				86439C312B1138CC78E8BF29 /* AddObjectiveDraftView.swift */,
 				6AC4FD54BAB1617D04130F88 /* AddPlannedExerciseView.swift */,
 				04F2906B0E392CD9EA2DC438 /* AddReminderView.swift */,
+				DE2BB0E86ED12E4ED51DE249 /* AllBilansView.swift */,
 				8E99D930B616F72A8C2DD274 /* BilanCoachCardView.swift */,
 				530CED727015A1870095C077 /* BilanPDFDetailView.swift */,
+				C5B26219C2EC986444FE7040 /* BilanRowView.swift */,
 				3BD8345C082D1B908D2F189D /* CreateCycleView.swift */,
 				DCB68115D8F9E2C5CFA1D171 /* CreateProgramView.swift */,
 				E3683A31D793EDA1C0830BCF /* CycleBilanCardView.swift */,
@@ -336,6 +344,7 @@
 		CABE460AF5C01AA5F54437B6 /* Import */ = {
 			isa = PBXGroup;
 			children = (
+				5A4726EA6DB2F081191B5C9F /* BilanRestoreImporter.swift */,
 				148E85CC92E542E411C91067 /* HistoryCSVImporter.swift */,
 			);
 			path = Import;
@@ -434,12 +443,15 @@
 				1B29CE3ED82B9011C5A3D3FC /* AddObjectiveDraftView.swift in Sources */,
 				8A6AA9A386EF91F93347D0D9 /* AddPlannedExerciseView.swift in Sources */,
 				547D72042A1EE13F1E9C645C /* AddReminderView.swift in Sources */,
+				7079E565CAA3201356859D0F /* AllBilansView.swift in Sources */,
 				84F7CB73F7AAE1445C1A4F20 /* AppTheme.swift in Sources */,
 				ADF0063B3DFAC4BC84F16306 /* ArchivedBilan.swift in Sources */,
 				FF6FA4EF3D5A4C0CA87D7ABD /* BilanCoachCardView.swift in Sources */,
 				B4FB68589C1A19C3ADA7698A /* BilanExport.swift in Sources */,
 				BA368A7B00BBFD2308117C59 /* BilanPDFDetailView.swift in Sources */,
 				16E3532F02DF39729FE9ECB4 /* BilanPrompt.swift in Sources */,
+				DB3079DCA05E64B88ABAA4D8 /* BilanRestoreImporter.swift in Sources */,
+				96B6C81A07BA415DF3FF5E01 /* BilanRowView.swift in Sources */,
 				C7BB837EEAC86E7ED077CBDC /* BodyweightCoefficients.swift in Sources */,
 				D837EE4246A1F11EC8D45AB7 /* CreateCycleView.swift in Sources */,
 				2026676E2BF8B7F986FF473B /* CreateProgramView.swift in Sources */,

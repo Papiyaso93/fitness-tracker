@@ -97,7 +97,7 @@ struct SettingsView: View {
                     } label: {
                         AppCard {
                             HStack {
-                                Text("Importer mon historique")
+                                Text("Import et sauvegarde")
                                     .font(.system(size: 15))
                                     .foregroundStyle(AppTheme.textPrimary)
                                 Spacer()

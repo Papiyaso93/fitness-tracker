@@ -60,10 +60,6 @@ enum HistoryCSVImporter {
         "élastique": .elastique
     ]
 
-    private static let sensationByLabel: [String: SensationLevel] = Dictionary(
-        uniqueKeysWithValues: SensationLevel.allCases.map { ($0.label, $0) }
-    )
-
     private static let dateFormatter: DateFormatter = {
         let formatter = DateFormatter()
         formatter.dateFormat = "yyyy-MM-dd HH:mm:ssxxx"
@@ -101,7 +97,7 @@ enum HistoryCSVImporter {
         let muscleGroupByName = Dictionary(exerciseLibrary.map { ($0.name, $0.muscleGroup) }, uniquingKeysWith: { first, _ in first })
 
         let existingEntries = (try? context.fetch(FetchDescriptor<PlannedSetEntry>())) ?? []
-        var existingSignatures = Set(existingEntries.map { signature(date: $0.date, exerciseName: $0.exerciseName, reps: $0.reps, weight: $0.weight) })
+        var existingSignatures = Set(existingEntries.map { $0.dedupSignature })
 
         var result = ImportResult()
 
@@ -137,9 +133,9 @@ enum HistoryCSVImporter {
             let coefficient = Double(row[coefficientIndex]) ?? 1.0
             let comment = row[commentIndex].trimmingCharacters(in: .whitespaces)
             let sensationLabel = row[sensationIndex].trimmingCharacters(in: .whitespaces)
-            let sensation = sensationByLabel[sensationLabel] ?? .normal
+            let sensation = SensationLevel.fromLabel(sensationLabel) ?? .normal
 
-            let sig = signature(date: date, exerciseName: canonicalName, reps: reps, weight: weight)
+            let sig = PlannedSetEntry.dedupSignature(date: date, exerciseName: canonicalName, reps: reps, weight: weight)
             guard !existingSignatures.contains(sig) else {
                 result.duplicateCount += 1
                 continue
@@ -165,10 +161,6 @@ enum HistoryCSVImporter {
         }
 
         return result
-    }
-
-    private static func signature(date: Date, exerciseName: String, reps: Int, weight: Double?) -> String {
-        "\(date.timeIntervalSince1970)|\(exerciseName)|\(reps)|\(weight ?? -1)"
     }
 
     /// Parseur CSV minimal mais correct sur les guillemets (le seul cas d'échappement présent dans

@@ -117,4 +117,12 @@ final class PlannedSetEntry {
         let effectiveWeight = weight + (bodyWeight ?? 0)
         return effectiveWeight * (1 + Double(reps) / 30.0)
     }
+
+    /// Clé de déduplication utilisée par les imports externes (CSV, restauration JSON) pour ne
+    /// jamais recréer une série déjà présente si le même fichier est réimporté.
+    var dedupSignature: String { Self.dedupSignature(date: date, exerciseName: exerciseName, reps: reps, weight: weight) }
+
+    static func dedupSignature(date: Date, exerciseName: String, reps: Int, weight: Double?) -> String {
+        "\(date.timeIntervalSince1970)|\(exerciseName)|\(reps)|\(weight ?? -1)"
+    }
 }

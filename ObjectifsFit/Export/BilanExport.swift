@@ -9,6 +9,9 @@ struct BilanExportPayload: Codable {
     var programs: [ProgramDTO]
     var cycles: [CycleDTO]
     var cycleSessions: [CycleSessionDTO]
+    /// Séries loguées hors de toute séance planifiée (ex: import d'historique externe) — sans ça,
+    /// cet export ne serait pas une sauvegarde complète.
+    var orphanSetEntries: [SetEntryDTO]
     var meals: [MealDTO]
     var transitLogs: [TransitDTO]
     var sleepLogs: [SleepDTO]
@@ -145,6 +148,8 @@ enum BilanExportBuilder {
         let programs = try context.fetch(FetchDescriptor<TrainingProgram>())
         let cycles = try context.fetch(FetchDescriptor<Cycle>())
         let sessions = try context.fetch(FetchDescriptor<CycleSession>())
+        let allSetEntries = try context.fetch(FetchDescriptor<PlannedSetEntry>())
+        let orphanSetEntries = allSetEntries.filter { $0.completion == nil }
         let meals = try context.fetch(FetchDescriptor<MealLog>())
         let transitLogs = try context.fetch(FetchDescriptor<TransitLog>())
         let sleepLogs = try context.fetch(FetchDescriptor<SleepLog>())
@@ -155,6 +160,7 @@ enum BilanExportBuilder {
             programs: programs.map(programDTO),
             cycles: cycles.map(cycleDTO),
             cycleSessions: sessions.map(cycleSessionDTO),
+            orphanSetEntries: orphanSetEntries.map(setEntryDTO),
             meals: meals.map(mealDTO),
             transitLogs: transitLogs.map(transitDTO),
             sleepLogs: sleepLogs.map(sleepDTO),
