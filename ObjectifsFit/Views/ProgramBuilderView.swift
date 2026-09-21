@@ -6,6 +6,7 @@ struct ProgramBuilderView: View {
     @Query private var programs: [TrainingProgram]
 
     @State private var showingCreateSheet = false
+    @State private var showingImportSheet = false
 
     private var sortedPrograms: [TrainingProgram] {
         func statusRank(_ status: ProgramStatus) -> Int {
@@ -49,6 +50,14 @@ struct ProgramBuilderView: View {
                                 .font(.system(size: 15, weight: .medium))
                         }
                         .padding(.top, 4)
+
+                        Button {
+                            showingImportSheet = true
+                        } label: {
+                            Label("Importer un programme", systemImage: "square.and.arrow.down")
+                                .font(.system(size: 15, weight: .medium))
+                        }
+                        .padding(.top, 16)
                     }
                 }
                 .padding(16)
@@ -58,6 +67,9 @@ struct ProgramBuilderView: View {
             .navigationTitle("Programme")
             .sheet(isPresented: $showingCreateSheet) {
                 CreateProgramView()
+            }
+            .sheet(isPresented: $showingImportSheet) {
+                ProgramImportView()
             }
         }
     }
@@ -85,6 +97,15 @@ struct ProgramBuilderView: View {
                     .clipShape(Capsule())
             }
             .padding(.top, 6)
+
+            Button {
+                showingImportSheet = true
+            } label: {
+                Label("Importer un programme", systemImage: "square.and.arrow.down")
+                    .font(.system(size: 14, weight: .medium))
+                    .foregroundStyle(AppTheme.accent)
+            }
+            .padding(.top, 10)
         }
         .frame(maxWidth: .infinity)
         .padding(.vertical, 60)
