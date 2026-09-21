@@ -31,4 +31,18 @@ enum NotificationManager {
     static func cancel(_ reminder: Reminder) {
         UNUserNotificationCenter.current().removePendingNotificationRequests(withIdentifiers: [reminder.id.uuidString])
     }
+
+    /// Annule toute notification programmée qui ne correspond plus à un `Reminder` existant —
+    /// une réinstallation par Xcode ("Replace") écrase les données de l'app mais pas les
+    /// notifications déjà programmées côté iOS, qui peuvent donc devenir orphelines (rappel
+    /// supprimé entre deux installs, ou seed par défaut qui a changé).
+    static func syncPending(with reminders: [Reminder]) {
+        let center = UNUserNotificationCenter.current()
+        let validIdentifiers = Set(reminders.map { $0.id.uuidString })
+        center.getPendingNotificationRequests { requests in
+            let staleIdentifiers = requests.map(\.identifier).filter { !validIdentifiers.contains($0) }
+            guard !staleIdentifiers.isEmpty else { return }
+            center.removePendingNotificationRequests(withIdentifiers: staleIdentifiers)
+        }
+    }
 }
