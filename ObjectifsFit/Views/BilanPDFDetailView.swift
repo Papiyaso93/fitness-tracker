@@ -20,6 +20,7 @@ struct BilanPDFDetailView: View {
     @Environment(\.modelContext) private var context
     @Environment(\.dismiss) private var dismiss
     @State private var showsDeleteConfirmation = false
+    @State private var shareURL: URL?
 
     var body: some View {
         NavigationStack {
@@ -35,6 +36,13 @@ struct BilanPDFDetailView: View {
                             Image(systemName: "trash")
                         }
                     }
+                    ToolbarItem(placement: .topBarTrailing) {
+                        Button {
+                            share()
+                        } label: {
+                            Image(systemName: "square.and.arrow.up")
+                        }
+                    }
                 }
                 .confirmationDialog("Supprimer ce bilan ?", isPresented: $showsDeleteConfirmation, titleVisibility: .visible) {
                     Button("Supprimer", role: .destructive) {
@@ -43,6 +51,20 @@ struct BilanPDFDetailView: View {
                     }
                     Button("Annuler", role: .cancel) {}
                 }
+                .sheet(isPresented: Binding(get: { shareURL != nil }, set: { if !$0 { shareURL = nil } })) {
+                    if let shareURL {
+                        ShareSheet(activityItems: [shareURL])
+                    }
+                }
         }
+    }
+
+    /// Partage/enregistrement du PDF — passe par un fichier temporaire nommé plutôt que les `Data`
+    /// brutes, sinon la feuille de partage propose un nom générique sans extension .pdf.
+    private func share() {
+        let filename = bilan.title.hasSuffix(".pdf") ? bilan.title : "\(bilan.title).pdf"
+        let url = FileManager.default.temporaryDirectory.appendingPathComponent(filename)
+        try? bilan.pdfData.write(to: url, options: .atomic)
+        shareURL = url
     }
 }

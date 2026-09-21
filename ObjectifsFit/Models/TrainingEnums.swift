@@ -34,6 +34,12 @@ enum SensationLevel: Int, Codable, CaseIterable, Hashable {
 
     var isHard: Bool { self == .difficile || self == .tresDifficile || self == .echec }
 
+    private static let byLabel = Dictionary(uniqueKeysWithValues: SensationLevel.allCases.map { ($0.label, $0) })
+
+    /// Retrouve le niveau depuis son libellé affiché (emoji + texte) — utilisé par les imports
+    /// (CSV externe, restauration JSON) qui ne connaissent que le texte, pas le rawValue interne.
+    static func fromLabel(_ label: String) -> SensationLevel? { byLabel[label] }
+
     /// Couleurs distinctes par niveau (pas un dégradé continu) — le gris signale un niveau neutre
     /// à peine notable, puis bleu/vert/jaune/orange/rouge montent en intensité perçue jusqu'à
     /// l'échec, pour visualiser d'un coup d'œil quand une semaine "monte dans le rouge".
