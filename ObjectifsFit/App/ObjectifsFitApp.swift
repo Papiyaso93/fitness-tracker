@@ -40,6 +40,7 @@ struct ObjectifsFitApp: App {
         WindowGroup {
             RootTabView()
                 .tint(AppTheme.accent)
+                .preferredColorScheme(.light)
         }
         .modelContainer(container)
     }
