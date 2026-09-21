@@ -32,7 +32,7 @@ struct ObjectifsFitApp: App {
         }
 
         SeedData.seedExerciseLibraryIfNeeded(context: container.mainContext)
-        SeedData.seedDefaultReminderIfNeeded(context: container.mainContext)
+        SeedData.seedDefaultRemindersIfNeeded(context: container.mainContext)
         AppAppearance.apply()
     }
 
