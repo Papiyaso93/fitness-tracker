@@ -77,6 +77,7 @@
 		D05380BA88923DB0958ED180 /* TransitLog.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0BD91D030DBDF4CF22C69D7 /* TransitLog.swift */; };
 		D3EFA3D7B39D3812AC9A6834 /* NotificationManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 11544DC3480E5A0C50A9DCD3 /* NotificationManager.swift */; };
 		D61C8F09617A008BF82CD193 /* SeedData.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4F7B310F839D7B92E5F9BA4 /* SeedData.swift */; };
+		D648C566EE296BE4C71A8EB7 /* ProgramImportView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B126A23750C7B771AD94B615 /* ProgramImportView.swift */; };
 		D837EE4246A1F11EC8D45AB7 /* CreateCycleView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3BD8345C082D1B908D2F189D /* CreateCycleView.swift */; };
 		D9592898CD39CF1388DC1A70 /* QualitySelectionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6448AEBC9E9549855073D233 /* QualitySelectionView.swift */; };
 		DB3079DCA05E64B88ABAA4D8 /* BilanRestoreImporter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5A4726EA6DB2F081191B5C9F /* BilanRestoreImporter.swift */; };
@@ -147,6 +148,7 @@
 		AB30D50A5B19AFCA279AEF10 /* TrainingEnums.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TrainingEnums.swift; sourceTree = "<group>"; };
 		AC055BAA611334547C7A2FD1 /* ExerciseLibraryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExerciseLibraryView.swift; sourceTree = "<group>"; };
 		AFF090CDB11A4EB6B5EC8687 /* SwapDaysView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwapDaysView.swift; sourceTree = "<group>"; };
+		B126A23750C7B771AD94B615 /* ProgramImportView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProgramImportView.swift; sourceTree = "<group>"; };
 		B23F85731AB7BFC7A7283513 /* PlannedExercise.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlannedExercise.swift; sourceTree = "<group>"; };
 		B5AF01B31E11B9D78D7D870E /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		B911F5F6E736AF9FF8117820 /* BilanExport.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BilanExport.swift; sourceTree = "<group>"; };
@@ -320,6 +322,7 @@
 				0503A2C064D2AEED45D06324 /* ProgramBilanCardView.swift */,
 				72D565BAE03C3CAD2E5935A7 /* ProgramBuilderView.swift */,
 				C2BB902E60BEACA7100DC3FC /* ProgramDetailView.swift */,
+				B126A23750C7B771AD94B615 /* ProgramImportView.swift */,
 				6448AEBC9E9549855073D233 /* QualitySelectionView.swift */,
 				15F3CAB44F6893AF7DFD1409 /* RootTabView.swift */,
 				92C91FF00C6EF747ED63B02E /* SettingsView.swift */,
@@ -500,6 +503,7 @@
 				A2FFC9C3EF3BB9B9E897C965 /* ProgramBilanCardView.swift in Sources */,
 				61CBE56254D3A711CAA2757D /* ProgramBuilderView.swift in Sources */,
 				5577BCA58811F29ECF918433 /* ProgramDetailView.swift in Sources */,
+				D648C566EE296BE4C71A8EB7 /* ProgramImportView.swift in Sources */,
 				0CAA24A6B168C5F4BCD10038 /* ProgramObjective.swift in Sources */,
 				D9592898CD39CF1388DC1A70 /* QualitySelectionView.swift in Sources */,
 				F1E3A0C2E6714FC5029FECA5 /* Reminder.swift in Sources */,
