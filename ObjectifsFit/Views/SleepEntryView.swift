@@ -27,6 +27,15 @@ enum SleepMoment: Identifiable {
         case .coucher: return 22
         }
     }
+
+    /// Jour de rattachement du `SleepLog` pour cette heure — un coucher avant midi (nuit qui
+    /// déborde après minuit) reste rattaché à la nuit de la veille plutôt qu'au jour calendaire
+    /// de l'horodatage, sinon "je me suis couché à 00h30" se retrouvait rangé sous le mauvais jour.
+    func targetDay(for time: Date, calendar: Calendar = .current) -> Date {
+        let startOfDay = calendar.startOfDay(for: time)
+        guard self == .coucher, calendar.component(.hour, from: time) < 12 else { return startOfDay }
+        return calendar.date(byAdding: .day, value: -1, to: startOfDay) ?? startOfDay
+    }
 }
 
 /// Création d'une moitié de journée pas encore renseignée — rattachée au `SleepLog` du jour
@@ -56,6 +65,19 @@ struct SleepEntryView: View {
                 Section {
                     DatePicker(moment.timeLabel, selection: $time, in: ...Date.now, displayedComponents: [.date, .hourAndMinute])
                         .labelsHidden()
+                    if let rollbackNotice {
+                        HStack(alignment: .top, spacing: 8) {
+                            Image(systemName: "info.circle")
+                                .font(.system(size: 13))
+                            Text(rollbackNotice)
+                                .font(.system(size: 12.5))
+                        }
+                        .foregroundStyle(Color(hex: "993C1D"))
+                        .padding(10)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .background(AppTheme.accent.opacity(0.08))
+                        .clipShape(RoundedRectangle(cornerRadius: 8))
+                    }
                 } header: { formSectionHeader(moment.timeLabel, required: true) }
 
                 Section {
@@ -91,11 +113,18 @@ struct SleepEntryView: View {
         }
     }
 
+    /// Bandeau affiché quand l'heure de coucher bascule automatiquement vers la veille.
+    private var rollbackNotice: String? {
+        guard moment == .coucher, Calendar.current.component(.hour, from: time) < 12 else { return nil }
+        let target = moment.targetDay(for: time)
+        return "Cette heure sera rattachée à la nuit du \(AppDateFormat.dayFullMonth.string(from: target))."
+    }
+
     /// La date choisie dans le picker peut différer de `day` (ouverture depuis un autre jour que
     /// celui du formulaire) — on recible toujours vers le `SleepLog` du jour réellement sélectionné,
     /// pas celui d'origine, pour permettre de renseigner un jour passé en le changeant ici.
     private func save() {
-        let targetDay = Calendar.current.startOfDay(for: time)
+        let targetDay = moment.targetDay(for: time)
         let log: SleepLog
         if let found = allSleepLogs.first(where: { Calendar.current.isDate($0.day, inSameDayAs: targetDay) }) {
             log = found
