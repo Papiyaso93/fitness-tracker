@@ -120,12 +120,7 @@ struct CycleBilanCardView: View {
                 exportAndShare()
             } label: {
                 Label("Analyser ce cycle", systemImage: "square.and.arrow.up")
-                    .font(.system(size: 14, weight: .semibold))
-                    .frame(maxWidth: .infinity)
-                    .padding(.vertical, 12)
-                    .foregroundStyle(.white)
-                    .background(AppTheme.accent)
-                    .clipShape(RoundedRectangle(cornerRadius: 11))
+                    .primaryButtonStyle()
             }
             .buttonStyle(.plain)
 
@@ -133,13 +128,7 @@ struct CycleBilanCardView: View {
                 showsImporter = true
             } label: {
                 Label("Importer le bilan du cycle", systemImage: "square.and.arrow.down")
-                    .font(.system(size: 14, weight: .semibold))
-                    .frame(maxWidth: .infinity)
-                    .padding(.vertical, 12)
-                    .foregroundStyle(AppTheme.textPrimary)
-                    .background(AppTheme.surface)
-                    .overlay(RoundedRectangle(cornerRadius: 11).stroke(AppTheme.border, lineWidth: 1.5))
-                    .clipShape(RoundedRectangle(cornerRadius: 11))
+                    .secondaryButtonStyle()
             }
             .buttonStyle(.plain)
         }

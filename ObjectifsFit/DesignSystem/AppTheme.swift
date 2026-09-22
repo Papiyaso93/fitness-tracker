@@ -189,6 +189,7 @@ enum AppTheme {
 
     static let cardRadius: CGFloat = 14
     static let cardPadding: CGFloat = 14
+    static let buttonRadius: CGFloat = 11
 
     enum Font {
         static let statValue = SwiftUI.Font.system(size: 26, weight: .semibold, design: .rounded)
@@ -215,6 +216,56 @@ struct AppCard<Content: View>: View {
                 .stroke(AppTheme.border, lineWidth: 0.5)
         )
         .clipShape(RoundedRectangle(cornerRadius: AppTheme.cardRadius))
+    }
+}
+
+/// Styles de bouton partagés — un seul rayon de coin (`AppTheme.buttonRadius`) pour tous les
+/// boutons "boîte" de l'app, qui divergeaient auparavant selon l'écran (pilule, 8, 9, 10, 12, 14).
+extension View {
+    /// Action principale pleine largeur d'un écran ou d'une carte (fond orange).
+    func primaryButtonStyle() -> some View {
+        self
+            .font(.system(size: 14, weight: .semibold))
+            .frame(maxWidth: .infinity)
+            .padding(.vertical, 12)
+            .foregroundStyle(.white)
+            .background(AppTheme.accent)
+            .clipShape(RoundedRectangle(cornerRadius: AppTheme.buttonRadius))
+    }
+
+    /// Action secondaire pleine largeur (contour gris, fond blanc) — même rayon que la primaire.
+    func secondaryButtonStyle() -> some View {
+        self
+            .font(.system(size: 14, weight: .semibold))
+            .frame(maxWidth: .infinity)
+            .padding(.vertical, 12)
+            .foregroundStyle(AppTheme.textPrimary)
+            .background(AppTheme.surface)
+            .overlay(RoundedRectangle(cornerRadius: AppTheme.buttonRadius).stroke(AppTheme.border, lineWidth: 1.5))
+            .clipShape(RoundedRectangle(cornerRadius: AppTheme.buttonRadius))
+    }
+
+    /// Action secondaire pleine largeur en contour accent (pas de fond) — variante de
+    /// `secondaryButtonStyle` pour les actions qui restent dans le thème orange plutôt que neutre.
+    func accentOutlineButtonStyle() -> some View {
+        self
+            .font(.system(size: 14, weight: .semibold))
+            .frame(maxWidth: .infinity)
+            .padding(.vertical, 12)
+            .foregroundStyle(AppTheme.accent)
+            .overlay(RoundedRectangle(cornerRadius: AppTheme.buttonRadius).stroke(AppTheme.accent, lineWidth: 1.5))
+    }
+
+    /// Action rapide compacte intégrée dans une ligne existante (pas pleine largeur) — même rayon
+    /// que les boutons pleine largeur, tailles réglables selon le contexte.
+    func compactAccentButtonStyle(fontSize: CGFloat = 13, verticalPadding: CGFloat = 9, horizontalPadding: CGFloat = 16) -> some View {
+        self
+            .font(.system(size: fontSize, weight: .medium))
+            .foregroundStyle(.white)
+            .padding(.horizontal, horizontalPadding)
+            .padding(.vertical, verticalPadding)
+            .background(AppTheme.accent)
+            .clipShape(RoundedRectangle(cornerRadius: AppTheme.buttonRadius))
     }
 }
 

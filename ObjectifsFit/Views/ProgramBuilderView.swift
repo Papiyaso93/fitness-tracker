@@ -89,13 +89,9 @@ struct ProgramBuilderView: View {
                 showingCreateSheet = true
             } label: {
                 Text("Créer mon programme")
-                    .font(.system(size: 15, weight: .semibold))
-                    .foregroundStyle(.white)
-                    .padding(.horizontal, 20)
-                    .padding(.vertical, 12)
-                    .background(AppTheme.accent)
-                    .clipShape(Capsule())
+                    .primaryButtonStyle()
             }
+            .buttonStyle(.plain)
             .padding(.top, 6)
 
             Button {

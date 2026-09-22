@@ -313,12 +313,7 @@ struct LogCycleSessionView: View {
                     showingAddSet = true
                 } label: {
                     Text("Ajouter une série")
-                        .font(.system(size: 15, weight: .semibold))
-                        .frame(maxWidth: .infinity)
-                        .padding(.vertical, 14)
-                        .background(AppTheme.accent)
-                        .foregroundStyle(.white)
-                        .clipShape(RoundedRectangle(cornerRadius: AppTheme.cardRadius))
+                        .primaryButtonStyle()
                         .contentShape(Rectangle())
                 }
                 .buttonStyle(.plain)
@@ -327,14 +322,7 @@ struct LogCycleSessionView: View {
                     completion.endTime = .now
                 } label: {
                     Text("Terminer la séance")
-                        .font(.system(size: 15, weight: .semibold))
-                        .frame(maxWidth: .infinity)
-                        .padding(.vertical, 14)
-                        .overlay(
-                            RoundedRectangle(cornerRadius: AppTheme.cardRadius)
-                                .stroke(AppTheme.accent, lineWidth: 1.5)
-                        )
-                        .foregroundStyle(AppTheme.accent)
+                        .accentOutlineButtonStyle()
                         .contentShape(Rectangle())
                 }
                 .buttonStyle(.plain)
@@ -348,12 +336,7 @@ struct LogCycleSessionView: View {
                 startSession()
             } label: {
                 Text(isToday ? "Commencer la séance" : "Renseigner ma séance")
-                    .font(.system(size: 15, weight: .semibold))
-                    .frame(maxWidth: .infinity)
-                    .padding(.vertical, 14)
-                    .background(AppTheme.accent)
-                    .foregroundStyle(.white)
-                    .clipShape(RoundedRectangle(cornerRadius: AppTheme.cardRadius))
+                    .primaryButtonStyle()
                     .contentShape(Rectangle())
             }
             .buttonStyle(.plain)
@@ -415,12 +398,7 @@ struct LogCycleSessionView: View {
                 saveSimpleSession()
             } label: {
                 Text("Enregistrer la séance")
-                    .font(.system(size: 15, weight: .semibold))
-                    .frame(maxWidth: .infinity)
-                    .padding(.vertical, 14)
-                    .background(AppTheme.accent)
-                    .foregroundStyle(.white)
-                    .clipShape(RoundedRectangle(cornerRadius: AppTheme.cardRadius))
+                    .primaryButtonStyle()
                     .contentShape(Rectangle())
             }
             .buttonStyle(.plain)
