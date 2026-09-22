@@ -252,12 +252,7 @@ struct HomeView: View {
                     showingCreateProgram = true
                 } label: {
                     Text("Créer un programme")
-                        .font(.system(size: 13, weight: .medium))
-                        .foregroundStyle(.white)
-                        .padding(.horizontal, 16)
-                        .padding(.vertical, 9)
-                        .background(AppTheme.accent)
-                        .clipShape(Capsule())
+                        .compactAccentButtonStyle()
                 }
                 .buttonStyle(.plain)
             }
@@ -324,12 +319,7 @@ struct HomeView: View {
                             ProgramDetailView(program: program)
                         } label: {
                             Text("Ajouter un cycle")
-                                .font(.system(size: 12, weight: .medium))
-                                .foregroundStyle(.white)
-                                .padding(.horizontal, 12)
-                                .padding(.vertical, 6)
-                                .background(AppTheme.accent)
-                                .clipShape(Capsule())
+                                .compactAccentButtonStyle(fontSize: 13, verticalPadding: 7, horizontalPadding: 14)
                         }
                         .padding(.top, 2)
                     }

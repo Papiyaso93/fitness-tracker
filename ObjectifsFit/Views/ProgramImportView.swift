@@ -53,12 +53,7 @@ struct ProgramImportView: View {
                             dismiss()
                         } label: {
                             Text("Terminé")
-                                .font(.system(size: 15, weight: .semibold))
-                                .foregroundStyle(.white)
-                                .frame(maxWidth: .infinity)
-                                .padding(.vertical, 12)
-                                .background(AppTheme.accent)
-                                .clipShape(RoundedRectangle(cornerRadius: 11))
+                                .primaryButtonStyle()
                         }
                         .buttonStyle(.plain)
                     }
