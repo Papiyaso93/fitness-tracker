@@ -8,6 +8,7 @@ settings:
     SWIFT_VERSION: "5.0"
     DEVELOPMENT_TEAM: "ZQRDF4F5V8"
     CODE_SIGN_STYLE: Automatic
+    ASSETCATALOG_COMPILER_INCLUDE_ALL_APPICON_ASSETS: YES
 targets:
   ObjectifsFit:
     type: application
