@@ -15,7 +15,7 @@ struct SleepDetailView: View {
     private var rollbackNotice: String? {
         guard moment == .coucher, let time = log.bedTime, Calendar.current.component(.hour, from: time) < 12 else { return nil }
         let target = moment.targetDay(for: time)
-        return "Cette heure sera rattachée à la nuit du \(AppDateFormat.dayFullMonth.string(from: target))."
+        return "Ce coucher est rattaché à la nuit du \(AppDateFormat.dayFullMonth.string(from: target))."
     }
 
     private var timeBinding: Binding<Date> {

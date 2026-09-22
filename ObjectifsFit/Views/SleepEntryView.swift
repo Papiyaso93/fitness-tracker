@@ -117,7 +117,7 @@ struct SleepEntryView: View {
     private var rollbackNotice: String? {
         guard moment == .coucher, Calendar.current.component(.hour, from: time) < 12 else { return nil }
         let target = moment.targetDay(for: time)
-        return "Cette heure sera rattachée à la nuit du \(AppDateFormat.dayFullMonth.string(from: target))."
+        return "Ce coucher sera rattaché à la nuit du \(AppDateFormat.dayFullMonth.string(from: target))."
     }
 
     /// La date choisie dans le picker peut différer de `day` (ouverture depuis un autre jour que
