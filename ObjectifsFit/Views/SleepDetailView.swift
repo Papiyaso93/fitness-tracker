@@ -11,6 +11,13 @@ struct SleepDetailView: View {
     @Environment(\.dismiss) private var dismiss
     @Query private var allSleepLogs: [SleepLog]
 
+    /// Bandeau affiché quand l'heure de coucher bascule automatiquement vers la veille.
+    private var rollbackNotice: String? {
+        guard moment == .coucher, let time = log.bedTime, Calendar.current.component(.hour, from: time) < 12 else { return nil }
+        let target = moment.targetDay(for: time)
+        return "Cette heure sera rattachée à la nuit du \(AppDateFormat.dayFullMonth.string(from: target))."
+    }
+
     private var timeBinding: Binding<Date> {
         Binding(
             get: { (moment == .reveil ? log.wakeTime : log.bedTime) ?? .now },
@@ -37,6 +44,19 @@ struct SleepDetailView: View {
             Section {
                 DatePicker(moment.timeLabel, selection: timeBinding, in: ...Date.now, displayedComponents: [.date, .hourAndMinute])
                     .labelsHidden()
+                if let rollbackNotice {
+                    HStack(alignment: .top, spacing: 8) {
+                        Image(systemName: "info.circle")
+                            .font(.system(size: 13))
+                        Text(rollbackNotice)
+                            .font(.system(size: 12.5))
+                    }
+                    .foregroundStyle(Color(hex: "993C1D"))
+                    .padding(10)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .background(AppTheme.accent.opacity(0.08))
+                    .clipShape(RoundedRectangle(cornerRadius: 8))
+                }
             } header: { formSectionHeader(moment.timeLabel, required: true) }
 
             Section {
@@ -78,7 +98,7 @@ struct SleepDetailView: View {
     private func reconcileDayIfNeeded() {
         let time = moment == .reveil ? log.wakeTime : log.bedTime
         guard let time else { return }
-        let targetDay = Calendar.current.startOfDay(for: time)
+        let targetDay = moment.targetDay(for: time)
         guard !Calendar.current.isDate(targetDay, inSameDayAs: log.day) else { return }
 
         let otherMomentFilled: Bool
