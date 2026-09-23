@@ -23,10 +23,4 @@ targets:
         CFBundleDisplayName: "Genki"
         NSHealthShareUsageDescription: "Genki lit ton poids, ta masse grasse et ta VO2max depuis Santé pour suivre ta progression sans ressaisie."
         NSHealthUpdateUsageDescription: "Genki peut écrire tes métriques saisies manuellement dans Santé."
-    entitlements:
-      path: ObjectifsFit/ObjectifsFit.entitlements
-      properties:
-        com.apple.developer.healthkit: true
-    capabilities:
-      - HealthKit
     bundleIdPrefix: com.papiyaso93
