@@ -204,7 +204,7 @@ struct HomeView: View {
                     if isToday && dayMeasurements.isEmpty {
                         SectionLabel(text: "Mesures")
                         addMeasurementCard
-                    } else if !dayMeasurements.isEmpty {
+                    } else {
                         measurementSectionHeader
                         measurementCard
                     }
@@ -682,6 +682,11 @@ struct HomeView: View {
 
     private var measurementCard: some View {
         AppCard {
+            if dayMeasurements.isEmpty {
+                Text("Aucune mesure ce jour-là")
+                    .font(.system(size: 14))
+                    .foregroundStyle(AppTheme.textSecondary)
+            } else {
             VStack(spacing: 0) {
                 ForEach(Array(dayMeasurements.enumerated()), id: \.element.id) { index, entry in
                     if index > 0 { Divider().overlay(AppTheme.border) }
@@ -719,6 +724,7 @@ struct HomeView: View {
                     }
                     .buttonStyle(.plain)
                 }
+            }
             }
         }
     }
