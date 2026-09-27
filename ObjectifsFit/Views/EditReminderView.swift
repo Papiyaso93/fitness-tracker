@@ -10,10 +10,14 @@ struct EditReminderView: View {
     @Environment(\.dismiss) private var dismiss
 
     @State private var time: Date
+    @State private var frequency: ReminderFrequency
+    @State private var weekday: Int
 
     init(reminder: Reminder) {
         self.reminder = reminder
         _time = State(initialValue: Calendar.current.date(bySettingHour: reminder.hour, minute: reminder.minute, second: 0, of: .now) ?? .now)
+        _frequency = State(initialValue: reminder.frequency)
+        _weekday = State(initialValue: reminder.weekday ?? Calendar.current.component(.weekday, from: .now))
     }
 
     var body: some View {
@@ -21,6 +25,25 @@ struct EditReminderView: View {
             Section {
                 TextField("Nom", text: $reminder.title)
             } header: { formSectionHeader("Nom", required: true) }
+
+            Section {
+                AppSegmentedControl(options: ReminderFrequency.allCases.map { ($0, $0.rawValue) }, selection: $frequency)
+                    .listRowInsets(EdgeInsets())
+                    .padding(4)
+                    .onChange(of: frequency) { _, newValue in
+                        reminder.frequency = newValue
+                        reminder.weekday = newValue == .hebdomadaire ? weekday : nil
+                        NotificationManager.schedule(reminder)
+                    }
+                if frequency == .hebdomadaire {
+                    WeekdayPickerRow(selection: $weekday)
+                        .padding(.top, 4)
+                        .onChange(of: weekday) { _, newValue in
+                            reminder.weekday = newValue
+                            NotificationManager.schedule(reminder)
+                        }
+                }
+            } header: { formSectionHeader("Fréquence", required: true) }
 
             Section {
                 DatePicker(selection: $time, displayedComponents: [.hourAndMinute]) {

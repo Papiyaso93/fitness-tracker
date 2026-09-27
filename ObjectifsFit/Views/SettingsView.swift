@@ -74,7 +74,7 @@ struct SettingsView: View {
                                                 Text(reminder.title)
                                                     .font(.system(size: 15, weight: .medium))
                                                     .foregroundStyle(AppTheme.textPrimary)
-                                                Text("\(reminder.timeLabel) · \(reminder.message)")
+                                                Text("\(reminder.scheduleLabel) · \(reminder.message)")
                                                     .font(.system(size: 12))
                                                     .foregroundStyle(AppTheme.textSecondary)
                                                     .lineLimit(1)

@@ -1,7 +1,34 @@
 import SwiftUI
 import SwiftData
 
-/// Création d'un rappel local paramétrable (nom, heure, message).
+/// Sélecteur d'un jour de la semaine (un seul), 7 pastilles L-M-M-J-V-S-D — utilisé pour les
+/// rappels hebdomadaires, partagé entre création et édition.
+struct WeekdayPickerRow: View {
+    @Binding var selection: Int
+
+    var body: some View {
+        HStack(spacing: 6) {
+            ForEach(Weekday.ordered, id: \.weekday) { item in
+                let isSelected = selection == item.weekday
+                Button {
+                    selection = item.weekday
+                } label: {
+                    Text(String(item.label.prefix(1)))
+                        .font(.system(size: 12, weight: .semibold))
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, 9)
+                        .foregroundStyle(isSelected ? .white : AppTheme.textSecondary)
+                        .background(isSelected ? AppTheme.accent : Color.white)
+                        .overlay(RoundedRectangle(cornerRadius: 9).stroke(isSelected ? AppTheme.accent : AppTheme.border, lineWidth: isSelected ? 0 : 0.5))
+                        .clipShape(RoundedRectangle(cornerRadius: 9))
+                }
+                .buttonStyle(.plain)
+            }
+        }
+    }
+}
+
+/// Création d'un rappel local paramétrable (nom, fréquence, heure, message).
 struct AddReminderView: View {
     @Environment(\.dismiss) private var dismiss
     @Environment(\.modelContext) private var context
@@ -9,6 +36,8 @@ struct AddReminderView: View {
     @State private var title: String = ""
     @State private var message: String = ""
     @State private var time: Date = Calendar.current.date(bySettingHour: 21, minute: 0, second: 0, of: .now) ?? .now
+    @State private var frequency: ReminderFrequency = .quotidien
+    @State private var weekday: Int = Calendar.current.component(.weekday, from: .now)
 
     private var canSave: Bool {
         !title.trimmingCharacters(in: .whitespaces).isEmpty && !message.trimmingCharacters(in: .whitespaces).isEmpty
@@ -20,6 +49,16 @@ struct AddReminderView: View {
                 Section {
                     TextField("Ex: Transit, Sommeil, Étirements", text: $title)
                 } header: { formSectionHeader("Nom", required: true) }
+
+                Section {
+                    AppSegmentedControl(options: ReminderFrequency.allCases.map { ($0, $0.rawValue) }, selection: $frequency)
+                        .listRowInsets(EdgeInsets())
+                        .padding(4)
+                    if frequency == .hebdomadaire {
+                        WeekdayPickerRow(selection: $weekday)
+                            .padding(.top, 4)
+                    }
+                } header: { formSectionHeader("Fréquence", required: true) }
 
                 Section {
                     DatePicker(selection: $time, displayedComponents: [.hourAndMinute]) {
@@ -51,7 +90,9 @@ struct AddReminderView: View {
             title: title.trimmingCharacters(in: .whitespaces),
             message: message.trimmingCharacters(in: .whitespaces),
             hour: components.hour ?? 21,
-            minute: components.minute ?? 0
+            minute: components.minute ?? 0,
+            frequency: frequency,
+            weekday: frequency == .hebdomadaire ? weekday : nil
         )
         context.insert(reminder)
         NotificationManager.schedule(reminder)
