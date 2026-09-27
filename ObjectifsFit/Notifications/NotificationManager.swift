@@ -22,6 +22,9 @@ enum NotificationManager {
         var dateComponents = DateComponents()
         dateComponents.hour = reminder.hour
         dateComponents.minute = reminder.minute
+        if reminder.frequency == .hebdomadaire, let weekday = reminder.weekday {
+            dateComponents.weekday = weekday
+        }
         let trigger = UNCalendarNotificationTrigger(dateMatching: dateComponents, repeats: true)
 
         let request = UNNotificationRequest(identifier: identifier, content: content, trigger: trigger)

@@ -8,6 +8,9 @@ struct HomeView: View {
     @Query(sort: \TransitLog.dateTime, order: .reverse) private var transitLogs: [TransitLog]
     @Query(sort: \MealLog.dateTime, order: .reverse) private var meals: [MealLog]
     @Query private var sleepLogs: [SleepLog]
+    @Query private var measurements: [BodyMeasurementEntry]
+    @Query private var weeklyCheckIns: [WeeklyCheckIn]
+    @Query private var allObjectives: [ProgramObjective]
 
     @State private var showingMealSheet = false
     @State private var showingTransitSheet = false
@@ -15,6 +18,8 @@ struct HomeView: View {
     @State private var showingDatePicker = false
     @State private var showingAddAdHocSession = false
     @State private var showingCreateProgram = false
+    @State private var showingAddMeasurement = false
+    @State private var showingWeeklyCheckInEntry = false
     @State private var createdAdHocSession: CycleSession?
     @State private var selectedDate = Calendar.current.startOfDay(for: .now)
     /// Non persisté : le contenu du transit redevient masqué à chaque relance de l'app, données
@@ -80,6 +85,53 @@ struct HomeView: View {
         transitLogs.filter { Calendar.current.isDate($0.dateTime, inSameDayAs: selectedDate) }
     }
 
+    /// Mesures du jour affiché seulement — contrairement à Sommeil/Repas/Transit, une mesure n'a
+    /// pas vocation à être renseignée tous les jours, donc pas de "dernière valeur connue" qui
+    /// traînerait sur tous les jours suivants : on ne montre la carte que le jour où elle a été
+    /// prise, triée dans l'ordre `ObjectiveMetricType.allCases` pour un ordre stable.
+    private var dayMeasurements: [BodyMeasurementEntry] {
+        measurements
+            .filter { Calendar.current.isDate($0.date, inSameDayAs: selectedDate) }
+            .sorted {
+                (ObjectiveMetricType.allCases.firstIndex(of: $0.type) ?? 0) < (ObjectiveMetricType.allCases.firstIndex(of: $1.type) ?? 0)
+            }
+    }
+
+    /// La mesure du même type juste avant celle-ci (peu importe le jour) — sert à afficher la
+    /// variation ("-2kg vs il y a 3j") plutôt qu'une valeur brute isolée.
+    private func previousMeasurement(before entry: BodyMeasurementEntry) -> BodyMeasurementEntry? {
+        measurements
+            .filter { $0.type == entry.type && $0.date < entry.date }
+            .max { $0.date < $1.date }
+    }
+
+    private func matchingObjective(for type: ObjectiveMetricType) -> ProgramObjective? {
+        allObjectives.first { $0.isMeasurable && $0.metricType == type && $0.targetValue != nil }
+    }
+
+    private func measurementBadge(_ type: ObjectiveMetricType) -> String {
+        switch type {
+        case .poids: return "kg"
+        case .masseGrasse: return "%"
+        case .vo2max: return "vo2"
+        case .nombreDePas: return "pas"
+        case .autre: return "?"
+        default: return "cm"
+        }
+    }
+
+    /// Dimanche de la semaine contenant `selectedDate` — clé utilisée pour retrouver/créer le
+    /// `WeeklyCheckIn` de la semaine en cours (convention `Calendar` 1=dimanche, cf. `Weekday`).
+    private var currentWeekSunday: Date {
+        let start = Calendar.current.startOfDay(for: selectedDate)
+        let weekdayOffset = Calendar.current.component(.weekday, from: start) - 1
+        return Calendar.current.date(byAdding: .day, value: -weekdayOffset, to: start) ?? start
+    }
+
+    private var existingWeeklyCheckIn: WeeklyCheckIn? {
+        weeklyCheckIns.first { Calendar.current.isDate($0.weekDate, inSameDayAs: currentWeekSunday) }
+    }
+
     private var daySleepLog: SleepLog? {
         sleepLogs.first { Calendar.current.isDate($0.day, inSameDayAs: selectedDate) }
     }
@@ -125,6 +177,8 @@ struct HomeView: View {
                         noProgramCard
                     }
 
+                    weeklyCheckInSection
+
                     if daySessions.isEmpty && activeCycle == nil {
                         SectionLabel(text: "Séance du jour")
                         addAdHocSessionCard
@@ -151,6 +205,14 @@ struct HomeView: View {
                         transitSectionHeader
                         transitCard
                     }
+
+                    if isToday && dayMeasurements.isEmpty {
+                        SectionLabel(text: "Mesures")
+                        addMeasurementCard
+                    } else {
+                        measurementSectionHeader
+                        measurementCard
+                    }
                 }
                 .padding(16)
             }
@@ -171,6 +233,12 @@ struct HomeView: View {
             }
             .sheet(isPresented: $showingCreateProgram) {
                 CreateProgramView()
+            }
+            .sheet(isPresented: $showingAddMeasurement) {
+                AddBodyMeasurementView()
+            }
+            .sheet(isPresented: $showingWeeklyCheckInEntry) {
+                WeeklyCheckInEntryView(weekDate: currentWeekSunday)
             }
             .sheet(isPresented: $showingDatePicker) {
                 NavigationStack {
@@ -525,6 +593,157 @@ struct HomeView: View {
             .background(bg)
             .foregroundStyle(fg)
             .clipShape(Capsule())
+    }
+
+    @ViewBuilder
+    private var weeklyCheckInSection: some View {
+        // Visible sur tout dimanche navigué — passé, présent, jamais futur puisque la navigation
+        // ne dépasse pas aujourd'hui — pour pouvoir rattraper un bilan oublié, comme on peut
+        // toujours ajouter une séance passée.
+        if weekday == 1 {
+            if let existing = existingWeeklyCheckIn {
+                SectionLabel(text: "Bilan hebdomadaire")
+                NavigationLink {
+                    WeeklyCheckInDetailView(checkIn: existing)
+                } label: {
+                    AppCard {
+                        HStack(spacing: 10) {
+                            Image(systemName: "checkmark.circle.fill")
+                                .font(.system(size: 19))
+                                .foregroundStyle(AppTheme.secondary)
+                            VStack(alignment: .leading, spacing: 2) {
+                                Text("Bilan de la semaine fait")
+                                    .font(.system(size: 14, weight: .medium))
+                                    .foregroundStyle(AppTheme.textPrimary)
+                                Text("Semaine du \(formatted(existing.weekDate))")
+                                    .font(.system(size: 12))
+                                    .foregroundStyle(AppTheme.textSecondary)
+                            }
+                            Spacer()
+                            Image(systemName: "chevron.right")
+                                .font(.system(size: 13, weight: .semibold))
+                                .foregroundStyle(Color(hex: "B4AFA6"))
+                        }
+                    }
+                }
+                .buttonStyle(.plain)
+            } else {
+                SectionLabel(text: "Bilan hebdomadaire")
+                AppCard {
+                    HStack(spacing: 8) {
+                        Image(systemName: "sparkles")
+                            .font(.system(size: 16, weight: .semibold))
+                            .foregroundStyle(AppTheme.accent)
+                        Text("Bilan hebdomadaire")
+                            .font(AppTheme.Font.cardTitle)
+                            .foregroundStyle(AppTheme.textPrimary)
+                    }
+                    Text("C'est dimanche — prends deux minutes pour faire le point sur ta semaine.")
+                        .font(.system(size: 13))
+                        .foregroundStyle(AppTheme.textSecondary)
+                        .fixedSize(horizontal: false, vertical: true)
+                    Button {
+                        showingWeeklyCheckInEntry = true
+                    } label: {
+                        Text("Commencer le bilan")
+                            .primaryButtonStyle()
+                    }
+                    .buttonStyle(.plain)
+                }
+            }
+        }
+    }
+
+    private var measurementSectionHeader: some View {
+        HStack {
+            SectionLabel(text: "Mesures")
+            Spacer()
+            if isToday {
+                Button {
+                    showingAddMeasurement = true
+                } label: {
+                    Image(systemName: "plus")
+                        .font(.system(size: 13, weight: .semibold))
+                        .foregroundStyle(AppTheme.accent)
+                }
+                .padding(.trailing, 4)
+            }
+        }
+    }
+
+    private var addMeasurementCard: some View {
+        AppCard {
+            Button {
+                showingAddMeasurement = true
+            } label: {
+                HStack {
+                    Text("Ajouter une mesure")
+                        .font(.system(size: 14, weight: .medium))
+                        .foregroundStyle(AppTheme.textPrimary)
+                    Spacer()
+                    Image(systemName: "plus.circle.fill")
+                        .foregroundStyle(AppTheme.accent)
+                }
+            }
+        }
+    }
+
+    private var measurementCard: some View {
+        AppCard {
+            if dayMeasurements.isEmpty {
+                Text("Aucune mesure ce jour-là")
+                    .font(.system(size: 14))
+                    .foregroundStyle(AppTheme.textSecondary)
+            } else {
+            VStack(spacing: 0) {
+                ForEach(Array(dayMeasurements.enumerated()), id: \.element.id) { index, entry in
+                    if index > 0 { Divider().overlay(AppTheme.border) }
+                    NavigationLink {
+                        MeasurementDetailView(type: entry.type)
+                    } label: {
+                        HStack(spacing: 10) {
+                            Text(measurementBadge(entry.type))
+                                .font(.system(size: 9, weight: .bold))
+                                .frame(width: 26, height: 26)
+                                .foregroundStyle(Color(hex: "993C1D"))
+                                .background(AppTheme.accent.opacity(0.15))
+                                .clipShape(RoundedRectangle(cornerRadius: 8))
+                            VStack(alignment: .leading, spacing: 1) {
+                                Text(entry.type.rawValue)
+                                    .font(.system(size: 13, weight: .medium))
+                                    .foregroundStyle(AppTheme.textPrimary)
+                                let previous = previousMeasurement(before: entry)
+                                HStack(alignment: .firstTextBaseline, spacing: 6) {
+                                    Text("\(entry.value.formatted())\(entry.type.unit)")
+                                        .font(.system(size: 13, weight: .semibold))
+                                        .foregroundStyle(AppTheme.textSecondary)
+                                    if let previous {
+                                        let delta = entry.value - previous.value
+                                        MeasurementDeltaPill(
+                                            delta: delta,
+                                            unit: entry.type.unit,
+                                            colors: MeasurementProgressionStyle.colors(delta: delta, objective: matchingObjective(for: entry.type))
+                                        )
+                                    }
+                                }
+                                if let previous {
+                                    Text("depuis le \(AppDateFormat.dayFullMonth.string(from: previous.date))")
+                                        .font(.system(size: 10))
+                                        .foregroundStyle(AppTheme.textSecondary)
+                                }
+                            }
+                            Spacer()
+                            Image(systemName: "chevron.right")
+                                .font(.system(size: 12))
+                                .foregroundStyle(AppTheme.textSecondary)
+                        }
+                        .padding(.vertical, 8)
+                    }
+                    .buttonStyle(.plain)
+                }
+            }
+            }
+        }
     }
 
     private var sleepCard: some View {

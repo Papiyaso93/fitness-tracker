@@ -213,6 +213,34 @@ enum BilanRestoreImporter {
             result.restoredMetricEntries += 1
         }
 
+        // Mesures corporelles (poids, tour de taille, VO2max, mensurations...)
+        let existingMeasurementSignatures = Set(((try? context.fetch(FetchDescriptor<BodyMeasurementEntry>())) ?? []).map { "\($0.type.rawValue)|\($0.date.timeIntervalSince1970)" })
+        for dto in payload.bodyMeasurements {
+            let sig = "\(dto.type)|\(dto.date.timeIntervalSince1970)"
+            guard !existingMeasurementSignatures.contains(sig) else {
+                result.skippedExisting += 1
+                continue
+            }
+            guard let type = ObjectiveMetricType(rawValue: dto.type) else { continue }
+            context.insert(BodyMeasurementEntry(type: type, value: dto.value, date: dto.date))
+        }
+
+        // Bilans hebdomadaires — un enregistrement par semaine, clé = date du dimanche
+        let existingWeeklyCheckInDays = Set(((try? context.fetch(FetchDescriptor<WeeklyCheckIn>())) ?? []).map(\.weekDate.timeIntervalSince1970))
+        for dto in payload.weeklyCheckIns {
+            guard !existingWeeklyCheckInDays.contains(dto.weekDate.timeIntervalSince1970) else {
+                result.skippedExisting += 1
+                continue
+            }
+            let checkIn = WeeklyCheckIn(weekDate: dto.weekDate)
+            checkIn.formLevel = dto.formLevel.flatMap(WeeklyFormLevel.init(rawValue:))
+            checkIn.formComment = dto.formComment
+            checkIn.runningVolumeKm = dto.runningVolumeKm
+            checkIn.averageStepsPerDay = dto.averageStepsPerDay
+            checkIn.note = dto.note
+            context.insert(checkIn)
+        }
+
         return result
     }
 
