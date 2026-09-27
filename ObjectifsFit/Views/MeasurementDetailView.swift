@@ -55,7 +55,7 @@ struct MeasurementDetailView: View {
                         VStack(spacing: 0) {
                             ForEach(Array(entries.enumerated()), id: \.element.id) { index, entry in
                                 if index > 0 { Divider().overlay(AppTheme.border) }
-                                historyRow(entry, previous: index + 1 < entries.count ? entries[index + 1] : nil)
+                                historyRow(entry)
                             }
                         }
                     }
@@ -98,22 +98,15 @@ struct MeasurementDetailView: View {
         }
     }
 
-    private func historyRow(_ entry: BodyMeasurementEntry, previous: BodyMeasurementEntry?) -> some View {
+    private func historyRow(_ entry: BodyMeasurementEntry) -> some View {
         HStack {
             Text(AppDateFormat.dayFullMonth.string(from: entry.date))
                 .font(.system(size: 13))
                 .foregroundStyle(AppTheme.textPrimary)
             Spacer()
-            VStack(alignment: .trailing, spacing: 1) {
-                Text(formattedValue(entry.value))
-                    .font(.system(size: 13, weight: .semibold))
-                    .foregroundStyle(AppTheme.textSecondary)
-                if let progression = BodyMeasurementEntry.progressionLabel(current: entry, previous: previous) {
-                    Text(progression)
-                        .font(.system(size: 11))
-                        .foregroundStyle(AppTheme.textSecondary)
-                }
-            }
+            Text(formattedValue(entry.value))
+                .font(.system(size: 13, weight: .semibold))
+                .foregroundStyle(AppTheme.textSecondary)
             Button {
                 context.delete(entry)
             } label: {

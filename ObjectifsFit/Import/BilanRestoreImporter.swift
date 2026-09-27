@@ -235,6 +235,7 @@ enum BilanRestoreImporter {
             let checkIn = WeeklyCheckIn(weekDate: dto.weekDate)
             checkIn.formLevel = dto.formLevel.flatMap(WeeklyFormLevel.init(rawValue:))
             checkIn.runningVolumeKm = dto.runningVolumeKm
+            checkIn.averageStepsPerDay = dto.averageStepsPerDay
             checkIn.note = dto.note
             context.insert(checkIn)
         }

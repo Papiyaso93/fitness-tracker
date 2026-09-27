@@ -29,6 +29,7 @@ final class WeeklyCheckIn {
     var weekDate: Date
     var formLevel: WeeklyFormLevel?
     var runningVolumeKm: Double?
+    var averageStepsPerDay: Int?
     var note: String?
 
     init(weekDate: Date) {

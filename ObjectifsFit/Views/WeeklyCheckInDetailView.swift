@@ -11,11 +11,13 @@ struct WeeklyCheckInDetailView: View {
     @Environment(\.dismiss) private var dismiss
 
     @State private var runningVolumeText: String
+    @State private var stepsText: String
     @State private var noteText: String
 
     init(checkIn: WeeklyCheckIn) {
         self.checkIn = checkIn
         _runningVolumeText = State(initialValue: checkIn.runningVolumeKm.map { $0.formatted() } ?? "")
+        _stepsText = State(initialValue: checkIn.averageStepsPerDay.map { "\($0)" } ?? "")
         _noteText = State(initialValue: checkIn.note ?? "")
     }
 
@@ -41,6 +43,17 @@ struct WeeklyCheckInDetailView: View {
                     Text("km").foregroundStyle(AppTheme.textSecondary)
                 }
             } header: { formSectionHeader("Volume de course") }
+
+            Section {
+                HStack {
+                    TextField("0", text: $stepsText)
+                        .keyboardType(.numberPad)
+                        .onChange(of: stepsText) { _, newValue in
+                            checkIn.averageStepsPerDay = Int(newValue)
+                        }
+                    Text("pas/jour").foregroundStyle(AppTheme.textSecondary)
+                }
+            } header: { formSectionHeader("Nombre de pas moyen/jour") }
 
             Section {
                 TextField("Note libre", text: $noteText, axis: .vertical)

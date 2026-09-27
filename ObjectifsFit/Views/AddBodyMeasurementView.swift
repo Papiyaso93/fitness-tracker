@@ -27,7 +27,7 @@ struct AddBodyMeasurementView: View {
                 Section {
                     AppMenuField(
                         label: "Type de mesure",
-                        options: ObjectiveMetricType.allCases.filter { $0 != .autre }.map { ($0, $0.rawValue) },
+                        options: ObjectiveMetricType.allCases.filter { $0 != .autre && $0 != .nombreDePas }.map { ($0, $0.rawValue) },
                         selection: $type,
                         required: true,
                         showsLabel: false

@@ -2,12 +2,13 @@ import SwiftUI
 import SwiftData
 
 private enum WeeklyModule: CaseIterable {
-    case forme, course, note
+    case forme, course, steps, note
 
     var label: String {
         switch self {
         case .forme: return "Niveau de forme"
         case .course: return "Volume de course (km)"
+        case .steps: return "Nombre de pas moyen/jour"
         case .note: return "Note libre"
         }
     }
@@ -71,6 +72,7 @@ struct WeeklyCheckInEntryView: View {
     @State private var step = 0
     @State private var formLevel: WeeklyFormLevel = .bien
     @State private var runningVolumeText = ""
+    @State private var stepsText = ""
     @State private var note = ""
 
     private var orderedModules: [WeeklyModule] {
@@ -181,6 +183,24 @@ struct WeeklyCheckInEntryView: View {
                         .overlay(RoundedRectangle(cornerRadius: 12).stroke(AppTheme.border, lineWidth: 0.5))
                         .clipShape(RoundedRectangle(cornerRadius: 12))
                     }
+                case .steps:
+                    VStack(alignment: .leading, spacing: 8) {
+                        Text("Quelle a été ta moyenne quotidienne de pas cette semaine ?")
+                            .font(.system(size: 15, weight: .semibold))
+                            .foregroundStyle(AppTheme.textPrimary)
+                        HStack {
+                            TextField("0", text: $stepsText)
+                                .keyboardType(.numberPad)
+                                .font(.system(size: 20, weight: .semibold))
+                            Text("pas/jour")
+                                .font(.system(size: 14))
+                                .foregroundStyle(AppTheme.textSecondary)
+                        }
+                        .padding(12)
+                        .background(Color.white)
+                        .overlay(RoundedRectangle(cornerRadius: 12).stroke(AppTheme.border, lineWidth: 0.5))
+                        .clipShape(RoundedRectangle(cornerRadius: 12))
+                    }
                 case .note:
                     VStack(alignment: .leading, spacing: 8) {
                         Text("Autre chose à noter sur ta semaine ?")
@@ -223,6 +243,9 @@ struct WeeklyCheckInEntryView: View {
         }
         if selectedModules.contains(.course) {
             checkIn.runningVolumeKm = Double(runningVolumeText.replacingOccurrences(of: ",", with: "."))
+        }
+        if selectedModules.contains(.steps) {
+            checkIn.averageStepsPerDay = Int(stepsText)
         }
         if selectedModules.contains(.note) {
             let trimmed = note.trimmingCharacters(in: .whitespacesAndNewlines)

@@ -198,6 +198,7 @@ struct WeeklyCheckInDTO: Codable {
     var weekDate: Date
     var formLevel: String?
     var runningVolumeKm: Double?
+    var averageStepsPerDay: Int?
     var note: String?
 }
 
@@ -371,6 +372,7 @@ enum BilanExportBuilder {
             weekDate: checkIn.weekDate,
             formLevel: checkIn.formLevel?.rawValue,
             runningVolumeKm: checkIn.runningVolumeKm,
+            averageStepsPerDay: checkIn.averageStepsPerDay,
             note: checkIn.note
         )
     }
