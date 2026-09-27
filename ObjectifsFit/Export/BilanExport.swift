@@ -16,6 +16,52 @@ struct BilanExportPayload: Codable {
     var transitLogs: [TransitDTO]
     var sleepLogs: [SleepDTO]
     var metricEntries: [MetricDTO]
+    var bodyMeasurements: [BodyMeasurementDTO]
+    var weeklyCheckIns: [WeeklyCheckInDTO]
+
+    init(
+        exportedAt: Date,
+        programs: [ProgramDTO],
+        cycles: [CycleDTO],
+        cycleSessions: [CycleSessionDTO],
+        orphanSetEntries: [SetEntryDTO],
+        meals: [MealDTO],
+        transitLogs: [TransitDTO],
+        sleepLogs: [SleepDTO],
+        metricEntries: [MetricDTO],
+        bodyMeasurements: [BodyMeasurementDTO],
+        weeklyCheckIns: [WeeklyCheckInDTO]
+    ) {
+        self.exportedAt = exportedAt
+        self.programs = programs
+        self.cycles = cycles
+        self.cycleSessions = cycleSessions
+        self.orphanSetEntries = orphanSetEntries
+        self.meals = meals
+        self.transitLogs = transitLogs
+        self.sleepLogs = sleepLogs
+        self.metricEntries = metricEntries
+        self.bodyMeasurements = bodyMeasurements
+        self.weeklyCheckIns = weeklyCheckIns
+    }
+
+    /// Décodage manuel : `bodyMeasurements`/`weeklyCheckIns` sont absents des exports plus anciens
+    /// (ajoutés après coup) — sans ce fallback, réimporter une sauvegarde ou un programme généré
+    /// avant cet ajout échouerait entièrement plutôt que de simplement ignorer ces deux listes.
+    init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        exportedAt = try container.decode(Date.self, forKey: .exportedAt)
+        programs = try container.decode([ProgramDTO].self, forKey: .programs)
+        cycles = try container.decode([CycleDTO].self, forKey: .cycles)
+        cycleSessions = try container.decode([CycleSessionDTO].self, forKey: .cycleSessions)
+        orphanSetEntries = try container.decode([SetEntryDTO].self, forKey: .orphanSetEntries)
+        meals = try container.decode([MealDTO].self, forKey: .meals)
+        transitLogs = try container.decode([TransitDTO].self, forKey: .transitLogs)
+        sleepLogs = try container.decode([SleepDTO].self, forKey: .sleepLogs)
+        metricEntries = try container.decode([MetricDTO].self, forKey: .metricEntries)
+        bodyMeasurements = try container.decodeIfPresent([BodyMeasurementDTO].self, forKey: .bodyMeasurements) ?? []
+        weeklyCheckIns = try container.decodeIfPresent([WeeklyCheckInDTO].self, forKey: .weeklyCheckIns) ?? []
+    }
 }
 
 struct ObjectiveDTO: Codable {
@@ -142,6 +188,19 @@ struct MetricDTO: Codable {
     var source: String
 }
 
+struct BodyMeasurementDTO: Codable {
+    var type: String
+    var value: Double
+    var date: Date
+}
+
+struct WeeklyCheckInDTO: Codable {
+    var weekDate: Date
+    var formLevel: String?
+    var runningVolumeKm: Double?
+    var note: String?
+}
+
 enum BilanExportBuilder {
     /// Construit l'export complet depuis SwiftData — tout l'historique, sans filtre de date.
     static func build(context: ModelContext) throws -> BilanExportPayload {
@@ -154,6 +213,8 @@ enum BilanExportBuilder {
         let transitLogs = try context.fetch(FetchDescriptor<TransitLog>())
         let sleepLogs = try context.fetch(FetchDescriptor<SleepLog>())
         let metrics = try context.fetch(FetchDescriptor<MetricEntry>())
+        let bodyMeasurements = try context.fetch(FetchDescriptor<BodyMeasurementEntry>())
+        let weeklyCheckIns = try context.fetch(FetchDescriptor<WeeklyCheckIn>())
 
         return BilanExportPayload(
             exportedAt: .now,
@@ -164,7 +225,9 @@ enum BilanExportBuilder {
             meals: meals.map(mealDTO),
             transitLogs: transitLogs.map(transitDTO),
             sleepLogs: sleepLogs.map(sleepDTO),
-            metricEntries: metrics.map(metricDTO)
+            metricEntries: metrics.map(metricDTO),
+            bodyMeasurements: bodyMeasurements.map(bodyMeasurementDTO),
+            weeklyCheckIns: weeklyCheckIns.map(weeklyCheckInDTO)
         )
     }
 
@@ -297,6 +360,19 @@ enum BilanExportBuilder {
 
     static func metricDTO(_ entry: MetricEntry) -> MetricDTO {
         MetricDTO(type: entry.type.rawValue, value: entry.value, date: entry.date, source: entry.source.rawValue)
+    }
+
+    static func bodyMeasurementDTO(_ entry: BodyMeasurementEntry) -> BodyMeasurementDTO {
+        BodyMeasurementDTO(type: entry.type.rawValue, value: entry.value, date: entry.date)
+    }
+
+    static func weeklyCheckInDTO(_ checkIn: WeeklyCheckIn) -> WeeklyCheckInDTO {
+        WeeklyCheckInDTO(
+            weekDate: checkIn.weekDate,
+            formLevel: checkIn.formLevel?.rawValue,
+            runningVolumeKm: checkIn.runningVolumeKm,
+            note: checkIn.note
+        )
     }
 
     /// Encode en JSON lisible (indenté — n'a pas besoin d'être compact, personne ne le relit).
