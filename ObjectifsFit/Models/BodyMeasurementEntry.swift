@@ -19,3 +19,20 @@ final class BodyMeasurementEntry {
         self.date = date
     }
 }
+
+extension BodyMeasurementEntry {
+    /// "-2kg vs il y a 3j" — variation par rapport à la mesure précédente du même type. Partagée
+    /// entre la carte du jour (Accueil) et l'historique détaillé plutôt que recalculée deux fois.
+    static func progressionLabel(current: BodyMeasurementEntry, previous: BodyMeasurementEntry?) -> String? {
+        guard let previous else { return nil }
+        let delta = current.value - previous.value
+        let sign = delta > 0 ? "+" : ""
+        let days = Calendar.current.dateComponents(
+            [.day],
+            from: Calendar.current.startOfDay(for: previous.date),
+            to: Calendar.current.startOfDay(for: current.date)
+        ).day ?? 0
+        let deltaText = "\(sign)\(delta.formatted())\(current.type.unit)"
+        return days > 0 ? "\(deltaText) vs il y a \(days)j" : deltaText
+    }
+}

@@ -84,22 +84,24 @@ struct HomeView: View {
         transitLogs.filter { Calendar.current.isDate($0.dateTime, inSameDayAs: selectedDate) }
     }
 
-    /// Une entrée la plus récente par type de mesure — indépendant du jour affiché, contrairement
-    /// aux autres cartes de l'écran, puisqu'une mesure n'est pas rattachée à "aujourd'hui".
-    private var latestMeasurementsByType: [BodyMeasurementEntry] {
-        var seen = Set<ObjectiveMetricType>()
-        var result: [BodyMeasurementEntry] = []
-        for entry in measurements.sorted(by: { $0.date > $1.date }) where seen.insert(entry.type).inserted {
-            result.append(entry)
-        }
-        return result
+    /// Mesures du jour affiché seulement — contrairement à Sommeil/Repas/Transit, une mesure n'a
+    /// pas vocation à être renseignée tous les jours, donc pas de "dernière valeur connue" qui
+    /// traînerait sur tous les jours suivants : on ne montre la carte que le jour où elle a été
+    /// prise, triée dans l'ordre `ObjectiveMetricType.allCases` pour un ordre stable.
+    private var dayMeasurements: [BodyMeasurementEntry] {
+        measurements
+            .filter { Calendar.current.isDate($0.date, inSameDayAs: selectedDate) }
+            .sorted {
+                (ObjectiveMetricType.allCases.firstIndex(of: $0.type) ?? 0) < (ObjectiveMetricType.allCases.firstIndex(of: $1.type) ?? 0)
+            }
     }
 
-    private func relativeLabel(_ date: Date) -> String {
-        let days = Calendar.current.dateComponents([.day], from: Calendar.current.startOfDay(for: date), to: Calendar.current.startOfDay(for: .now)).day ?? 0
-        if days <= 0 { return "aujourd'hui" }
-        if days == 1 { return "hier" }
-        return "il y a \(days)j"
+    /// La mesure du même type juste avant celle-ci (peu importe le jour) — sert à afficher la
+    /// variation ("-2kg vs il y a 3j") plutôt qu'une valeur brute isolée.
+    private func previousMeasurement(before entry: BodyMeasurementEntry) -> BodyMeasurementEntry? {
+        measurements
+            .filter { $0.type == entry.type && $0.date < entry.date }
+            .max { $0.date < $1.date }
     }
 
     private func measurementBadge(_ type: ObjectiveMetricType) -> String {
@@ -183,16 +185,6 @@ struct HomeView: View {
                     SectionLabel(text: "Sommeil")
                     sleepCard
 
-                    if latestMeasurementsByType.isEmpty {
-                        if isToday {
-                            SectionLabel(text: "Mesures")
-                            addMeasurementCard
-                        }
-                    } else {
-                        measurementSectionHeader
-                        measurementCard
-                    }
-
                     if isToday && dayMeals.isEmpty {
                         SectionLabel(text: "Repas")
                         addMealCard
@@ -207,6 +199,14 @@ struct HomeView: View {
                     } else {
                         transitSectionHeader
                         transitCard
+                    }
+
+                    if isToday && dayMeasurements.isEmpty {
+                        SectionLabel(text: "Mesures")
+                        addMeasurementCard
+                    } else if !dayMeasurements.isEmpty {
+                        measurementSectionHeader
+                        measurementCard
                     }
                 }
                 .padding(16)
@@ -683,7 +683,7 @@ struct HomeView: View {
     private var measurementCard: some View {
         AppCard {
             VStack(spacing: 0) {
-                ForEach(Array(latestMeasurementsByType.enumerated()), id: \.element.id) { index, entry in
+                ForEach(Array(dayMeasurements.enumerated()), id: \.element.id) { index, entry in
                     if index > 0 { Divider().overlay(AppTheme.border) }
                     NavigationLink {
                         MeasurementDetailView(type: entry.type)
@@ -699,9 +699,16 @@ struct HomeView: View {
                                 Text(entry.type.rawValue)
                                     .font(.system(size: 13, weight: .medium))
                                     .foregroundStyle(AppTheme.textPrimary)
-                                Text("\(entry.value.formatted())\(entry.type.unit) · \(relativeLabel(entry.date))")
-                                    .font(.system(size: 11))
-                                    .foregroundStyle(AppTheme.textSecondary)
+                                HStack(spacing: 5) {
+                                    Text("\(entry.value.formatted())\(entry.type.unit)")
+                                        .font(.system(size: 12, weight: .medium))
+                                        .foregroundStyle(AppTheme.textSecondary)
+                                    if let progression = BodyMeasurementEntry.progressionLabel(current: entry, previous: previousMeasurement(before: entry)) {
+                                        Text(progression)
+                                            .font(.system(size: 11))
+                                            .foregroundStyle(AppTheme.textSecondary)
+                                    }
+                                }
                             }
                             Spacer()
                             Image(systemName: "chevron.right")

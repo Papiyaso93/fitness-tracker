@@ -33,6 +33,11 @@ struct MeasurementDetailView: View {
                         value: entries.first.map { formattedValue($0.value) } ?? "—",
                         target: matchingObjective?.targetValue.map { "\($0.formatted())\(type.unit)" }
                     )
+                    if let first = entries.first, let progression = BodyMeasurementEntry.progressionLabel(current: first, previous: entries.count > 1 ? entries[1] : nil) {
+                        Text(progression)
+                            .font(.system(size: 12, weight: .medium))
+                            .foregroundStyle(AppTheme.textSecondary)
+                    }
                     if entries.count > 1 {
                         chart
                             .frame(height: 150)
@@ -50,7 +55,7 @@ struct MeasurementDetailView: View {
                         VStack(spacing: 0) {
                             ForEach(Array(entries.enumerated()), id: \.element.id) { index, entry in
                                 if index > 0 { Divider().overlay(AppTheme.border) }
-                                historyRow(entry)
+                                historyRow(entry, previous: index + 1 < entries.count ? entries[index + 1] : nil)
                             }
                         }
                     }
@@ -93,15 +98,22 @@ struct MeasurementDetailView: View {
         }
     }
 
-    private func historyRow(_ entry: BodyMeasurementEntry) -> some View {
+    private func historyRow(_ entry: BodyMeasurementEntry, previous: BodyMeasurementEntry?) -> some View {
         HStack {
             Text(AppDateFormat.dayFullMonth.string(from: entry.date))
                 .font(.system(size: 13))
                 .foregroundStyle(AppTheme.textPrimary)
             Spacer()
-            Text(formattedValue(entry.value))
-                .font(.system(size: 13, weight: .semibold))
-                .foregroundStyle(AppTheme.textSecondary)
+            VStack(alignment: .trailing, spacing: 1) {
+                Text(formattedValue(entry.value))
+                    .font(.system(size: 13, weight: .semibold))
+                    .foregroundStyle(AppTheme.textSecondary)
+                if let progression = BodyMeasurementEntry.progressionLabel(current: entry, previous: previous) {
+                    Text(progression)
+                        .font(.system(size: 11))
+                        .foregroundStyle(AppTheme.textSecondary)
+                }
+            }
             Button {
                 context.delete(entry)
             } label: {
