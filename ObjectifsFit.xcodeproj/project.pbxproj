@@ -90,6 +90,7 @@
 		DD694D0E72341E22E1EB3F3A /* ExerciseFrequencyView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 360F35991DD9A9B47DAA5FC6 /* ExerciseFrequencyView.swift */; };
 		E318EF30D096D1B06288B229 /* MealLog.swift in Sources */ = {isa = PBXBuildFile; fileRef = DAD7EBCE51DBFC1643AD92F8 /* MealLog.swift */; };
 		E4704DF2DFC96A815B6E9EE2 /* TransitEntryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6EA8F5E112F215D897219EDD /* TransitEntryView.swift */; };
+		ED24343E4FD3ACAA02EC4F83 /* MeasurementProgressionStyle.swift in Sources */ = {isa = PBXBuildFile; fileRef = A5A0F470DD70E6401F481B48 /* MeasurementProgressionStyle.swift */; };
 		F1E3A0C2E6714FC5029FECA5 /* Reminder.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB16EC3281BCA5D922BCB92C /* Reminder.swift */; };
 		F5999C6E26AA485D175C20B7 /* LegendToggleChip.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3FF097894EB32CA0D0554DBB /* LegendToggleChip.swift */; };
 		FD23E4D0B3EB723AB91363B5 /* TrainingProgram.swift in Sources */ = {isa = PBXBuildFile; fileRef = F51F6949C11B923C8D379349 /* TrainingProgram.swift */; };
@@ -156,6 +157,7 @@
 		98E2142A2BE2DA803E7E7311 /* DevTestDataSeeder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DevTestDataSeeder.swift; sourceTree = "<group>"; };
 		A441BE90FAD4588C3EA0A29D /* EditPlannedSetEntryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditPlannedSetEntryView.swift; sourceTree = "<group>"; };
 		A461DD42B942374DCD70FC0F /* ObjectifsFit.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = ObjectifsFit.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		A5A0F470DD70E6401F481B48 /* MeasurementProgressionStyle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MeasurementProgressionStyle.swift; sourceTree = "<group>"; };
 		AB30D50A5B19AFCA279AEF10 /* TrainingEnums.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TrainingEnums.swift; sourceTree = "<group>"; };
 		AC055BAA611334547C7A2FD1 /* ExerciseLibraryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExerciseLibraryView.swift; sourceTree = "<group>"; };
 		AFF090CDB11A4EB6B5EC8687 /* SwapDaysView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwapDaysView.swift; sourceTree = "<group>"; };
@@ -237,6 +239,7 @@
 				68E3F58218E9D6D62AFECAB8 /* AppTheme.swift */,
 				C4036A2832918A1D3F285D4B /* DateFormatting.swift */,
 				3FF097894EB32CA0D0554DBB /* LegendToggleChip.swift */,
+				A5A0F470DD70E6401F481B48 /* MeasurementProgressionStyle.swift */,
 			);
 			path = DesignSystem;
 			sourceTree = "<group>";
@@ -513,6 +516,7 @@
 				A207A5D214A81DE01CA03AAA /* MealEntryView.swift in Sources */,
 				E318EF30D096D1B06288B229 /* MealLog.swift in Sources */,
 				9AACB88CC91094F5EC4148EA /* MeasurementDetailView.swift in Sources */,
+				ED24343E4FD3ACAA02EC4F83 /* MeasurementProgressionStyle.swift in Sources */,
 				BC97147C733CE8982922395D /* MuscleSelectionView.swift in Sources */,
 				D3EFA3D7B39D3812AC9A6834 /* NotificationManager.swift in Sources */,
 				571A3D54D76E91E4E8DEA0B4 /* ObjectifsFitApp.swift in Sources */,

@@ -24,6 +24,20 @@ struct MeasurementDetailView: View {
         "\(value.formatted())\(type.unit.isEmpty ? "" : type.unit)"
     }
 
+    private var previousEntry: BodyMeasurementEntry? {
+        entries.count > 1 ? entries[1] : nil
+    }
+
+    /// Pourcentage du chemin parcouru entre la valeur de départ de l'objectif et sa cible — nil
+    /// tant que l'objectif n'est pas un objectif de progression avec un départ et une cible.
+    private var objectiveProgress: Double? {
+        guard let objective = matchingObjective, objective.mode == .progression,
+              let start = objective.startValue, let target = objective.targetValue, target != start,
+              let current = entries.first?.value
+        else { return nil }
+        return min(1, max(0, (current - start) / (target - start)))
+    }
+
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 16) {
@@ -33,10 +47,24 @@ struct MeasurementDetailView: View {
                         value: entries.first.map { formattedValue($0.value) } ?? "—",
                         target: matchingObjective?.targetValue.map { "\($0.formatted())\(type.unit)" }
                     )
-                    if let first = entries.first, let progression = BodyMeasurementEntry.progressionLabel(current: first, previous: entries.count > 1 ? entries[1] : nil) {
-                        Text(progression)
-                            .font(.system(size: 12, weight: .medium))
-                            .foregroundStyle(AppTheme.textSecondary)
+                    if let first = entries.first, let previousEntry {
+                        progressionPill(current: first, previous: previousEntry)
+                            .padding(.top, 6)
+                    }
+                    if let objectiveProgress, let target = matchingObjective?.targetValue {
+                        VStack(alignment: .leading, spacing: 4) {
+                            GeometryReader { geometry in
+                                ZStack(alignment: .leading) {
+                                    Capsule().fill(AppTheme.border.opacity(0.5)).frame(height: 6)
+                                    Capsule().fill(AppTheme.accent).frame(width: geometry.size.width * objectiveProgress, height: 6)
+                                }
+                            }
+                            .frame(height: 6)
+                            Text("\(Int(objectiveProgress * 100))% du chemin vers \(target.formatted())\(type.unit)")
+                                .font(.system(size: 11))
+                                .foregroundStyle(AppTheme.textSecondary)
+                        }
+                        .padding(.top, 10)
                     }
                     if entries.count > 1 {
                         chart
@@ -96,6 +124,27 @@ struct MeasurementDetailView: View {
                     .foregroundStyle(AppTheme.textSecondary)
             }
         }
+    }
+
+    private func progressionPill(current: BodyMeasurementEntry, previous: BodyMeasurementEntry) -> some View {
+        let delta = current.value - previous.value
+        let colors = MeasurementProgressionStyle.colors(delta: delta, objective: matchingObjective)
+        let days = Calendar.current.dateComponents(
+            [.day],
+            from: Calendar.current.startOfDay(for: previous.date),
+            to: Calendar.current.startOfDay(for: current.date)
+        ).day ?? 0
+        return HStack(spacing: 4) {
+            Image(systemName: delta < 0 ? "arrow.down.right" : delta > 0 ? "arrow.up.right" : "minus")
+                .font(.system(size: 11, weight: .bold))
+            Text("\(delta > 0 ? "+" : "")\(delta.formatted())\(type.unit)\(days > 0 ? " (\(days)j)" : "")")
+                .font(.system(size: 12, weight: .semibold))
+        }
+        .foregroundStyle(colors.text)
+        .padding(.horizontal, 8)
+        .padding(.vertical, 4)
+        .background(colors.background)
+        .clipShape(RoundedRectangle(cornerRadius: 7))
     }
 
     private func historyRow(_ entry: BodyMeasurementEntry) -> some View {

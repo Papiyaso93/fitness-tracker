@@ -10,6 +10,7 @@ struct HomeView: View {
     @Query private var sleepLogs: [SleepLog]
     @Query private var measurements: [BodyMeasurementEntry]
     @Query private var weeklyCheckIns: [WeeklyCheckIn]
+    @Query private var allObjectives: [ProgramObjective]
 
     @State private var showingMealSheet = false
     @State private var showingTransitSheet = false
@@ -102,6 +103,10 @@ struct HomeView: View {
         measurements
             .filter { $0.type == entry.type && $0.date < entry.date }
             .max { $0.date < $1.date }
+    }
+
+    private func matchingObjective(for type: ObjectiveMetricType) -> ProgramObjective? {
+        allObjectives.first { $0.isMeasurable && $0.metricType == type && $0.targetValue != nil }
     }
 
     private func measurementBadge(_ type: ObjectiveMetricType) -> String {
@@ -704,15 +709,23 @@ struct HomeView: View {
                                 Text(entry.type.rawValue)
                                     .font(.system(size: 13, weight: .medium))
                                     .foregroundStyle(AppTheme.textPrimary)
-                                HStack(spacing: 5) {
+                                let previous = previousMeasurement(before: entry)
+                                HStack(alignment: .firstTextBaseline, spacing: 6) {
                                     Text("\(entry.value.formatted())\(entry.type.unit)")
-                                        .font(.system(size: 12, weight: .medium))
+                                        .font(.system(size: 13, weight: .semibold))
                                         .foregroundStyle(AppTheme.textSecondary)
-                                    if let progression = BodyMeasurementEntry.progressionLabel(current: entry, previous: previousMeasurement(before: entry)) {
-                                        Text(progression)
-                                            .font(.system(size: 11))
-                                            .foregroundStyle(AppTheme.textSecondary)
+                                    if let previous {
+                                        let delta = entry.value - previous.value
+                                        let colors = MeasurementProgressionStyle.colors(delta: delta, objective: matchingObjective(for: entry.type))
+                                        Text("\(delta > 0 ? "▲" : delta < 0 ? "▼" : "–") \(abs(delta).formatted())\(entry.type.unit)")
+                                            .font(.system(size: 12, weight: .semibold))
+                                            .foregroundStyle(colors.text)
                                     }
+                                }
+                                if let previous {
+                                    Text("depuis le \(AppDateFormat.dayFullMonth.string(from: previous.date))")
+                                        .font(.system(size: 10))
+                                        .foregroundStyle(AppTheme.textSecondary)
                                 }
                             }
                             Spacer()
