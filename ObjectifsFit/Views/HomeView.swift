@@ -716,10 +716,11 @@ struct HomeView: View {
                                         .foregroundStyle(AppTheme.textSecondary)
                                     if let previous {
                                         let delta = entry.value - previous.value
-                                        let colors = MeasurementProgressionStyle.colors(delta: delta, objective: matchingObjective(for: entry.type))
-                                        Text("\(delta > 0 ? "▲" : delta < 0 ? "▼" : "–") \(abs(delta).formatted())\(entry.type.unit)")
-                                            .font(.system(size: 12, weight: .semibold))
-                                            .foregroundStyle(colors.text)
+                                        MeasurementDeltaPill(
+                                            delta: delta,
+                                            unit: entry.type.unit,
+                                            colors: MeasurementProgressionStyle.colors(delta: delta, objective: matchingObjective(for: entry.type))
+                                        )
                                     }
                                 }
                                 if let previous {

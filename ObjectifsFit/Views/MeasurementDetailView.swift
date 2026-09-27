@@ -42,14 +42,35 @@ struct MeasurementDetailView: View {
         ScrollView {
             VStack(alignment: .leading, spacing: 16) {
                 AppCard {
-                    StatTile(
-                        label: type.rawValue,
-                        value: entries.first.map { formattedValue($0.value) } ?? "—",
-                        target: matchingObjective?.targetValue.map { "\($0.formatted())\(type.unit)" }
-                    )
-                    if let first = entries.first, let previousEntry {
-                        progressionPill(current: first, previous: previousEntry)
-                            .padding(.top, 6)
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text(type.rawValue)
+                            .font(AppTheme.Font.statLabel)
+                            .foregroundStyle(AppTheme.textSecondary)
+                        HStack(alignment: .firstTextBaseline, spacing: 8) {
+                            Text(entries.first.map { formattedValue($0.value) } ?? "—")
+                                .font(AppTheme.Font.statValue)
+                                .foregroundStyle(AppTheme.textPrimary)
+                            if let target = matchingObjective?.targetValue {
+                                Text("→ \(target.formatted())\(type.unit)")
+                                    .font(.system(size: 12, weight: .medium))
+                                    .foregroundStyle(AppTheme.accent)
+                            }
+                            Spacer(minLength: 8)
+                            if let first = entries.first, let previousEntry {
+                                let delta = first.value - previousEntry.value
+                                let days = Calendar.current.dateComponents(
+                                    [.day],
+                                    from: Calendar.current.startOfDay(for: previousEntry.date),
+                                    to: Calendar.current.startOfDay(for: first.date)
+                                ).day ?? 0
+                                MeasurementDeltaPill(
+                                    delta: delta,
+                                    unit: type.unit,
+                                    colors: MeasurementProgressionStyle.colors(delta: delta, objective: matchingObjective),
+                                    days: days
+                                )
+                            }
+                        }
                     }
                     if let objectiveProgress, let target = matchingObjective?.targetValue {
                         VStack(alignment: .leading, spacing: 4) {
@@ -124,27 +145,6 @@ struct MeasurementDetailView: View {
                     .foregroundStyle(AppTheme.textSecondary)
             }
         }
-    }
-
-    private func progressionPill(current: BodyMeasurementEntry, previous: BodyMeasurementEntry) -> some View {
-        let delta = current.value - previous.value
-        let colors = MeasurementProgressionStyle.colors(delta: delta, objective: matchingObjective)
-        let days = Calendar.current.dateComponents(
-            [.day],
-            from: Calendar.current.startOfDay(for: previous.date),
-            to: Calendar.current.startOfDay(for: current.date)
-        ).day ?? 0
-        return HStack(spacing: 4) {
-            Image(systemName: delta < 0 ? "arrow.down.right" : delta > 0 ? "arrow.up.right" : "minus")
-                .font(.system(size: 11, weight: .bold))
-            Text("\(delta > 0 ? "+" : "")\(delta.formatted())\(type.unit)\(days > 0 ? " (\(days)j)" : "")")
-                .font(.system(size: 12, weight: .semibold))
-        }
-        .foregroundStyle(colors.text)
-        .padding(.horizontal, 8)
-        .padding(.vertical, 4)
-        .background(colors.background)
-        .clipShape(RoundedRectangle(cornerRadius: 7))
     }
 
     private func historyRow(_ entry: BodyMeasurementEntry) -> some View {

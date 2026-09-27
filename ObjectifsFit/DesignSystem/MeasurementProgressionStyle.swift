@@ -28,3 +28,26 @@ enum MeasurementProgressionStyle {
         return goalIsDown == deltaIsDown ? positive : negative
     }
 }
+
+/// Pastille de variation (flèche + delta) partagée entre l'accueil et le détail d'une mesure —
+/// `days` ajoute "(Xj)" quand fourni, omis quand une légende "depuis le [date]" l'affiche déjà à côté.
+struct MeasurementDeltaPill: View {
+    let delta: Double
+    let unit: String
+    let colors: MeasurementProgressionStyle.Colors
+    var days: Int?
+
+    var body: some View {
+        HStack(spacing: 4) {
+            Image(systemName: delta < 0 ? "arrow.down.right" : delta > 0 ? "arrow.up.right" : "minus")
+                .font(.system(size: 11, weight: .bold))
+            Text("\(delta > 0 ? "+" : "")\(delta.formatted())\(unit)\(days.flatMap { $0 > 0 ? " (\($0)j)" : nil } ?? "")")
+                .font(.system(size: 12, weight: .semibold))
+        }
+        .foregroundStyle(colors.text)
+        .padding(.horizontal, 8)
+        .padding(.vertical, 4)
+        .background(colors.background)
+        .clipShape(RoundedRectangle(cornerRadius: 7))
+    }
+}
