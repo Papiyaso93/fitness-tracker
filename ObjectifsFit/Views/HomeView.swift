@@ -597,7 +597,10 @@ struct HomeView: View {
 
     @ViewBuilder
     private var weeklyCheckInSection: some View {
-        if isToday {
+        // Visible sur tout dimanche navigué — passé, présent, jamais futur puisque la navigation
+        // ne dépasse pas aujourd'hui — pour pouvoir rattraper un bilan oublié, comme on peut
+        // toujours ajouter une séance passée.
+        if weekday == 1 {
             if let existing = existingWeeklyCheckIn {
                 SectionLabel(text: "Bilan hebdomadaire")
                 NavigationLink {
@@ -624,7 +627,7 @@ struct HomeView: View {
                     }
                 }
                 .buttonStyle(.plain)
-            } else if weekday == 1 {
+            } else {
                 SectionLabel(text: "Bilan hebdomadaire")
                 AppCard {
                     HStack(spacing: 8) {
