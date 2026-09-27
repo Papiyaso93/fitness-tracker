@@ -16,7 +16,7 @@ struct EditReminderView: View {
     init(reminder: Reminder) {
         self.reminder = reminder
         _time = State(initialValue: Calendar.current.date(bySettingHour: reminder.hour, minute: reminder.minute, second: 0, of: .now) ?? .now)
-        _frequency = State(initialValue: reminder.frequency)
+        _frequency = State(initialValue: reminder.frequency ?? .quotidien)
         _weekday = State(initialValue: reminder.weekday ?? Calendar.current.component(.weekday, from: .now))
     }
 

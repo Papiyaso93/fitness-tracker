@@ -17,7 +17,11 @@ final class Reminder {
     var message: String
     var hour: Int
     var minute: Int
-    var frequency: ReminderFrequency = ReminderFrequency.quotidien
+    /// Optionnelle (et non `= .quotidien`) volontairement : un rappel créé avant l'ajout de ce
+    /// champ n'a pas cette valeur en base, et une propriété non-optionnelle avec valeur par défaut
+    /// provoque un crash au chargement ("Could not cast... to ReminderFrequency") au lieu d'être
+    /// backfillée par la migration légère de SwiftData. `nil` est traité comme `.quotidien` partout.
+    var frequency: ReminderFrequency?
     /// Convention `Calendar` (1=dimanche...7=samedi, cf. `Weekday`) — utilisé seulement quand
     /// `frequency == .hebdomadaire`.
     var weekday: Int?
@@ -39,7 +43,7 @@ final class Reminder {
     /// "21h00" ou "Dimanche 21h00" — utilisé dans la liste des rappels pour distinguer d'un coup
     /// d'œil un rappel quotidien d'un rappel hebdomadaire.
     var scheduleLabel: String {
-        switch frequency {
+        switch frequency ?? .quotidien {
         case .quotidien: return timeLabel
         case .hebdomadaire: return "\(weekday.map(Weekday.label(for:)) ?? "") \(timeLabel)"
         }
