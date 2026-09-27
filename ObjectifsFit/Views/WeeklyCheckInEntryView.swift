@@ -67,16 +67,21 @@ struct WeeklyCheckInEntryView: View {
     @Environment(\.modelContext) private var context
     @Environment(\.dismiss) private var dismiss
 
+    /// Modules proposés au choix dans le premier écran — la note libre n'en fait pas partie : elle
+    /// est systématiquement demandée en dernière étape, sans avoir besoin d'être cochée.
+    private static let pickableModules = WeeklyModule.allCases.filter { $0 != .note }
+
     @State private var selectedModules: Set<WeeklyModule> = [.forme, .course]
     /// 0 = choix des modules, 1...N = étape du n-ième module sélectionné.
     @State private var step = 0
     @State private var formLevel: WeeklyFormLevel = .bien
+    @State private var formComment = ""
     @State private var runningVolumeText = ""
     @State private var stepsText = ""
     @State private var note = ""
 
     private var orderedModules: [WeeklyModule] {
-        WeeklyModule.allCases.filter { selectedModules.contains($0) }
+        Self.pickableModules.filter { selectedModules.contains($0) } + [.note]
     }
 
     var body: some View {
@@ -107,7 +112,7 @@ struct WeeklyCheckInEntryView: View {
 
                 AppCard {
                     VStack(spacing: 0) {
-                        ForEach(Array(WeeklyModule.allCases.enumerated()), id: \.offset) { index, module in
+                        ForEach(Array(Self.pickableModules.enumerated()), id: \.offset) { index, module in
                             if index > 0 { Divider().overlay(AppTheme.border) }
                             moduleToggleRow(module)
                         }
@@ -120,8 +125,6 @@ struct WeeklyCheckInEntryView: View {
                     Text("Continuer").primaryButtonStyle()
                 }
                 .buttonStyle(.plain)
-                .disabled(selectedModules.isEmpty)
-                .opacity(selectedModules.isEmpty ? 0.5 : 1)
             }
             .padding(16)
         }
@@ -164,6 +167,11 @@ struct WeeklyCheckInEntryView: View {
                             .font(.system(size: 15, weight: .semibold))
                             .foregroundStyle(AppTheme.textPrimary)
                         WeeklyFormLevelField(selection: $formLevel)
+                        TextField("Pourquoi ? (optionnel)", text: $formComment, axis: .vertical)
+                            .padding(12)
+                            .background(Color.white)
+                            .overlay(RoundedRectangle(cornerRadius: 12).stroke(AppTheme.border, lineWidth: 0.5))
+                            .clipShape(RoundedRectangle(cornerRadius: 12))
                     }
                 case .course:
                     VStack(alignment: .leading, spacing: 8) {
@@ -240,6 +248,8 @@ struct WeeklyCheckInEntryView: View {
         let checkIn = WeeklyCheckIn(weekDate: weekDate)
         if selectedModules.contains(.forme) {
             checkIn.formLevel = formLevel
+            let trimmedComment = formComment.trimmingCharacters(in: .whitespacesAndNewlines)
+            checkIn.formComment = trimmedComment.isEmpty ? nil : trimmedComment
         }
         if selectedModules.contains(.course) {
             checkIn.runningVolumeKm = Double(runningVolumeText.replacingOccurrences(of: ",", with: "."))
@@ -247,10 +257,8 @@ struct WeeklyCheckInEntryView: View {
         if selectedModules.contains(.steps) {
             checkIn.averageStepsPerDay = Int(stepsText)
         }
-        if selectedModules.contains(.note) {
-            let trimmed = note.trimmingCharacters(in: .whitespacesAndNewlines)
-            checkIn.note = trimmed.isEmpty ? nil : trimmed
-        }
+        let trimmedNote = note.trimmingCharacters(in: .whitespacesAndNewlines)
+        checkIn.note = trimmedNote.isEmpty ? nil : trimmedNote
         context.insert(checkIn)
         dismiss()
     }

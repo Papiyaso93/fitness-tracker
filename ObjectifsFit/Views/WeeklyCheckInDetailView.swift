@@ -10,12 +10,14 @@ struct WeeklyCheckInDetailView: View {
     @Environment(\.modelContext) private var context
     @Environment(\.dismiss) private var dismiss
 
+    @State private var formCommentText: String
     @State private var runningVolumeText: String
     @State private var stepsText: String
     @State private var noteText: String
 
     init(checkIn: WeeklyCheckIn) {
         self.checkIn = checkIn
+        _formCommentText = State(initialValue: checkIn.formComment ?? "")
         _runningVolumeText = State(initialValue: checkIn.runningVolumeKm.map { $0.formatted() } ?? "")
         _stepsText = State(initialValue: checkIn.averageStepsPerDay.map { "\($0)" } ?? "")
         _noteText = State(initialValue: checkIn.note ?? "")
@@ -31,6 +33,11 @@ struct WeeklyCheckInDetailView: View {
                 WeeklyFormLevelField(selection: formLevelBinding)
                     .listRowInsets(EdgeInsets())
                     .padding(4)
+                TextField("Pourquoi ? (optionnel)", text: $formCommentText, axis: .vertical)
+                    .onChange(of: formCommentText) { _, newValue in
+                        let trimmed = newValue.trimmingCharacters(in: .whitespacesAndNewlines)
+                        checkIn.formComment = trimmed.isEmpty ? nil : newValue
+                    }
             } header: { formSectionHeader("Niveau de forme") }
 
             Section {

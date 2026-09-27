@@ -28,6 +28,7 @@ final class WeeklyCheckIn {
     /// Dimanche de la semaine concernée, normalisé à minuit — clé d'unicité par semaine.
     var weekDate: Date
     var formLevel: WeeklyFormLevel?
+    var formComment: String?
     var runningVolumeKm: Double?
     var averageStepsPerDay: Int?
     var note: String?
