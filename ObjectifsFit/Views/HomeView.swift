@@ -35,9 +35,9 @@ struct HomeView: View {
 
     private func covers(_ program: TrainingProgram, date: Date) -> Bool {
         switch (program.startDate, program.endDate) {
-        case let (start?, end?): return start <= date && date <= end
-        case let (start?, nil): return start <= date
-        case let (nil, end?): return date <= end
+        case let (start?, end?): return start.isOnOrBefore(date) && date.isOnOrBefore(end)
+        case let (start?, nil): return start.isOnOrBefore(date)
+        case let (nil, end?): return date.isOnOrBefore(end)
         case (nil, nil): return true
         }
     }
@@ -46,14 +46,14 @@ struct HomeView: View {
     private var activeCycle: Cycle? {
         guard let activeProgram else { return nil }
         return allCycles.first {
-            $0.program?.id == activeProgram.id && $0.startDate <= selectedDate && selectedDate <= $0.endDate
+            $0.program?.id == activeProgram.id && $0.startDate.isOnOrBefore(selectedDate) && selectedDate.isOnOrBefore($0.endDate)
         }
     }
 
     /// Le prochain cycle du programme actif (après le jour affiché), s'il y en a un.
     private func upcomingCycle(in program: TrainingProgram) -> Cycle? {
         allCycles
-            .filter { $0.program?.id == program.id && $0.startDate > selectedDate }
+            .filter { $0.program?.id == program.id && $0.startDate.isStrictlyAfter(selectedDate) }
             .sorted { $0.startDate < $1.startDate }
             .first
     }
@@ -154,7 +154,7 @@ struct HomeView: View {
     /// programme n'est actif ce jour-là.
     private var upcomingProgram: TrainingProgram? {
         allPrograms
-            .filter { ($0.startDate ?? .distantPast) > selectedDate }
+            .filter { ($0.startDate ?? .distantPast).isStrictlyAfter(selectedDate) }
             .sorted { ($0.startDate ?? .distantFuture) < ($1.startDate ?? .distantFuture) }
             .first
     }

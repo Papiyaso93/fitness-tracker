@@ -98,8 +98,8 @@ final class Cycle {
     /// Déduit du statut à partir des dates — toujours à jour, pas besoin de le stocker/màj à la main.
     var status: ProgramStatus {
         let now = Date.now
-        if now < startDate { return .aVenir }
-        if now > endDate { return .termine }
+        if startDate.isStrictlyAfter(now) { return .aVenir }
+        if now.isStrictlyAfter(endDate) { return .termine }
         return .enCours
     }
 
