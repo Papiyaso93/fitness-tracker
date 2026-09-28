@@ -35,3 +35,21 @@ enum AppDateFormat {
         return formatter
     }()
 }
+
+extension Date {
+    /// Compare au niveau du jour calendaire local plutôt que de l'instant exact — une date importée
+    /// (JSON généré hors app, ex: programme reçu de Claude) encode souvent minuit UTC, ce qui la
+    /// décale de quelques heures par rapport à `Calendar.current.startOfDay(for: .now)` selon le
+    /// fuseau horaire, et fait paraître à tort un programme/cycle "pas encore commencé" le jour même.
+    func isOnOrBefore(_ other: Date, calendar: Calendar = .current) -> Bool {
+        calendar.startOfDay(for: self) <= calendar.startOfDay(for: other)
+    }
+
+    func isOnOrAfter(_ other: Date, calendar: Calendar = .current) -> Bool {
+        calendar.startOfDay(for: self) >= calendar.startOfDay(for: other)
+    }
+
+    func isStrictlyAfter(_ other: Date, calendar: Calendar = .current) -> Bool {
+        calendar.startOfDay(for: self) > calendar.startOfDay(for: other)
+    }
+}

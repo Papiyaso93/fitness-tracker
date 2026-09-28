@@ -25,8 +25,8 @@ final class TrainingProgram {
 
     /// Déduit des dates quand elles existent (toujours à jour), sinon retombe sur `manualStatus`.
     var status: ProgramStatus {
-        if let endDate, Date.now > endDate { return .termine }
-        if let startDate, Date.now < startDate { return .aVenir }
+        if let endDate, Date.now.isStrictlyAfter(endDate) { return .termine }
+        if let startDate, startDate.isStrictlyAfter(Date.now) { return .aVenir }
         return manualStatus
     }
 

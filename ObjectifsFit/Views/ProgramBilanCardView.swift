@@ -23,12 +23,12 @@ struct ProgramBilanCardView: View {
 
     private var isOver: Bool {
         guard let endDate = program.endDate else { return false }
-        return Date.now >= endDate
+        return Date.now.isOnOrAfter(endDate)
     }
 
     private var isNearEndOrOver: Bool {
         guard let endDate = program.endDate else { return false }
-        return Date.now >= endDate.addingTimeInterval(-7 * 86400)
+        return Date.now.isOnOrAfter(endDate.addingTimeInterval(-7 * 86400))
     }
 
     private var objectivesSummary: String {

@@ -23,7 +23,7 @@ struct CycleBilanCardView: View {
     }
 
     private var isOver: Bool {
-        Date.now >= cycle.endDate
+        Date.now.isOnOrAfter(cycle.endDate)
     }
 
     private var isNearEndOrOver: Bool {
