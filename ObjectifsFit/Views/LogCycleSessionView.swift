@@ -21,6 +21,7 @@ struct LogCycleSessionView: View {
     @State private var showingSwitchConfirm = false
     @State private var showingSwitchChoice = false
     @State private var showingCancelAdaptationConfirm = false
+    @State private var showingCancelOrDeleteConfirm = false
 
     private var scheduledDate: Date { session.scheduledDate ?? .now }
     private var isToday: Bool { Calendar.current.isDateInToday(scheduledDate) }
@@ -43,6 +44,40 @@ struct LogCycleSessionView: View {
         allSetEntries
             .filter { $0.completion?.id == completion.id }
             .sorted { $0.date < $1.date }
+    }
+
+    /// Hors programme : toujours quelque chose à supprimer (la séance elle-même). Planifiée :
+    /// seulement s'il y a une saisie en cours à annuler — sinon rien à proposer.
+    private var canCancelOrDelete: Bool {
+        session.isAdHoc || session.completion != nil
+    }
+
+    private var cancelOrDeleteTitle: String {
+        session.isAdHoc ? "Supprimer la séance ?" : "Annuler la séance ?"
+    }
+
+    private var cancelOrDeleteActionLabel: String {
+        session.isAdHoc ? "Supprimer la séance" : "Annuler la séance"
+    }
+
+    /// "Annuler" entrerait en collision avec l'action elle-même ("Annuler la séance") dans le cas
+    /// planifié — "Fermer" évite l'ambiguïté. Pas de collision côté hors programme, donc le libellé
+    /// standard iOS reste.
+    private var cancelOrDeleteDismissLabel: String {
+        session.isAdHoc ? "Annuler" : "Fermer"
+    }
+
+    private var cancelOrDeleteMessage: String {
+        if session.isAdHoc {
+            return "Cette séance et tout ce qui a été enregistré seront définitivement supprimés."
+        }
+        if effectiveKind == .musculation, let completion = session.completion {
+            let count = entries(for: completion).count
+            if count > 0 {
+                return "\(count) série\(count > 1 ? "s" : "") déjà enregistrée\(count > 1 ? "s" : "") sera\(count > 1 ? "nt" : "") effacée\(count > 1 ? "s" : ""). La séance reste planifiée, tu pourras la refaire."
+            }
+        }
+        return "Ta saisie sera effacée. La séance reste planifiée, tu pourras la refaire."
     }
 
     var body: some View {
@@ -73,6 +108,29 @@ struct LogCycleSessionView: View {
         .background(AppTheme.background)
         .navigationTitle(session.title)
         .navigationBarTitleDisplayMode(.inline)
+        .toolbar {
+            if canCancelOrDelete {
+                ToolbarItem(placement: .topBarTrailing) {
+                    Menu {
+                        Button(cancelOrDeleteActionLabel, role: .destructive) {
+                            showingCancelOrDeleteConfirm = true
+                        }
+                    } label: {
+                        Image(systemName: "ellipsis.circle")
+                    }
+                }
+            }
+        }
+        .confirmationDialog(
+            cancelOrDeleteTitle,
+            isPresented: $showingCancelOrDeleteConfirm,
+            titleVisibility: .visible
+        ) {
+            Button(cancelOrDeleteActionLabel, role: .destructive) { cancelOrDeleteSession() }
+            Button(cancelOrDeleteDismissLabel, role: .cancel) {}
+        } message: {
+            Text(cancelOrDeleteMessage)
+        }
         .sheet(isPresented: $showingAddSet) {
             if let completion = session.completion {
                 let suggested = (completion.isAdapted) ? [] : session.sortedExercises
@@ -186,14 +244,6 @@ struct LogCycleSessionView: View {
     /// programme), elle n'a pas de plan de référence donc "annuler" n'a pas de sens — on supprime
     /// carrément la séance. Pour une séance programmée, on garde la séance planifiée et on ne
     /// supprime que la saisie en cours.
-    private var cancelOrDeleteButton: some View {
-        Button(session.isAdHoc ? "Supprimer la séance" : "Annuler la séance", role: .destructive) {
-            cancelOrDeleteSession()
-        }
-        .font(.system(size: 13))
-        .frame(maxWidth: .infinity)
-    }
-
     private func cancelOrDeleteSession() {
         if session.isAdHoc {
             context.delete(session)
@@ -326,13 +376,15 @@ struct LogCycleSessionView: View {
                         .contentShape(Rectangle())
                 }
                 .buttonStyle(.plain)
-
-                cancelOrDeleteButton
             } else {
-                if let endTime = completion.endTime {
-                    Text("Séance terminée à \(endTime.formatted(date: .omitted, time: .shortened))")
-                        .font(.system(size: 13))
-                        .foregroundStyle(AppTheme.textSecondary)
+                if let label = durationLabel(completion) {
+                    Text(label)
+                        .font(.system(size: 11, weight: .medium))
+                        .padding(.horizontal, 8)
+                        .padding(.vertical, 3)
+                        .background(AppTheme.secondary.opacity(0.15))
+                        .foregroundStyle(Color(hex: "0F6E56"))
+                        .clipShape(Capsule())
                 }
 
                 // Pas destructeur, contrairement à "Annuler" : remet juste la séance en cours (ce
@@ -346,8 +398,6 @@ struct LogCycleSessionView: View {
                         .contentShape(Rectangle())
                 }
                 .buttonStyle(.plain)
-
-                cancelOrDeleteButton
             }
         } else if isToday || isPast {
             Button {
@@ -358,10 +408,6 @@ struct LogCycleSessionView: View {
                     .contentShape(Rectangle())
             }
             .buttonStyle(.plain)
-
-            if session.isAdHoc {
-                cancelOrDeleteButton
-            }
         } else {
             Text("Séance à venir.")
                 .font(.system(size: 13))
@@ -388,6 +434,16 @@ struct LogCycleSessionView: View {
         return parts.joined(separator: " · ")
     }
 
+    /// "Terminée · 52min" — uniquement pour la musculation, qui a un vrai début/fin séparés
+    /// (Commencer/Terminer). Les séances "Autre" fixent les deux au même instant (pas d'étape
+    /// "Commencer" séparée), donc une durée n'y aurait aucun sens.
+    private func durationLabel(_ completion: SessionCompletion) -> String? {
+        guard let start = completion.startTime, let end = completion.endTime else { return nil }
+        let minutes = Int(end.timeIntervalSince(start) / 60)
+        guard minutes > 0 else { return nil }
+        return "Terminée · \(minutes)min"
+    }
+
     private func startSession() {
         let completion = SessionCompletion(startTime: .now)
         completion.cycleSession = session
@@ -412,7 +468,6 @@ struct LogCycleSessionView: View {
                     .contentShape(Rectangle())
             }
             .buttonStyle(.plain)
-            cancelOrDeleteButton
         } else if isToday || isPast {
             AppCard {
                 VStack(alignment: .leading, spacing: 4) {
@@ -428,10 +483,6 @@ struct LogCycleSessionView: View {
                     .contentShape(Rectangle())
             }
             .buttonStyle(.plain)
-
-            if session.isAdHoc {
-                cancelOrDeleteButton
-            }
         } else {
             Text("Séance à venir.")
                 .font(.system(size: 13))
