@@ -34,6 +34,7 @@ struct ObjectifsFitApp: App {
         }
 
         SeedData.seedExerciseLibraryIfNeeded(context: container.mainContext)
+        SeedData.renamePlannedExerciseAliasesIfNeeded(context: container.mainContext)
         SeedData.seedDefaultRemindersIfNeeded(context: container.mainContext)
         let reminders = (try? container.mainContext.fetch(FetchDescriptor<Reminder>())) ?? []
         NotificationManager.syncPending(with: reminders)
