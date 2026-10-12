@@ -506,7 +506,8 @@ struct HomeView: View {
                         .font(.system(size: 14, weight: .medium))
                         .foregroundStyle(AppTheme.textPrimary)
                     Spacer()
-                    Image(systemName: "plus.circle.fill")
+                    Image(systemName: "plus")
+                        .font(.system(size: 15, weight: .semibold))
                         .foregroundStyle(AppTheme.accent)
                 }
             }
@@ -681,7 +682,8 @@ struct HomeView: View {
                         .font(.system(size: 14, weight: .medium))
                         .foregroundStyle(AppTheme.textPrimary)
                     Spacer()
-                    Image(systemName: "plus.circle.fill")
+                    Image(systemName: "plus")
+                        .font(.system(size: 15, weight: .semibold))
                         .foregroundStyle(AppTheme.accent)
                 }
             }
@@ -822,7 +824,8 @@ struct HomeView: View {
                     .font(.system(size: 12))
                     .foregroundStyle(AppTheme.textSecondary)
             } else if isToday {
-                Image(systemName: "plus.circle.fill")
+                Image(systemName: "plus")
+                    .font(.system(size: 15, weight: .semibold))
                     .foregroundStyle(AppTheme.accent)
             }
         }
@@ -857,7 +860,8 @@ struct HomeView: View {
                         .font(.system(size: 14, weight: .medium))
                         .foregroundStyle(AppTheme.textPrimary)
                     Spacer()
-                    Image(systemName: "plus.circle.fill")
+                    Image(systemName: "plus")
+                        .font(.system(size: 15, weight: .semibold))
                         .foregroundStyle(AppTheme.accent)
                 }
             }
@@ -947,7 +951,8 @@ struct HomeView: View {
                         .font(.system(size: 14, weight: .medium))
                         .foregroundStyle(AppTheme.textPrimary)
                     Spacer()
-                    Image(systemName: "plus.circle.fill")
+                    Image(systemName: "plus")
+                        .font(.system(size: 15, weight: .semibold))
                         .foregroundStyle(AppTheme.accent)
                 }
             }
