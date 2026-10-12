@@ -3,6 +3,51 @@ import SwiftData
 
 enum SeedData {
 
+    /// Alias de noms d'exercice qui répétaient le mode de résistance (déjà saisi séparément à
+    /// chaque série) — partagé entre la bibliothèque d'exercices et les séances déjà
+    /// planifiées/loguées (ex: un programme importé avant ce nettoyage, qui garde le nom tel quel
+    /// puisqu'il ne référence pas la bibliothèque par id, juste une copie du nom au moment de la
+    /// génération).
+    static let exerciseNameRenames: [String: String] = [
+        "Extension lombaire (banc à lombaires)": "Extension lombaire",
+        "Pull-over à la poulie haute": "Pull-over poulie haute",
+        "Butterfly (machine)": "Butterfly",
+        "Chest press (machine)": "Chest press",
+        "Rear delt fly (machine)": "Rear delt fly",
+        "Extension triceps kickback (haltère)": "Kick-back triceps",
+        "Extension mollet debout (machine)": "Extension mollet debout",
+        "Squat (barre)": "Squat",
+        "Squat bulgare (haltères)": "Squat bulgare",
+        "Curl supination barre EZ": "Curl barre EZ",
+        "Élévations latérales buste penché (l'oiseau)": "L'oiseau",
+        // Erreur d'interprétation initiale : cette entrée visait le mauvais mouvement (attache
+        // corde du pushdown) — le second exercice triceps décrit est en fait une extension nuque
+        // à la poulie basse, dos à la poulie, pas une variante d'attache du même mouvement.
+        // Rebaptisée une seconde fois pour rester dans la même famille de nom que l'originale.
+        "Triceps poulie haute (corde)": "Triceps poulie haute (horizontal)",
+        "Extension triceps poulie basse (nuque)": "Triceps poulie haute (horizontal)",
+        "Shrug (haussement d'épaules)": "Shrug",
+        "Pompe classique": "Pompe",
+        "Crunch à la poulie haute (prière)": "Crunch à la poulie haute",
+        "Tirage horizontal (machine)": "Tirage horizontal",
+        "Triceps poulie haute": "Triceps poulie haute (vertical)",
+        "Abdos barre (genou)": "Relevé de genoux à la barre",
+        "Soulevé de terre tendu unilatéral": "Soulevé de terre jambes tendues",
+        // "Machine" répétait le mode de résistance dans le nom (contraire à la règle posée
+        // juste au-dessus) — déjà saisi séparément à chaque série, et ces exercices peuvent
+        // aussi se faire à l'élastique.
+        "Dips machine": "Dips",
+        "Machine adducteurs": "Adducteurs",
+        "Machine abducteurs": "Abducteurs",
+        // Mêmes noms que ci-dessus, variante "(Mode) en suffixe" plutôt qu'en préfixe — utilisée
+        // par le programme généré avec Claude (séances Pull/Jambes du cycle 1), jamais ajoutée à
+        // la bibliothèque elle-même donc jamais corrigée par les renames précédents.
+        "Presse inclinée (Machine)": "Presse inclinée",
+        "Soulevé de terre jambes tendues (Poids libre)": "Soulevé de terre jambes tendues",
+        "Adducteurs (Machine)": "Adducteurs",
+        "Abducteurs (Machine)": "Abducteurs"
+    ]
+
     /// Rappels livrés avec l'app — additif comme la bibliothèque d'exercices, identifié par titre
     /// pour ne jamais recréer un rappel que l'utilisateur aurait modifié ou supprimé lui-même.
     static func seedDefaultRemindersIfNeeded(context: ModelContext) {
@@ -30,40 +75,8 @@ enum SeedData {
 
         // Renomme en place les entrées ajoutées lors d'un précédent lancement dont le nom
         // répétait le mode de résistance (déjà saisi séparément à chaque série) — évite les doublons.
-        let renames: [String: String] = [
-            "Extension lombaire (banc à lombaires)": "Extension lombaire",
-            "Pull-over à la poulie haute": "Pull-over poulie haute",
-            "Butterfly (machine)": "Butterfly",
-            "Chest press (machine)": "Chest press",
-            "Rear delt fly (machine)": "Rear delt fly",
-            "Extension triceps kickback (haltère)": "Kick-back triceps",
-            "Extension mollet debout (machine)": "Extension mollet debout",
-            "Squat (barre)": "Squat",
-            "Squat bulgare (haltères)": "Squat bulgare",
-            "Curl supination barre EZ": "Curl barre EZ",
-            "Élévations latérales buste penché (l'oiseau)": "L'oiseau",
-            // Erreur d'interprétation initiale : cette entrée visait le mauvais mouvement (attache
-            // corde du pushdown) — le second exercice triceps décrit est en fait une extension nuque
-            // à la poulie basse, dos à la poulie, pas une variante d'attache du même mouvement.
-            // Rebaptisée une seconde fois pour rester dans la même famille de nom que l'originale.
-            "Triceps poulie haute (corde)": "Triceps poulie haute (horizontal)",
-            "Extension triceps poulie basse (nuque)": "Triceps poulie haute (horizontal)",
-            "Shrug (haussement d'épaules)": "Shrug",
-            "Pompe classique": "Pompe",
-            "Crunch à la poulie haute (prière)": "Crunch à la poulie haute",
-            "Tirage horizontal (machine)": "Tirage horizontal",
-            "Triceps poulie haute": "Triceps poulie haute (vertical)",
-            "Abdos barre (genou)": "Relevé de genoux à la barre",
-            "Soulevé de terre tendu unilatéral": "Soulevé de terre jambes tendues",
-            // "Machine" répétait le mode de résistance dans le nom (contraire à la règle posée
-            // juste au-dessus) — déjà saisi séparément à chaque série, et ces exercices peuvent
-            // aussi se faire à l'élastique.
-            "Dips machine": "Dips",
-            "Machine adducteurs": "Adducteurs",
-            "Machine abducteurs": "Abducteurs"
-        ]
         for definition in existing {
-            if let newName = renames[definition.name] {
+            if let newName = exerciseNameRenames[definition.name] {
                 definition.name = newName
             }
         }
@@ -186,6 +199,31 @@ enum SeedData {
                 primaryMuscles: entry.primary,
                 secondaryMuscles: entry.secondary
             ))
+        }
+    }
+
+    /// Applique `exerciseNameRenames` aux séances déjà planifiées/loguées — un programme importé
+    /// copie le nom d'exercice tel quel au moment de la génération (pas de référence à la
+    /// bibliothèque), donc corriger la bibliothèque seule ne corrige pas les séances déjà créées.
+    /// Sans ça, "Tirage horizontal (machine)" reste figé dans le programme même une fois la
+    /// bibliothèque nettoyée, et fragmente les stats par exercice (PR, volume...) entre les deux noms.
+    /// Comparaison insensible à la casse : le programme généré a pu utiliser "(Machine)" quand la
+    /// bibliothèque utilisait "(machine)".
+    static func renamePlannedExerciseAliasesIfNeeded(context: ModelContext) {
+        let lowercasedRenames = Dictionary(uniqueKeysWithValues: exerciseNameRenames.map { ($0.key.lowercased(), $0.value) })
+
+        let plannedExercises = (try? context.fetch(FetchDescriptor<PlannedExercise>())) ?? []
+        for exercise in plannedExercises {
+            if let canonical = lowercasedRenames[exercise.exerciseName.lowercased()] {
+                exercise.exerciseName = canonical
+            }
+        }
+
+        let setEntries = (try? context.fetch(FetchDescriptor<PlannedSetEntry>())) ?? []
+        for entry in setEntries {
+            if let canonical = lowercasedRenames[entry.exerciseName.lowercased()] {
+                entry.exerciseName = canonical
+            }
         }
     }
 }
