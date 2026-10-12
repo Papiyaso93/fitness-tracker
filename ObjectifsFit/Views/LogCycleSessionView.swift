@@ -329,6 +329,24 @@ struct LogCycleSessionView: View {
 
                 cancelOrDeleteButton
             } else {
+                if let endTime = completion.endTime {
+                    Text("Séance terminée à \(endTime.formatted(date: .omitted, time: .shortened))")
+                        .font(.system(size: 13))
+                        .foregroundStyle(AppTheme.textSecondary)
+                }
+
+                // Pas destructeur, contrairement à "Annuler" : remet juste la séance en cours (ce
+                // qui réaffiche Ajouter une série/Terminer) sans toucher aux séries déjà loguées —
+                // rattrape un tap accidentel sur "Terminer" sans perdre la saisie.
+                Button {
+                    completion.endTime = nil
+                } label: {
+                    Text("Rouvrir la séance")
+                        .accentOutlineButtonStyle()
+                        .contentShape(Rectangle())
+                }
+                .buttonStyle(.plain)
+
                 cancelOrDeleteButton
             }
         } else if isToday || isPast {
@@ -386,6 +404,14 @@ struct LogCycleSessionView: View {
                 Text(completionEntry.simpleComment?.isEmpty == false ? completionEntry.simpleComment! : "Aucun commentaire")
                     .foregroundStyle(AppTheme.textPrimary)
             }
+            Button {
+                completionEntry.endTime = nil
+            } label: {
+                Text("Rouvrir la séance")
+                    .accentOutlineButtonStyle()
+                    .contentShape(Rectangle())
+            }
+            .buttonStyle(.plain)
             cancelOrDeleteButton
         } else if isToday || isPast {
             AppCard {
