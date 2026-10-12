@@ -21,13 +21,6 @@ enum SleepMoment: Identifiable {
         }
     }
 
-    var defaultHour: Int {
-        switch self {
-        case .reveil: return 7
-        case .coucher: return 22
-        }
-    }
-
     /// Jour de rattachement du `SleepLog` pour cette heure — un coucher avant midi (nuit qui
     /// déborde après minuit) reste rattaché à la nuit de la veille plutôt qu'au jour calendaire
     /// de l'horodatage, sinon "je me suis couché à 00h30" se retrouvait rangé sous le mauvais jour.
@@ -56,7 +49,10 @@ struct SleepEntryView: View {
     init(day: Date, moment: SleepMoment) {
         self.day = day
         self.moment = moment
-        _time = State(initialValue: Calendar.current.date(bySettingHour: moment.defaultHour, minute: 0, second: 0, of: day) ?? day)
+        // Cette vue n'est présentée que pour aujourd'hui (voir HomeView), donc l'heure actuelle est
+        // toujours un départ pertinent — avant ça, une heure fixe (7h/22h) ne correspondait presque
+        // jamais au vrai moment de la saisie.
+        _time = State(initialValue: .now)
     }
 
     var body: some View {
