@@ -20,7 +20,6 @@ struct BilanPDFDetailView: View {
     @Environment(\.modelContext) private var context
     @Environment(ToastCenter.self) private var toast
     @Environment(\.dismiss) private var dismiss
-    @State private var showsDeleteConfirmation = false
     @State private var shareURL: URL?
 
     var body: some View {
@@ -32,7 +31,9 @@ struct BilanPDFDetailView: View {
                 .toolbar {
                     ToolbarItem(placement: .topBarTrailing) {
                         Button(role: .destructive) {
-                            showsDeleteConfirmation = true
+                            context.delete(bilan)
+                            toast.showDeleted("Bilan supprimé", context: context)
+                            dismiss()
                         } label: {
                             Image(systemName: "trash")
                         }
@@ -44,14 +45,6 @@ struct BilanPDFDetailView: View {
                             Image(systemName: "square.and.arrow.up")
                         }
                     }
-                }
-                .confirmationDialog("Supprimer ce bilan ?", isPresented: $showsDeleteConfirmation, titleVisibility: .visible) {
-                    Button("Supprimer", role: .destructive) {
-                        context.delete(bilan)
-                        toast.show("Bilan supprimé")
-                        dismiss()
-                    }
-                    Button("Annuler", role: .cancel) {}
                 }
                 .sheet(isPresented: Binding(get: { shareURL != nil }, set: { if !$0 { shareURL = nil } })) {
                     if let shareURL {
