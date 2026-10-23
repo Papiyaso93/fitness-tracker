@@ -162,7 +162,7 @@ struct HomeView: View {
     var body: some View {
         NavigationStack {
             ScrollView {
-                VStack(alignment: .leading, spacing: 20) {
+                VStack(alignment: .leading, spacing: 24) {
                     dayNavigator
 
                     if let activeProgram {
@@ -179,37 +179,27 @@ struct HomeView: View {
 
                     weeklyCheckInSection
 
-                    if daySessions.isEmpty && activeCycle == nil {
-                        SectionLabel(text: "Séance du jour")
-                        addAdHocSessionCard
-                    } else {
+                    sectionGroup {
                         sessionSectionHeader
                         sessionSummaryCard
                     }
 
-                    SectionLabel(text: "Sommeil")
-                    sleepCard
+                    sectionGroup {
+                        SectionLabel(text: "Sommeil")
+                        sleepCard
+                    }
 
-                    if isToday && dayMeals.isEmpty {
-                        SectionLabel(text: "Repas")
-                        addMealCard
-                    } else {
+                    sectionGroup {
                         mealSectionHeader
                         mealCard
                     }
 
-                    if isToday && dayTransitLogs.isEmpty {
-                        SectionLabel(text: "Transit")
-                        addTransitCard
-                    } else {
+                    sectionGroup {
                         transitSectionHeader
                         transitCard
                     }
 
-                    if isToday && dayMeasurements.isEmpty {
-                        SectionLabel(text: "Mesures")
-                        addMeasurementCard
-                    } else {
+                    sectionGroup {
                         measurementSectionHeader
                         measurementCard
                     }
@@ -471,6 +461,12 @@ struct HomeView: View {
                 }
                 .frame(maxWidth: .infinity)
                 .padding(.vertical, 24)
+            } else {
+                AppCard {
+                    Text("Aucune séance notée")
+                        .font(.app(size: 14))
+                        .foregroundStyle(AppTheme.textSecondary)
+                }
             }
         } else {
             VStack(spacing: 10) {
@@ -488,29 +484,9 @@ struct HomeView: View {
             Button {
                 showingAddAdHocSession = true
             } label: {
-                Image(systemName: "plus")
-                    .font(.app(size: 13, weight: .semibold))
-                    .foregroundStyle(AppTheme.accent)
+                AddPill(filled: false)
             }
             .padding(.trailing, 4)
-        }
-    }
-
-    private var addAdHocSessionCard: some View {
-        AppCard {
-            Button {
-                showingAddAdHocSession = true
-            } label: {
-                HStack {
-                    Text("Ajouter une séance")
-                        .font(.app(size: 14, weight: .medium))
-                        .foregroundStyle(AppTheme.textPrimary)
-                    Spacer()
-                    Image(systemName: "plus")
-                        .font(.app(size: 15, weight: .semibold))
-                        .foregroundStyle(AppTheme.accent)
-                }
-            }
         }
     }
 
@@ -598,6 +574,21 @@ struct HomeView: View {
 
     @ViewBuilder
     private var weeklyCheckInSection: some View {
+        if weekday == 1 {
+            sectionGroup { weeklyCheckInContent }
+        }
+    }
+
+    /// Titre + contenu d'une section, resserrés entre eux (8 pt) pour se lire comme un groupe, face aux
+    /// 24 pt qui séparent deux sections.
+    private func sectionGroup<Content: View>(@ViewBuilder _ content: () -> Content) -> some View {
+        VStack(alignment: .leading, spacing: 8) {
+            content()
+        }
+    }
+
+    @ViewBuilder
+    private var weeklyCheckInContent: some View {
         // Visible sur tout dimanche navigué — passé, présent, jamais futur puisque la navigation
         // ne dépasse pas aujourd'hui — pour pouvoir rattraper un bilan oublié, comme on peut
         // toujours ajouter une séance passée.
@@ -663,29 +654,9 @@ struct HomeView: View {
                 Button {
                     showingAddMeasurement = true
                 } label: {
-                    Image(systemName: "plus")
-                        .font(.app(size: 13, weight: .semibold))
-                        .foregroundStyle(AppTheme.accent)
+                    AddPill(filled: false)
                 }
                 .padding(.trailing, 4)
-            }
-        }
-    }
-
-    private var addMeasurementCard: some View {
-        AppCard {
-            Button {
-                showingAddMeasurement = true
-            } label: {
-                HStack {
-                    Text("Ajouter une mesure")
-                        .font(.app(size: 14, weight: .medium))
-                        .foregroundStyle(AppTheme.textPrimary)
-                    Spacer()
-                    Image(systemName: "plus")
-                        .font(.app(size: 15, weight: .semibold))
-                        .foregroundStyle(AppTheme.accent)
-                }
             }
         }
     }
@@ -693,7 +664,7 @@ struct HomeView: View {
     private var measurementCard: some View {
         AppCard {
             if dayMeasurements.isEmpty {
-                Text("Aucune mesure ce jour-là")
+                Text("Aucune mesure notée")
                     .font(.app(size: 14))
                     .foregroundStyle(AppTheme.textSecondary)
             } else {
@@ -824,9 +795,7 @@ struct HomeView: View {
                     .font(.app(size: 12))
                     .foregroundStyle(AppTheme.textSecondary)
             } else if isToday {
-                Image(systemName: "plus")
-                    .font(.app(size: 15, weight: .semibold))
-                    .foregroundStyle(AppTheme.accent)
+                AddPill()
             }
         }
         .padding(.vertical, 10)
@@ -841,29 +810,9 @@ struct HomeView: View {
                 Button {
                     showingMealSheet = true
                 } label: {
-                    Image(systemName: "plus")
-                        .font(.app(size: 13, weight: .semibold))
-                        .foregroundStyle(AppTheme.accent)
+                    AddPill(filled: false)
                 }
                 .padding(.trailing, 4)
-            }
-        }
-    }
-
-    private var addMealCard: some View {
-        AppCard {
-            Button {
-                showingMealSheet = true
-            } label: {
-                HStack {
-                    Text("Ajouter une prise alimentaire")
-                        .font(.app(size: 14, weight: .medium))
-                        .foregroundStyle(AppTheme.textPrimary)
-                    Spacer()
-                    Image(systemName: "plus")
-                        .font(.app(size: 15, weight: .semibold))
-                        .foregroundStyle(AppTheme.accent)
-                }
             }
         }
     }
@@ -932,29 +881,9 @@ struct HomeView: View {
                 Button {
                     showingTransitSheet = true
                 } label: {
-                    Image(systemName: "plus")
-                        .font(.app(size: 13, weight: .semibold))
-                        .foregroundStyle(AppTheme.accent)
+                    AddPill(filled: false)
                 }
                 .padding(.trailing, 4)
-            }
-        }
-    }
-
-    private var addTransitCard: some View {
-        AppCard {
-            Button {
-                showingTransitSheet = true
-            } label: {
-                HStack {
-                    Text("Ajouter un passage")
-                        .font(.app(size: 14, weight: .medium))
-                        .foregroundStyle(AppTheme.textPrimary)
-                    Spacer()
-                    Image(systemName: "plus")
-                        .font(.app(size: 15, weight: .semibold))
-                        .foregroundStyle(AppTheme.accent)
-                }
             }
         }
     }

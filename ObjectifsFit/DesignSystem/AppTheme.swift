@@ -210,6 +210,27 @@ enum AppTheme {
     }
 }
 
+/// « + Ajouter » : en pastille sur les lignes vides du sommeil (`filled`), en simple texte accentué
+/// dans les en-têtes de section — toujours la même action, au même endroit, avec son libellé.
+struct AddPill: View {
+    var title = "Ajouter"
+    var filled = true
+
+    var body: some View {
+        HStack(spacing: 4) {
+            Image(systemName: "plus")
+                .font(.app(size: 12, weight: .bold))
+            Text(title)
+                .font(.app(size: 13, weight: .semibold))
+        }
+        .foregroundStyle(filled ? Color(hex: "B4511F") : AppTheme.accent)
+        .padding(.horizontal, filled ? 12 : 0)
+        .padding(.vertical, filled ? 6 : 0)
+        .background(filled ? AppTheme.accent.opacity(0.12) : Color.clear)
+        .clipShape(Capsule())
+    }
+}
+
 /// Style de carte réutilisable : fond blanc, bordure fine, coin arrondi — remplace le style
 /// "réglages iOS" par défaut des List/Form.
 struct AppCard<Content: View>: View {
