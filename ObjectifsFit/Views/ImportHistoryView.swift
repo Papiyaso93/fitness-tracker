@@ -21,7 +21,7 @@ struct ImportHistoryView: View {
 
     var body: some View {
         ScrollView {
-            VStack(alignment: .leading, spacing: 28) {
+            VStack(alignment: .leading, spacing: AppTheme.sectionSpacing) {
                 csvSection
                 restoreSection
             }

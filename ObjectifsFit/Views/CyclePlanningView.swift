@@ -32,7 +32,7 @@ struct CyclePlanningView: View {
 
     var body: some View {
         ScrollView {
-            VStack(alignment: .leading, spacing: 20) {
+            VStack(alignment: .leading, spacing: AppTheme.sectionSpacing) {
                 weekNavigator
 
                 AppCard {

@@ -162,7 +162,7 @@ struct HomeView: View {
     var body: some View {
         NavigationStack {
             ScrollView {
-                VStack(alignment: .leading, spacing: 24) {
+                VStack(alignment: .leading, spacing: AppTheme.sectionSpacing) {
                     dayNavigator
 
                     if let activeProgram {
@@ -179,27 +179,27 @@ struct HomeView: View {
 
                     weeklyCheckInSection
 
-                    sectionGroup {
+                    SectionGroup {
                         sessionSectionHeader
                         sessionSummaryCard
                     }
 
-                    sectionGroup {
+                    SectionGroup {
                         SectionLabel(text: "Sommeil")
                         sleepCard
                     }
 
-                    sectionGroup {
+                    SectionGroup {
                         mealSectionHeader
                         mealCard
                     }
 
-                    sectionGroup {
+                    SectionGroup {
                         transitSectionHeader
                         transitCard
                     }
 
-                    sectionGroup {
+                    SectionGroup {
                         measurementSectionHeader
                         measurementCard
                     }
@@ -463,7 +463,7 @@ struct HomeView: View {
                 .padding(.vertical, 24)
             } else {
                 AppCard {
-                    Text("Aucune séance notée")
+                    Text("Aucune séance")
                         .font(.app(size: 14))
                         .foregroundStyle(AppTheme.textSecondary)
                 }
@@ -575,15 +575,7 @@ struct HomeView: View {
     @ViewBuilder
     private var weeklyCheckInSection: some View {
         if weekday == 1 {
-            sectionGroup { weeklyCheckInContent }
-        }
-    }
-
-    /// Titre + contenu d'une section, resserrés entre eux (8 pt) pour se lire comme un groupe, face aux
-    /// 24 pt qui séparent deux sections.
-    private func sectionGroup<Content: View>(@ViewBuilder _ content: () -> Content) -> some View {
-        VStack(alignment: .leading, spacing: 8) {
-            content()
+            SectionGroup { weeklyCheckInContent }
         }
     }
 
@@ -664,7 +656,7 @@ struct HomeView: View {
     private var measurementCard: some View {
         AppCard {
             if dayMeasurements.isEmpty {
-                Text("Aucune mesure notée")
+                Text("Aucune mesure")
                     .font(.app(size: 14))
                     .foregroundStyle(AppTheme.textSecondary)
             } else {
@@ -820,7 +812,7 @@ struct HomeView: View {
     private var mealCard: some View {
         AppCard {
             if dayMeals.isEmpty {
-                Text("Aucun repas noté").font(.app(size: 14)).foregroundStyle(AppTheme.textSecondary)
+                Text("Aucun repas").font(.app(size: 14)).foregroundStyle(AppTheme.textSecondary)
             } else {
                 VStack(spacing: 0) {
                     ForEach(dayMeals) { meal in
@@ -892,7 +884,7 @@ struct HomeView: View {
         ZStack {
             AppCard {
                 if dayTransitLogs.isEmpty {
-                    Text("Aucun passage noté").font(.app(size: 14)).foregroundStyle(AppTheme.textSecondary)
+                    Text("Aucun passage").font(.app(size: 14)).foregroundStyle(AppTheme.textSecondary)
                 } else {
                     transitLogsList
                 }

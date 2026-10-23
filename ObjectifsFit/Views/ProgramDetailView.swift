@@ -25,7 +25,7 @@ struct ProgramDetailView: View {
 
     var body: some View {
         ScrollView {
-            VStack(alignment: .leading, spacing: 20) {
+            VStack(alignment: .leading, spacing: AppTheme.sectionSpacing) {
                 AppCard {
                     VStack(alignment: .leading, spacing: 6) {
                         if program.startDate != nil || program.endDate != nil {
@@ -68,34 +68,30 @@ struct ProgramDetailView: View {
                     emptyText: "Aucun indicateur défini."
                 )
 
-                SectionLabel(text: "Cycles")
-                if sortedCycles.isEmpty {
-                    AppCard {
+                SectionGroup {
+                    HStack {
+                        SectionLabel(text: "Cycles")
+                        Spacer()
                         Button {
                             showingCreateCycle = true
                         } label: {
-                            HStack {
-                                Text("Créer un nouveau cycle")
-                                    .font(.app(size: 14, weight: .medium))
-                                    .foregroundStyle(AppTheme.textPrimary)
-                                Spacer()
-                                Image(systemName: "plus.circle.fill")
-                                    .foregroundStyle(AppTheme.accent)
-                            }
+                            AddPill(filled: false)
                         }
                         .buttonStyle(.plain)
+                        .padding(.trailing, 4)
                     }
-                } else {
-                    VStack(spacing: 10) {
-                        ForEach(sortedCycles) { cycle in
-                            cycleRow(cycle)
+                    if sortedCycles.isEmpty {
+                        AppCard {
+                            Text("Aucun cycle")
+                                .font(.app(size: 14))
+                                .foregroundStyle(AppTheme.textSecondary)
                         }
-                    }
-                    Button {
-                        showingCreateCycle = true
-                    } label: {
-                        Label("Créer un nouveau cycle", systemImage: "plus.circle")
-                            .font(.app(size: 15, weight: .medium))
+                    } else {
+                        VStack(spacing: 10) {
+                            ForEach(sortedCycles) { cycle in
+                                cycleRow(cycle)
+                            }
+                        }
                     }
                 }
             }
@@ -155,33 +151,35 @@ struct ProgramDetailView: View {
 
     @ViewBuilder
     private func objectivesSection(title: String, objectives: [ProgramObjective], expanded: Binding<Bool>, emptyText: String) -> some View {
-        SectionLabel(text: objectives.isEmpty ? title : "\(title) (\(objectives.count))")
-        if objectives.isEmpty {
-            AppCard {
-                Text(emptyText)
-                    .font(.app(size: 14))
-                    .foregroundStyle(AppTheme.textSecondary)
-            }
-        } else {
-            let visible = expanded.wrappedValue ? objectives : Array(objectives.prefix(collapsedObjectiveCount))
-            VStack(spacing: 10) {
-                ForEach(visible) { objective in
-                    AppCard { objectiveRow(objective) }
+        SectionGroup {
+            SectionLabel(text: objectives.isEmpty ? title : "\(title) (\(objectives.count))")
+            if objectives.isEmpty {
+                AppCard {
+                    Text(emptyText)
+                        .font(.app(size: 14))
+                        .foregroundStyle(AppTheme.textSecondary)
                 }
-            }
-            if objectives.count > collapsedObjectiveCount {
-                Button {
-                    expanded.wrappedValue.toggle()
-                } label: {
-                    HStack(spacing: 4) {
-                        Text(expanded.wrappedValue ? "Voir moins" : "Voir plus")
-                        Image(systemName: expanded.wrappedValue ? "chevron.up" : "chevron.down")
-                            .font(.app(size: 11, weight: .semibold))
+            } else {
+                let visible = expanded.wrappedValue ? objectives : Array(objectives.prefix(collapsedObjectiveCount))
+                VStack(spacing: 10) {
+                    ForEach(visible) { objective in
+                        AppCard { objectiveRow(objective) }
                     }
-                    .font(.app(size: 13, weight: .medium))
-                    .foregroundStyle(AppTheme.accent)
                 }
-                .padding(.top, 2)
+                if objectives.count > collapsedObjectiveCount {
+                    Button {
+                        expanded.wrappedValue.toggle()
+                    } label: {
+                        HStack(spacing: 4) {
+                            Text(expanded.wrappedValue ? "Voir moins" : "Voir plus")
+                            Image(systemName: expanded.wrappedValue ? "chevron.up" : "chevron.down")
+                                .font(.app(size: 11, weight: .semibold))
+                        }
+                        .font(.app(size: 13, weight: .medium))
+                        .foregroundStyle(AppTheme.accent)
+                    }
+                    .padding(.top, 2)
+                }
             }
         }
     }

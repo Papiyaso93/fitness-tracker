@@ -141,13 +141,13 @@ struct EditSessionView: View {
                             showingAddExercise = true
                         } label: {
                             HStack {
+                                Image(systemName: "plus")
+                                    .font(.app(size: 12, weight: .bold))
                                 Text("Ajouter un exercice")
-                                    .font(.app(size: 17))
-                                    .foregroundStyle(AppTheme.textPrimary)
+                                    .font(.app(size: 13, weight: .semibold))
                                 Spacer()
-                                Image(systemName: "plus.circle.fill")
-                                    .foregroundStyle(AppTheme.accent)
                             }
+                            .foregroundStyle(AppTheme.accent)
                         }
                         .buttonStyle(.plain)
                     } header: {
