@@ -73,13 +73,13 @@ struct LogPlannedSetView: View {
                     } label: {
                         HStack(alignment: .top, spacing: 6) {
                             Image(systemName: "doc.on.doc")
-                                .font(.system(size: 13))
+                                .font(.app(size: 13))
                             VStack(alignment: .leading, spacing: 1) {
                                 Text("Reprendre la série précédente")
-                                    .font(.system(size: 13, weight: .medium))
+                                    .font(.app(size: 13, weight: .medium))
                                     .underline()
                                 Text("(\(previousEntry.exerciseName) · \(weightSummary(for: previousEntry)))")
-                                    .font(.system(size: 13))
+                                    .font(.app(size: 13))
                             }
                         }
                         .foregroundStyle(AppTheme.secondary)
@@ -95,11 +95,11 @@ struct LogPlannedSetView: View {
                 } else if reusedFromPrevious {
                     HStack {
                         Label("Repris de la série précédente", systemImage: "checkmark.circle.fill")
-                            .font(.system(size: 13, weight: .medium))
+                            .font(.app(size: 13, weight: .medium))
                             .foregroundStyle(AppTheme.secondary)
                         Spacer()
                         Button("Annuler") { resetToBlank() }
-                            .font(.system(size: 13))
+                            .font(.app(size: 13))
                             .foregroundStyle(AppTheme.textSecondary)
                     }
                 }
@@ -131,11 +131,11 @@ struct LogPlannedSetView: View {
                         VStack(alignment: .leading, spacing: 3) {
                             (Text("Principal : ").foregroundStyle(AppTheme.textSecondary)
                                 + Text(definition.primaryMuscles.joined(separator: ", ")).foregroundStyle(AppTheme.secondary))
-                                .font(.system(size: 12, weight: .medium))
+                                .font(.app(size: 12, weight: .medium))
                             if !definition.secondaryMuscles.isEmpty {
                                 (Text("Secondaire : ").foregroundStyle(AppTheme.textSecondary)
                                     + Text(definition.secondaryMuscles.joined(separator: ", ")).foregroundStyle(AppTheme.textSecondary))
-                                    .font(.system(size: 12))
+                                    .font(.app(size: 12))
                             }
                         }
                         .padding(.vertical, 6)
@@ -267,7 +267,7 @@ struct LogPlannedSetView: View {
             }
             ForEach(notes, id: \.self) { note in
                 Text(note)
-                    .font(.system(size: 12))
+                    .font(.app(size: 12))
                     .foregroundStyle(AppTheme.textSecondary)
             }
         }

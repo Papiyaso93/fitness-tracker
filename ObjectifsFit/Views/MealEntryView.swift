@@ -25,7 +25,7 @@ struct MealSensationField: View {
                         selection = level
                     } label: {
                         Image(systemName: level.icon)
-                            .font(.system(size: 16, weight: .semibold))
+                            .font(.app(size: 16, weight: .semibold))
                             .frame(maxWidth: .infinity)
                             .frame(height: 40)
                             .foregroundStyle(selection == level ? .white : level.categoryColor.text)
@@ -43,7 +43,7 @@ struct MealSensationField: View {
             }
 
             Text(selection.rawValue)
-                .font(.system(size: 14, weight: .semibold))
+                .font(.app(size: 14, weight: .semibold))
                 .foregroundStyle(selection.categoryColor.text)
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .padding(12)

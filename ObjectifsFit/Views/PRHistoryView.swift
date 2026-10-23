@@ -17,7 +17,7 @@ struct PRHistoryView: View {
             AppCard {
                 if history.isEmpty {
                     Text("Pas de charge enregistrée pour cet exercice")
-                        .font(.system(size: 12))
+                        .font(.app(size: 12))
                         .foregroundStyle(AppTheme.textSecondary)
                 } else {
                     VStack(spacing: 0) {

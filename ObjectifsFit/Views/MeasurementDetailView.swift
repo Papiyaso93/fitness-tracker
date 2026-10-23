@@ -52,7 +52,7 @@ struct MeasurementDetailView: View {
                                 .foregroundStyle(AppTheme.textPrimary)
                             if let target = matchingObjective?.targetValue {
                                 Text("→ \(target.formatted())\(type.unit)")
-                                    .font(.system(size: 12, weight: .medium))
+                                    .font(.app(size: 12, weight: .medium))
                                     .foregroundStyle(AppTheme.accent)
                             }
                             Spacer(minLength: 8)
@@ -82,7 +82,7 @@ struct MeasurementDetailView: View {
                             }
                             .frame(height: 6)
                             Text("\(Int(objectiveProgress * 100))% du chemin vers \(target.formatted())\(type.unit)")
-                                .font(.system(size: 11))
+                                .font(.app(size: 11))
                                 .foregroundStyle(AppTheme.textSecondary)
                         }
                         .padding(.top, 10)
@@ -98,7 +98,7 @@ struct MeasurementDetailView: View {
                 AppCard {
                     if entries.isEmpty {
                         Text("Aucune mesure enregistrée pour l'instant.")
-                            .font(.system(size: 13))
+                            .font(.app(size: 13))
                             .foregroundStyle(AppTheme.textSecondary)
                     } else {
                         VStack(spacing: 0) {
@@ -132,7 +132,7 @@ struct MeasurementDetailView: View {
             AxisMarks { value in
                 if let date = value.as(Date.self) {
                     AxisValueLabel(AppDateFormat.dayMonth.string(from: date))
-                        .font(.system(size: 9))
+                        .font(.app(size: 9))
                         .foregroundStyle(AppTheme.textSecondary)
                 }
             }
@@ -141,7 +141,7 @@ struct MeasurementDetailView: View {
             AxisMarks(position: .leading) { _ in
                 AxisGridLine()
                 AxisValueLabel()
-                    .font(.system(size: 9))
+                    .font(.app(size: 9))
                     .foregroundStyle(AppTheme.textSecondary)
             }
         }
@@ -150,17 +150,17 @@ struct MeasurementDetailView: View {
     private func historyRow(_ entry: BodyMeasurementEntry) -> some View {
         HStack {
             Text(AppDateFormat.dayFullMonth.string(from: entry.date))
-                .font(.system(size: 13))
+                .font(.app(size: 13))
                 .foregroundStyle(AppTheme.textPrimary)
             Spacer()
             Text(formattedValue(entry.value))
-                .font(.system(size: 13, weight: .semibold))
+                .font(.app(size: 13, weight: .semibold))
                 .foregroundStyle(AppTheme.textSecondary)
             Button {
                 context.delete(entry)
             } label: {
                 Image(systemName: "trash")
-                    .font(.system(size: 12))
+                    .font(.app(size: 12))
                     .foregroundStyle(.red)
             }
             .buttonStyle(.plain)

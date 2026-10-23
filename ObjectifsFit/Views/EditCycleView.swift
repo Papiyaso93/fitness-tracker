@@ -178,7 +178,7 @@ struct EditCycleView: View {
                 FlowLayout(spacing: 6) {
                     ForEach(selection.sorted { $0.rawValue < $1.rawValue }, id: \.self) { quality in
                         Text(quality.rawValue)
-                            .font(.system(size: 12, weight: .medium))
+                            .font(.app(size: 12, weight: .medium))
                             .padding(.horizontal, 10)
                             .padding(.vertical, 4)
                             .background(AppTheme.accent.opacity(0.1))
@@ -215,7 +215,7 @@ struct EditCycleView: View {
                 }
                 .disabled(weekCount >= 52)
             }
-            .font(.system(size: 14, weight: .semibold))
+            .font(.app(size: 14, weight: .semibold))
             .foregroundStyle(AppTheme.accent)
             .background(AppTheme.background)
             .clipShape(RoundedRectangle(cornerRadius: 8))
@@ -229,7 +229,7 @@ struct EditCycleView: View {
         Button(action: action) {
             HStack {
                 Text(label)
-                    .font(.system(size: 17))
+                    .font(.app(size: 17))
                     .foregroundStyle(AppTheme.textPrimary)
                 Spacer()
                 Image(systemName: "plus.circle.fill")
@@ -246,7 +246,7 @@ struct EditCycleView: View {
             if !isEmpty {
                 Button(action: action) {
                     Image(systemName: "plus")
-                        .font(.system(size: 13, weight: .semibold))
+                        .font(.app(size: 13, weight: .semibold))
                         .foregroundStyle(AppTheme.accent)
                 }
             }
@@ -260,11 +260,11 @@ struct EditCycleView: View {
         let parts = objective.summary.split(separator: ":", maxSplits: 1).map { $0.trimmingCharacters(in: .whitespaces) }
         return VStack(alignment: .leading, spacing: 2) {
             if parts.count == 2 {
-                Text(parts[0]).font(.system(size: 15, weight: .semibold)).foregroundStyle(AppTheme.textPrimary)
-                Text(parts[1]).font(.system(size: 13)).foregroundStyle(AppTheme.textSecondary)
+                Text(parts[0]).font(.app(size: 15, weight: .semibold)).foregroundStyle(AppTheme.textPrimary)
+                Text(parts[1]).font(.app(size: 13)).foregroundStyle(AppTheme.textSecondary)
             } else {
                 Text(objective.summary)
-                    .font(.system(size: 15, weight: .semibold))
+                    .font(.app(size: 15, weight: .semibold))
                     .foregroundStyle(AppTheme.textPrimary)
             }
         }

@@ -18,7 +18,7 @@ struct ProgramImportView: View {
             ScrollView {
                 VStack(alignment: .leading, spacing: 16) {
                     Text("Importe un programme préparé avec Claude en conversation, sous forme de fichier JSON.")
-                        .font(.system(size: 13))
+                        .font(.app(size: 13))
                         .foregroundStyle(AppTheme.textSecondary)
 
                     Button {
@@ -27,7 +27,7 @@ struct ProgramImportView: View {
                         AppCard {
                             HStack {
                                 Text("Choisir un fichier de programme")
-                                    .font(.system(size: 15, weight: .medium))
+                                    .font(.app(size: 15, weight: .medium))
                                     .foregroundStyle(AppTheme.accent)
                                 Spacer()
                                 Image(systemName: "arrow.down.doc")
@@ -38,7 +38,7 @@ struct ProgramImportView: View {
                     .buttonStyle(.plain)
 
                     if let errorMessage {
-                        Text(errorMessage).font(.system(size: 13)).foregroundStyle(.red)
+                        Text(errorMessage).font(.app(size: 13)).foregroundStyle(.red)
                     }
 
                     if let result {
@@ -88,11 +88,11 @@ struct ProgramImportView: View {
     private func summaryRow(label: String, value: Int) -> some View {
         HStack {
             Text(label)
-                .font(.system(size: 13))
+                .font(.app(size: 13))
                 .foregroundStyle(AppTheme.textSecondary)
             Spacer()
             Text("\(value)")
-                .font(.system(size: 13, weight: .semibold))
+                .font(.app(size: 13, weight: .semibold))
                 .foregroundStyle(AppTheme.textPrimary)
         }
     }

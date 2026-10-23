@@ -40,9 +40,9 @@ struct MeasurementDeltaPill: View {
     var body: some View {
         HStack(spacing: 4) {
             Image(systemName: delta < 0 ? "arrow.down.right" : delta > 0 ? "arrow.up.right" : "minus")
-                .font(.system(size: 11, weight: .bold))
+                .font(.app(size: 11, weight: .bold))
             Text("\(delta > 0 ? "+" : "")\(delta.formatted())\(unit)\(days.flatMap { $0 > 0 ? " (\($0)j)" : nil } ?? "")")
-                .font(.system(size: 12, weight: .semibold))
+                .font(.app(size: 12, weight: .semibold))
         }
         .foregroundStyle(colors.text)
         .padding(.horizontal, 8)

@@ -89,7 +89,7 @@ struct AppMenuField<Value: Hashable>: View {
                     Spacer()
                 }
                 Image(systemName: "chevron.down")
-                    .font(.system(size: 12, weight: .semibold))
+                    .font(.app(size: 12, weight: .semibold))
                     .foregroundStyle(AppTheme.textSecondary.opacity(disabled ? 0.5 : 1))
             }
             .contentShape(Rectangle())
@@ -113,7 +113,7 @@ struct AppSegmentedControl<Item: Hashable>: View {
                     selection = option.value
                 } label: {
                     Text(option.label)
-                        .font(.system(size: 14, weight: .semibold))
+                        .font(.app(size: 14, weight: .semibold))
                         .frame(maxWidth: .infinity)
                         .padding(.vertical, 8)
                         .foregroundStyle(selection == option.value ? .white : AppTheme.textSecondary)
@@ -150,7 +150,7 @@ func formSectionHeader(_ text: String, required: Bool = false) -> some View {
             Text(text)
         }
     }
-    .font(.system(size: 12, weight: .semibold))
+    .font(.app(size: 12, weight: .semibold))
     .foregroundStyle(formLabelColor)
     .textCase(.uppercase)
 }
@@ -171,14 +171,25 @@ func fieldCaption(_ text: String, required: Bool = false) -> some View {
             Text(text)
         }
     }
-    .font(.system(size: 13))
+    .font(.app(size: 13))
     .foregroundStyle(formLabelColor)
 }
 
 /// Design system "Genki" — fond blanc cassé neutre, cartes blanches, accent orange (repris du
 /// logo) + secondaire vert profond pour les statuts positifs. Mode sombre à construire plus
 /// tard (cf. décision produit).
+extension Font {
+    /// Équivalent de `.system(size:)` avec le facteur global `AppTheme.fontScale` appliqué.
+    static func app(size: CGFloat, weight: Font.Weight = .regular, design: Font.Design = .default) -> Font {
+        .system(size: (size * AppTheme.fontScale * 2).rounded() / 2, weight: weight, design: design)
+    }
+}
+
 enum AppTheme {
+    /// Facteur appliqué à toutes les tailles de police fixes de l'app (via `Font.app`) — un seul
+    /// réglage pour agrandir ou réduire tout le texte uniformément.
+    static let fontScale: CGFloat = 1.15
+
     static let background = Color(hex: "FAFAF8")
     static let surface = Color.white
     static let border = Color(hex: "E7E4DC")
@@ -192,10 +203,10 @@ enum AppTheme {
     static let buttonRadius: CGFloat = 11
 
     enum Font {
-        static let statValue = SwiftUI.Font.system(size: 26, weight: .semibold, design: .rounded)
-        static let statLabel = SwiftUI.Font.system(size: 12, weight: .medium)
-        static let cardTitle = SwiftUI.Font.system(size: 16, weight: .semibold)
-        static let sectionHeader = SwiftUI.Font.system(size: 12, weight: .semibold)
+        static let statValue = SwiftUI.Font.app(size: 26, weight: .semibold, design: .rounded)
+        static let statLabel = SwiftUI.Font.app(size: 12, weight: .medium)
+        static let cardTitle = SwiftUI.Font.app(size: 16, weight: .semibold)
+        static let sectionHeader = SwiftUI.Font.app(size: 12, weight: .semibold)
     }
 }
 
@@ -225,7 +236,7 @@ extension View {
     /// Action principale pleine largeur d'un écran ou d'une carte (fond orange).
     func primaryButtonStyle() -> some View {
         self
-            .font(.system(size: 14, weight: .semibold))
+            .font(.app(size: 14, weight: .semibold))
             .frame(maxWidth: .infinity)
             .padding(.vertical, 12)
             .foregroundStyle(.white)
@@ -236,7 +247,7 @@ extension View {
     /// Action secondaire pleine largeur (contour gris, fond blanc) — même rayon que la primaire.
     func secondaryButtonStyle() -> some View {
         self
-            .font(.system(size: 14, weight: .semibold))
+            .font(.app(size: 14, weight: .semibold))
             .frame(maxWidth: .infinity)
             .padding(.vertical, 12)
             .foregroundStyle(AppTheme.textPrimary)
@@ -249,7 +260,7 @@ extension View {
     /// `secondaryButtonStyle` pour les actions qui restent dans le thème orange plutôt que neutre.
     func accentOutlineButtonStyle() -> some View {
         self
-            .font(.system(size: 14, weight: .semibold))
+            .font(.app(size: 14, weight: .semibold))
             .frame(maxWidth: .infinity)
             .padding(.vertical, 12)
             .foregroundStyle(AppTheme.accent)
@@ -260,7 +271,7 @@ extension View {
     /// que les boutons pleine largeur, tailles réglables selon le contexte.
     func compactAccentButtonStyle(fontSize: CGFloat = 13, verticalPadding: CGFloat = 9, horizontalPadding: CGFloat = 16) -> some View {
         self
-            .font(.system(size: fontSize, weight: .medium))
+            .font(.app(size: fontSize, weight: .medium))
             .foregroundStyle(.white)
             .padding(.horizontal, horizontalPadding)
             .padding(.vertical, verticalPadding)
@@ -338,7 +349,7 @@ struct MuscleGroupTag: View {
     var body: some View {
         let color = MuscleGroupStyle.color(for: group)
         Text(group)
-            .font(.system(size: 11, weight: .medium))
+            .font(.app(size: 11, weight: .medium))
             .padding(.horizontal, 8)
             .padding(.vertical, 3)
             .background(color.opacity(0.15))
@@ -364,7 +375,7 @@ struct StatTile: View {
                     .foregroundStyle(AppTheme.textPrimary)
                 if let target {
                     Text("→ \(target)")
-                        .font(.system(size: 12, weight: .medium))
+                        .font(.app(size: 12, weight: .medium))
                         .foregroundStyle(AppTheme.accent)
                 }
             }

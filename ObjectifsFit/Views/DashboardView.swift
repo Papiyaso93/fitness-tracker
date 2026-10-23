@@ -52,16 +52,16 @@ struct DashboardView: View {
                 offset.wrappedValue += 1
             } label: {
                 Image(systemName: "chevron.left")
-                    .font(.system(size: 12, weight: .semibold))
+                    .font(.app(size: 12, weight: .semibold))
                     .foregroundStyle(AppTheme.textSecondary)
             }
             Spacer(minLength: 0)
             HStack(spacing: 5) {
                 Image(systemName: "calendar")
-                    .font(.system(size: 11))
+                    .font(.app(size: 11))
                     .foregroundStyle(AppTheme.textSecondary)
                 Text(windowRangeLabel(weeks))
-                    .font(.system(size: 12, weight: .medium))
+                    .font(.app(size: 12, weight: .medium))
                     .foregroundStyle(AppTheme.textPrimary)
             }
             Spacer(minLength: 0)
@@ -69,7 +69,7 @@ struct DashboardView: View {
                 if offset.wrappedValue > 0 { offset.wrappedValue -= 1 }
             } label: {
                 Image(systemName: "chevron.right")
-                    .font(.system(size: 12, weight: .semibold))
+                    .font(.app(size: 12, weight: .semibold))
                     .foregroundStyle(offset.wrappedValue > 0 ? AppTheme.textSecondary : AppTheme.textSecondary.opacity(0.3))
             }
             .disabled(offset.wrappedValue == 0)
@@ -94,9 +94,9 @@ struct DashboardView: View {
             HStack(spacing: 4) {
                 Text(selection.wrappedValue.rawValue)
                 Image(systemName: "chevron.down")
-                    .font(.system(size: 10, weight: .semibold))
+                    .font(.app(size: 10, weight: .semibold))
             }
-            .font(.system(size: 12, weight: .medium))
+            .font(.app(size: 12, weight: .medium))
             .foregroundStyle(AppTheme.accent)
         }
     }
@@ -138,11 +138,11 @@ struct DashboardView: View {
                 .frame(width: 30, height: 30)
                 .overlay {
                     Image(systemName: systemImage)
-                        .font(.system(size: 14, weight: .semibold))
+                        .font(.app(size: 14, weight: .semibold))
                         .foregroundStyle(.white)
                 }
             Text(title)
-                .font(.system(size: 18, weight: .bold))
+                .font(.app(size: 18, weight: .bold))
                 .foregroundStyle(AppTheme.textPrimary)
         }
         .padding(.horizontal, 4)
@@ -194,7 +194,7 @@ struct DashboardView: View {
             SectionLabel(text: "Séances par semaine")
             AppCard {
                 if weeklySessionEntries.isEmpty {
-                    Text("Pas encore de données").font(.system(size: 12)).foregroundStyle(AppTheme.textSecondary)
+                    Text("Pas encore de données").font(.app(size: 12)).foregroundStyle(AppTheme.textSecondary)
                 } else {
                     windowNavigator(weeks: weeksWindow(offsetWindows: sessionsWindowOffset), offset: $sessionsWindowOffset)
                         .padding(.bottom, 10)
@@ -215,7 +215,7 @@ struct DashboardView: View {
 
                     if !showMusculation && !showAutre {
                         Text("Aucun type sélectionné")
-                            .font(.system(size: 12))
+                            .font(.app(size: 12))
                             .foregroundStyle(AppTheme.textSecondary)
                             .frame(maxWidth: .infinity)
                             .frame(height: 170)
@@ -238,7 +238,7 @@ struct DashboardView: View {
                         AxisMarks(position: .leading) { _ in
                             AxisGridLine()
                             AxisValueLabel()
-                                .font(.system(size: 9))
+                                .font(.app(size: 9))
                                 .foregroundStyle(AppTheme.textSecondary)
                         }
                     }
@@ -246,7 +246,7 @@ struct DashboardView: View {
                         AxisMarks { value in
                             if let label = value.as(String.self) {
                                 AxisValueLabel(label)
-                                    .font(.system(size: 9))
+                                    .font(.app(size: 9))
                                     .foregroundStyle(AppTheme.textSecondary)
                             }
                         }
@@ -294,7 +294,7 @@ struct DashboardView: View {
             SectionLabel(text: "Séries par groupe musculaire")
             AppCard {
                 if weeklyMuscleGroupEntries.isEmpty {
-                    Text("Pas encore de données").font(.system(size: 12)).foregroundStyle(AppTheme.textSecondary)
+                    Text("Pas encore de données").font(.app(size: 12)).foregroundStyle(AppTheme.textSecondary)
                 } else {
                     windowNavigator(weeks: weeksWindow(offsetWindows: muscleGroupWindowOffset), offset: $muscleGroupWindowOffset)
                         .padding(.bottom, 10)
@@ -314,7 +314,7 @@ struct DashboardView: View {
 
                     if visibleMuscleGroups.isEmpty {
                         Text("Aucun groupe sélectionné")
-                            .font(.system(size: 12))
+                            .font(.app(size: 12))
                             .foregroundStyle(AppTheme.textSecondary)
                             .frame(maxWidth: .infinity)
                             .frame(height: 170)
@@ -337,7 +337,7 @@ struct DashboardView: View {
                         AxisMarks(position: .leading) { _ in
                             AxisGridLine()
                             AxisValueLabel()
-                                .font(.system(size: 9))
+                                .font(.app(size: 9))
                                 .foregroundStyle(AppTheme.textSecondary)
                         }
                     }
@@ -345,7 +345,7 @@ struct DashboardView: View {
                         AxisMarks { value in
                             if let label = value.as(String.self) {
                                 AxisValueLabel(label)
-                                    .font(.system(size: 9))
+                                    .font(.app(size: 9))
                                     .foregroundStyle(AppTheme.textSecondary)
                             }
                         }
@@ -390,7 +390,7 @@ struct DashboardView: View {
             SectionLabel(text: "Tonnage par groupe musculaire")
             AppCard {
                 if weeklyMuscleTonnageEntries.isEmpty {
-                    Text("Pas encore de données").font(.system(size: 12)).foregroundStyle(AppTheme.textSecondary)
+                    Text("Pas encore de données").font(.app(size: 12)).foregroundStyle(AppTheme.textSecondary)
                 } else {
                     windowNavigator(weeks: weeksWindow(offsetWindows: muscleGroupTonnageWindowOffset), offset: $muscleGroupTonnageWindowOffset)
                         .padding(.bottom, 10)
@@ -410,7 +410,7 @@ struct DashboardView: View {
 
                     if visibleTonnageMuscleGroups.isEmpty {
                         Text("Aucun groupe sélectionné")
-                            .font(.system(size: 12))
+                            .font(.app(size: 12))
                             .foregroundStyle(AppTheme.textSecondary)
                             .frame(maxWidth: .infinity)
                             .frame(height: 170)
@@ -433,7 +433,7 @@ struct DashboardView: View {
                         AxisMarks(position: .leading) { _ in
                             AxisGridLine()
                             AxisValueLabel()
-                                .font(.system(size: 9))
+                                .font(.app(size: 9))
                                 .foregroundStyle(AppTheme.textSecondary)
                         }
                     }
@@ -441,7 +441,7 @@ struct DashboardView: View {
                         AxisMarks { value in
                             if let label = value.as(String.self) {
                                 AxisValueLabel(label)
-                                    .font(.system(size: 9))
+                                    .font(.app(size: 9))
                                     .foregroundStyle(AppTheme.textSecondary)
                             }
                         }
@@ -488,9 +488,9 @@ struct DashboardView: View {
                 .padding(.bottom, 12)
 
                 if visibleExerciseGroups.isEmpty {
-                    Text("Aucun groupe sélectionné").font(.system(size: 12)).foregroundStyle(AppTheme.textSecondary)
+                    Text("Aucun groupe sélectionné").font(.app(size: 12)).foregroundStyle(AppTheme.textSecondary)
                 } else if exerciseRanking.isEmpty {
-                    Text("Pas encore de données").font(.system(size: 12)).foregroundStyle(AppTheme.textSecondary)
+                    Text("Pas encore de données").font(.app(size: 12)).foregroundStyle(AppTheme.textSecondary)
                 } else {
                     let maxCount = max(exerciseRanking.first?.count ?? 1, 1)
                     VStack(spacing: 12) {
@@ -504,7 +504,7 @@ struct DashboardView: View {
                             ExerciseFrequencyView(initialPeriod: exercisePeriod, initialVisibleGroups: visibleExerciseGroups)
                         } label: {
                             Text("Voir tout")
-                                .font(.system(size: 13, weight: .semibold))
+                                .font(.app(size: 13, weight: .semibold))
                                 .foregroundStyle(AppTheme.accent)
                                 .frame(maxWidth: .infinity)
                                 .padding(.top, 4)
@@ -570,10 +570,10 @@ struct DashboardView: View {
                         HStack(spacing: 4) {
                             Spacer(minLength: 0)
                             Text(exerciseName)
-                                .font(.system(size: 15, weight: .semibold))
+                                .font(.app(size: 15, weight: .semibold))
                                 .foregroundStyle(AppTheme.textPrimary)
                             Image(systemName: "chevron.down")
-                                .font(.system(size: 11, weight: .semibold))
+                                .font(.app(size: 11, weight: .semibold))
                                 .foregroundStyle(AppTheme.textSecondary)
                             Spacer(minLength: 0)
                         }
@@ -585,7 +585,7 @@ struct DashboardView: View {
 
                     if !hasAnyWeightDataForSelectedExercise {
                         Text("Pas de charge enregistrée pour cet exercice")
-                            .font(.system(size: 12))
+                            .font(.app(size: 12))
                             .foregroundStyle(AppTheme.textSecondary)
                             .frame(maxWidth: .infinity)
                             .frame(height: 150)
@@ -605,7 +605,7 @@ struct DashboardView: View {
                             AxisMarks(position: .leading) { _ in
                                 AxisGridLine()
                                 AxisValueLabel()
-                                    .font(.system(size: 9))
+                                    .font(.app(size: 9))
                                     .foregroundStyle(AppTheme.textSecondary)
                             }
                         }
@@ -613,7 +613,7 @@ struct DashboardView: View {
                             AxisMarks { value in
                                 if let label = value.as(String.self) {
                                     AxisValueLabel(label)
-                                        .font(.system(size: 9))
+                                        .font(.app(size: 9))
                                         .foregroundStyle(AppTheme.textSecondary)
                                 }
                             }
@@ -621,7 +621,7 @@ struct DashboardView: View {
                         .frame(height: 150)
                     }
                 } else {
-                    Text("Pas encore de données").font(.system(size: 12)).foregroundStyle(AppTheme.textSecondary)
+                    Text("Pas encore de données").font(.app(size: 12)).foregroundStyle(AppTheme.textSecondary)
                 }
             }
         }
@@ -654,10 +654,10 @@ struct DashboardView: View {
                         HStack(spacing: 4) {
                             Spacer(minLength: 0)
                             Text(exerciseName)
-                                .font(.system(size: 15, weight: .semibold))
+                                .font(.app(size: 15, weight: .semibold))
                                 .foregroundStyle(AppTheme.textPrimary)
                             Image(systemName: "chevron.down")
-                                .font(.system(size: 11, weight: .semibold))
+                                .font(.app(size: 11, weight: .semibold))
                                 .foregroundStyle(AppTheme.textSecondary)
                             Spacer(minLength: 0)
                         }
@@ -667,25 +667,25 @@ struct DashboardView: View {
                     if let record = prHistory.first {
                         VStack(spacing: 2) {
                             Text("RECORD ACTUEL")
-                                .font(.system(size: 10, weight: .semibold))
+                                .font(.app(size: 10, weight: .semibold))
                                 .tracking(0.4)
                                 .foregroundStyle(AppTheme.accent)
                             HStack(alignment: .firstTextBaseline, spacing: 4) {
                                 Text(WeightFormat.string(record.weight))
-                                    .font(.system(size: 22, weight: .bold))
+                                    .font(.app(size: 22, weight: .bold))
                                     .foregroundStyle(AppTheme.textPrimary)
                                 Text("kg")
-                                    .font(.system(size: 13, weight: .medium))
+                                    .font(.app(size: 13, weight: .medium))
                                     .foregroundStyle(AppTheme.textSecondary)
                                 Text("× \(record.reps) reps")
-                                    .font(.system(size: 13, weight: .medium))
+                                    .font(.app(size: 13, weight: .medium))
                                     .foregroundStyle(AppTheme.textSecondary)
                             }
                             HStack(spacing: 4) {
                                 Image(systemName: "calendar")
-                                    .font(.system(size: 10))
+                                    .font(.app(size: 10))
                                 Text(AppDateFormat.dayMonthYear.string(from: record.date))
-                                    .font(.system(size: 11))
+                                    .font(.app(size: 11))
                             }
                             .foregroundStyle(AppTheme.textSecondary)
                         }
@@ -696,7 +696,7 @@ struct DashboardView: View {
                         .padding(.bottom, 12)
 
                         Text("HISTORIQUE DES RECORDS")
-                            .font(.system(size: 10, weight: .semibold))
+                            .font(.app(size: 10, weight: .semibold))
                             .tracking(0.4)
                             .foregroundStyle(AppTheme.textSecondary)
                             .padding(.bottom, 6)
@@ -713,7 +713,7 @@ struct DashboardView: View {
                                 PRHistoryView(exerciseName: exerciseName)
                             } label: {
                                 Text("Voir tout")
-                                    .font(.system(size: 13, weight: .semibold))
+                                    .font(.app(size: 13, weight: .semibold))
                                     .foregroundStyle(AppTheme.accent)
                                     .frame(maxWidth: .infinity)
                                     .padding(.top, 8)
@@ -722,13 +722,13 @@ struct DashboardView: View {
                         }
                     } else {
                         Text("Pas de charge enregistrée pour cet exercice")
-                            .font(.system(size: 12))
+                            .font(.app(size: 12))
                             .foregroundStyle(AppTheme.textSecondary)
                             .frame(maxWidth: .infinity)
                             .padding(.vertical, 8)
                     }
                 } else {
-                    Text("Pas encore de données").font(.system(size: 12)).foregroundStyle(AppTheme.textSecondary)
+                    Text("Pas encore de données").font(.app(size: 12)).foregroundStyle(AppTheme.textSecondary)
                 }
             }
         }
@@ -774,7 +774,7 @@ struct DashboardView: View {
             SectionLabel(text: "Sensations par semaine")
             AppCard {
                 if weeklySensationEntries.isEmpty {
-                    Text("Pas encore de données").font(.system(size: 12)).foregroundStyle(AppTheme.textSecondary)
+                    Text("Pas encore de données").font(.app(size: 12)).foregroundStyle(AppTheme.textSecondary)
                 } else {
                     windowNavigator(weeks: weeksWindow(offsetWindows: sensationWindowOffset), offset: $sensationWindowOffset)
                         .padding(.bottom, 10)
@@ -794,7 +794,7 @@ struct DashboardView: View {
 
                     if visibleSensations.isEmpty {
                         Text("Aucun niveau sélectionné")
-                            .font(.system(size: 12))
+                            .font(.app(size: 12))
                             .foregroundStyle(AppTheme.textSecondary)
                             .frame(maxWidth: .infinity)
                             .frame(height: 170)
@@ -819,7 +819,7 @@ struct DashboardView: View {
                             AxisMarks(position: .leading) { _ in
                                 AxisGridLine()
                                 AxisValueLabel()
-                                    .font(.system(size: 9))
+                                    .font(.app(size: 9))
                                     .foregroundStyle(AppTheme.textSecondary)
                             }
                         }
@@ -827,7 +827,7 @@ struct DashboardView: View {
                             AxisMarks { value in
                                 if let label = value.as(String.self) {
                                     AxisValueLabel(label)
-                                        .font(.system(size: 9))
+                                        .font(.app(size: 9))
                                         .foregroundStyle(AppTheme.textSecondary)
                                 }
                             }
@@ -872,9 +872,9 @@ struct DashboardView: View {
                 .padding(.bottom, 12)
 
                 if visibleIntensityGroups.isEmpty {
-                    Text("Aucun groupe sélectionné").font(.system(size: 12)).foregroundStyle(AppTheme.textSecondary)
+                    Text("Aucun groupe sélectionné").font(.app(size: 12)).foregroundStyle(AppTheme.textSecondary)
                 } else if intensityRanking.isEmpty {
-                    Text("Pas encore de données").font(.system(size: 12)).foregroundStyle(AppTheme.textSecondary)
+                    Text("Pas encore de données").font(.app(size: 12)).foregroundStyle(AppTheme.textSecondary)
                 } else {
                     VStack(spacing: 14) {
                         ForEach(visibleIntensityRanking) { row in
@@ -887,7 +887,7 @@ struct DashboardView: View {
                             IntensityRankingView(initialPeriod: intensityPeriod, initialVisibleGroups: visibleIntensityGroups)
                         } label: {
                             Text("Voir tout")
-                                .font(.system(size: 13, weight: .semibold))
+                                .font(.app(size: 13, weight: .semibold))
                                 .foregroundStyle(AppTheme.accent)
                                 .frame(maxWidth: .infinity)
                                 .padding(.top, 8)

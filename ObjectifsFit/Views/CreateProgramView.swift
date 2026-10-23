@@ -98,7 +98,7 @@ struct CreateProgramView: View {
         Button(action: action) {
             HStack {
                 Text(label)
-                    .font(.system(size: 17))
+                    .font(.app(size: 17))
                     .foregroundStyle(AppTheme.textPrimary)
                 Spacer()
                 Image(systemName: "plus.circle.fill")
@@ -115,7 +115,7 @@ struct CreateProgramView: View {
             if !isEmpty {
                 Button(action: action) {
                     Image(systemName: "plus")
-                        .font(.system(size: 13, weight: .semibold))
+                        .font(.app(size: 13, weight: .semibold))
                         .foregroundStyle(AppTheme.accent)
                 }
             }
@@ -128,11 +128,11 @@ struct CreateProgramView: View {
             HStack {
                 VStack(alignment: .leading, spacing: 4) {
                     Text(draft.name)
-                        .font(.system(size: 15, weight: .semibold))
+                        .font(.app(size: 15, weight: .semibold))
                         .foregroundStyle(AppTheme.textPrimary)
                     if let progressionText = draft.progressionText {
                         Text(progressionText)
-                            .font(.system(size: 13))
+                            .font(.app(size: 13))
                             .foregroundStyle(AppTheme.textSecondary)
                     }
                 }

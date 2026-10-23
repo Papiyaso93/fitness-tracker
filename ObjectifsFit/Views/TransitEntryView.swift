@@ -24,7 +24,7 @@ struct BristolScaleField: View {
                         selection = type
                     } label: {
                         Text("\(type.rawValue)")
-                            .font(.system(size: 14, weight: .semibold))
+                            .font(.app(size: 14, weight: .semibold))
                             .frame(maxWidth: .infinity)
                             .frame(height: 36)
                             .foregroundStyle(selection == type ? .white : type.categoryColor.text)
@@ -43,10 +43,10 @@ struct BristolScaleField: View {
 
             VStack(alignment: .leading, spacing: 2) {
                 Text(selection.shortLabel)
-                    .font(.system(size: 14, weight: .semibold))
+                    .font(.app(size: 14, weight: .semibold))
                     .foregroundStyle(selection.categoryColor.text)
                 Text(selection.category)
-                    .font(.system(size: 12))
+                    .font(.app(size: 12))
                     .foregroundStyle(selection.categoryColor.text)
             }
             .frame(maxWidth: .infinity, alignment: .leading)

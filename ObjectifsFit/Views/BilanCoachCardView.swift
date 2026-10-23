@@ -49,7 +49,7 @@ struct BilanCoachCardView: View {
         AppCard {
             HStack(spacing: 8) {
                 Image(systemName: "sparkles")
-                    .font(.system(size: 16, weight: .semibold))
+                    .font(.app(size: 16, weight: .semibold))
                     .foregroundStyle(AppTheme.accent)
                 Text("Bilan coach")
                     .font(AppTheme.Font.cardTitle)
@@ -57,7 +57,7 @@ struct BilanCoachCardView: View {
             }
 
             Text("Exporte tes données et transmets-les à un coach sportif pour une analyse complète.")
-                .font(.system(size: 13))
+                .font(.app(size: 13))
                 .foregroundStyle(AppTheme.textSecondary)
                 .fixedSize(horizontal: false, vertical: true)
 
@@ -84,7 +84,7 @@ struct BilanCoachCardView: View {
             HStack(alignment: .firstTextBaseline, spacing: 5) {
                 SectionLabel(text: "Bilans")
                 Text("(\(bilans.count))")
-                    .font(.system(size: 12, weight: .semibold))
+                    .font(.app(size: 12, weight: .semibold))
                     .foregroundStyle(AppTheme.textSecondary)
             }
 
@@ -106,7 +106,7 @@ struct BilanCoachCardView: View {
                         AllBilansView()
                     } label: {
                         Text("Voir tout")
-                            .font(.system(size: 13, weight: .semibold))
+                            .font(.app(size: 13, weight: .semibold))
                             .foregroundStyle(AppTheme.accent)
                             .frame(maxWidth: .infinity)
                             .padding(.top, 4)

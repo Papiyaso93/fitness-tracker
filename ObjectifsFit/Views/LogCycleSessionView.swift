@@ -171,7 +171,7 @@ struct LogCycleSessionView: View {
 
     private var adHocBadge: some View {
         Text("Hors programme")
-            .font(.system(size: 11, weight: .medium))
+            .font(.app(size: 11, weight: .medium))
             .padding(.horizontal, 8)
             .padding(.vertical, 3)
             .background(Color.purple.opacity(0.15))
@@ -185,16 +185,16 @@ struct LogCycleSessionView: View {
                 ZStack {
                     Circle().fill(AppTheme.accent.opacity(0.12)).frame(width: 30, height: 30)
                     Image(systemName: session.kind.icon)
-                        .font(.system(size: 14))
+                        .font(.app(size: 14))
                         .foregroundStyle(AppTheme.accent)
                 }
                 VStack(alignment: .leading, spacing: 1) {
                     Text(session.kind.rawValue)
-                        .font(.system(size: 13, weight: .medium))
+                        .font(.app(size: 13, weight: .medium))
                         .foregroundStyle(AppTheme.textPrimary)
                     if let objective = session.objective {
                         Text("Objectif : \(objective.rawValue)")
-                            .font(.system(size: 11))
+                            .font(.app(size: 11))
                             .foregroundStyle(AppTheme.textSecondary)
                     }
                 }
@@ -208,7 +208,7 @@ struct LogCycleSessionView: View {
         if session.completion?.isAdapted == true {
             HStack {
                 Text("Séance adaptée")
-                    .font(.system(size: 11, weight: .medium))
+                    .font(.app(size: 11, weight: .medium))
                     .padding(.horizontal, 8)
                     .padding(.vertical, 3)
                     .background(Color.yellow.opacity(0.2))
@@ -222,7 +222,7 @@ struct LogCycleSessionView: View {
                         discardCurrentSession()
                     }
                 }
-                .font(.system(size: 13))
+                .font(.app(size: 13))
             }
         } else if !session.isAdHoc && (isToday || isPast) {
             Button {
@@ -235,7 +235,7 @@ struct LogCycleSessionView: View {
                 Text("Autre séance réalisée ?")
                     .underline()
             }
-            .font(.system(size: 13))
+            .font(.app(size: 13))
             .foregroundStyle(AppTheme.textSecondary)
         }
     }
@@ -276,7 +276,7 @@ struct LogCycleSessionView: View {
             HStack {
                 SectionLabel(text: text)
                 Image(systemName: isPlanExpanded ? "chevron.up" : "chevron.down")
-                    .font(.system(size: 11))
+                    .font(.app(size: 11))
                     .foregroundStyle(AppTheme.textSecondary)
             }
         }
@@ -292,7 +292,7 @@ struct LogCycleSessionView: View {
                         if index > 0 { Divider().overlay(AppTheme.border) }
                         HStack(alignment: .top, spacing: 10) {
                             Text("\(index + 1)")
-                                .font(.system(size: 13, weight: .medium))
+                                .font(.app(size: 13, weight: .medium))
                                 .foregroundStyle(AppTheme.textSecondary)
                                 .frame(width: 18, alignment: .leading)
                             VStack(alignment: .leading, spacing: 4) {
@@ -301,7 +301,7 @@ struct LogCycleSessionView: View {
                                     .foregroundStyle(AppTheme.textPrimary)
                                     .fontWeight(.medium)
                                 Text(exercise.summary)
-                                    .font(.system(size: 12))
+                                    .font(.app(size: 12))
                                     .foregroundStyle(AppTheme.textSecondary)
                             }
                             Spacer(minLength: 0)
@@ -340,12 +340,12 @@ struct LogCycleSessionView: View {
                                             .foregroundStyle(AppTheme.textPrimary)
                                             .fontWeight(.medium)
                                         Text(setSummary(entry))
-                                            .font(.system(size: 12))
+                                            .font(.app(size: 12))
                                             .foregroundStyle(AppTheme.textSecondary)
                                     }
                                     Spacer(minLength: 0)
                                     Text(entry.date.formatted(date: .omitted, time: .shortened))
-                                        .font(.system(size: 12))
+                                        .font(.app(size: 12))
                                         .foregroundStyle(AppTheme.textSecondary)
                                 }
                                 .frame(maxWidth: .infinity, alignment: .leading)
@@ -379,7 +379,7 @@ struct LogCycleSessionView: View {
             } else {
                 if let label = durationLabel(completion) {
                     Text(label)
-                        .font(.system(size: 11, weight: .medium))
+                        .font(.app(size: 11, weight: .medium))
                         .padding(.horizontal, 8)
                         .padding(.vertical, 3)
                         .background(AppTheme.secondary.opacity(0.15))
@@ -410,7 +410,7 @@ struct LogCycleSessionView: View {
             .buttonStyle(.plain)
         } else {
             Text("Séance à venir.")
-                .font(.system(size: 13))
+                .font(.app(size: 13))
                 .foregroundStyle(AppTheme.textSecondary)
                 .frame(maxWidth: .infinity)
         }
@@ -471,7 +471,7 @@ struct LogCycleSessionView: View {
         } else if isToday || isPast {
             AppCard {
                 VStack(alignment: .leading, spacing: 4) {
-                    Text("Commentaire").foregroundStyle(AppTheme.textSecondary).font(.system(size: 13))
+                    Text("Commentaire").foregroundStyle(AppTheme.textSecondary).font(.app(size: 13))
                     TextField("Qu'as-tu fait ?", text: $simpleComment, axis: .vertical)
                 }
             }
@@ -485,7 +485,7 @@ struct LogCycleSessionView: View {
             .buttonStyle(.plain)
         } else {
             Text("Séance à venir.")
-                .font(.system(size: 13))
+                .font(.app(size: 13))
                 .foregroundStyle(AppTheme.textSecondary)
                 .frame(maxWidth: .infinity)
         }

@@ -110,7 +110,7 @@ struct EditSessionView: View {
                         ForEach(exerciseDrafts) { draft in
                             HStack(alignment: .top, spacing: 10) {
                                 Text("\((exerciseDrafts.firstIndex(where: { $0.id == draft.id }) ?? 0) + 1)")
-                                    .font(.system(size: 13, weight: .medium))
+                                    .font(.app(size: 13, weight: .medium))
                                     .foregroundStyle(AppTheme.textSecondary)
                                     .frame(width: 16, alignment: .leading)
                                 VStack(alignment: .leading, spacing: 4) {
@@ -121,7 +121,7 @@ struct EditSessionView: View {
                                         .foregroundStyle(AppTheme.textPrimary)
                                         .fontWeight(.medium)
                                     Text(draft.summary)
-                                        .font(.system(size: 12))
+                                        .font(.app(size: 12))
                                         .foregroundStyle(AppTheme.textSecondary)
                                 }
                                 Spacer(minLength: 0)
@@ -142,7 +142,7 @@ struct EditSessionView: View {
                         } label: {
                             HStack {
                                 Text("Ajouter un exercice")
-                                    .font(.system(size: 17))
+                                    .font(.app(size: 17))
                                     .foregroundStyle(AppTheme.textPrimary)
                                 Spacer()
                                 Image(systemName: "plus.circle.fill")
@@ -156,7 +156,7 @@ struct EditSessionView: View {
                             Spacer()
                             if exerciseDrafts.count > 1 {
                                 EditButton()
-                                    .font(.system(size: 12))
+                                    .font(.app(size: 12))
                                     .textCase(nil)
                             }
                         }

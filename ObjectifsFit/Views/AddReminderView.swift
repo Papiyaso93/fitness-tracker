@@ -14,7 +14,7 @@ struct WeekdayPickerRow: View {
                     selection = item.weekday
                 } label: {
                     Text(String(item.label.prefix(1)))
-                        .font(.system(size: 12, weight: .semibold))
+                        .font(.app(size: 12, weight: .semibold))
                         .frame(maxWidth: .infinity)
                         .padding(.vertical, 9)
                         .foregroundStyle(isSelected ? .white : AppTheme.textSecondary)

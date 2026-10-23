@@ -9,16 +9,16 @@ struct PRHistoryRowView: View {
         HStack(spacing: 10) {
             VStack(alignment: .leading, spacing: 0) {
                 Text("\(WeightFormat.string(entry.weight))kg")
-                    .font(.system(size: 14, weight: .semibold))
+                    .font(.app(size: 14, weight: .semibold))
                     .foregroundStyle(AppTheme.textPrimary)
                 + Text(" × \(entry.reps) reps")
-                    .font(.system(size: 12))
+                    .font(.app(size: 12))
                     .foregroundStyle(AppTheme.textSecondary)
             }
             Spacer(minLength: 8)
             if let delta = entry.delta {
                 Text("+\(WeightFormat.string(delta))kg")
-                    .font(.system(size: 10, weight: .semibold))
+                    .font(.app(size: 10, weight: .semibold))
                     .foregroundStyle(AppTheme.secondary)
                     .padding(.horizontal, 7)
                     .padding(.vertical, 2)
@@ -26,7 +26,7 @@ struct PRHistoryRowView: View {
                     .clipShape(Capsule())
             } else {
                 Text("Premier")
-                    .font(.system(size: 10, weight: .semibold))
+                    .font(.app(size: 10, weight: .semibold))
                     .foregroundStyle(AppTheme.textSecondary)
                     .padding(.horizontal, 7)
                     .padding(.vertical, 2)
@@ -35,9 +35,9 @@ struct PRHistoryRowView: View {
             }
             HStack(spacing: 3) {
                 Image(systemName: "calendar")
-                    .font(.system(size: 9))
+                    .font(.app(size: 9))
                 Text(AppDateFormat.dayMonth.string(from: entry.date))
-                    .font(.system(size: 11))
+                    .font(.app(size: 11))
             }
             .foregroundStyle(AppTheme.textSecondary)
             .frame(width: 75, alignment: .trailing)
