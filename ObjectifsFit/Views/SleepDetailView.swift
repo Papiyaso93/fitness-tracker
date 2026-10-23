@@ -8,6 +8,7 @@ struct SleepDetailView: View {
     let moment: SleepMoment
 
     @Environment(\.modelContext) private var context
+    @Environment(ToastCenter.self) private var toast
     @Environment(\.dismiss) private var dismiss
     @Query private var allSleepLogs: [SleepLog]
 
@@ -151,6 +152,7 @@ struct SleepDetailView: View {
         if log.wakeTime == nil && log.bedTime == nil {
             context.delete(log)
         }
+        toast.showDeleted(moment == .reveil ? "Réveil supprimé" : "Coucher supprimé", context: context)
         dismiss()
     }
 }

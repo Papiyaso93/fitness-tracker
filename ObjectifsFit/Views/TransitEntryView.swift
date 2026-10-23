@@ -62,6 +62,7 @@ struct BristolScaleField: View {
 
 struct TransitEntryView: View {
     @Environment(\.modelContext) private var context
+    @Environment(ToastCenter.self) private var toast
     @Environment(\.dismiss) private var dismiss
 
     @State private var dateTime = Date.now
@@ -87,6 +88,7 @@ struct TransitEntryView: View {
                     Button("Enregistrer") {
                         let log = TransitLog(dateTime: dateTime, bristolType: bristolType)
                         context.insert(log)
+                        toast.show("Passage ajouté")
                         dismiss()
                     }
                 }

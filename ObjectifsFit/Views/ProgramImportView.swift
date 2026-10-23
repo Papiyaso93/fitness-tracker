@@ -7,6 +7,7 @@ import UniformTypeIdentifiers
 /// je l'importe en un clic" plutôt que de tout construire à la main dans l'app.
 struct ProgramImportView: View {
     @Environment(\.modelContext) private var context
+    @Environment(ToastCenter.self) private var toast
     @Environment(\.dismiss) private var dismiss
 
     @State private var isShowingPicker = false
@@ -72,8 +73,10 @@ struct ProgramImportView: View {
                 switch pickerResult {
                 case .success(let url):
                     do {
-                        result = try BilanRestoreImporter.restore(url: url, context: context)
+                        let restored = try BilanRestoreImporter.restore(url: url, context: context)
+                        result = restored
                         errorMessage = nil
+                        toast.show("Programme importé · \(restored.restoredCycles) cycle\(restored.restoredCycles > 1 ? "s" : ""), \(restored.restoredSessions) séance\(restored.restoredSessions > 1 ? "s" : "")")
                     } catch {
                         errorMessage = "Impossible de lire ce fichier de programme."
                         result = nil

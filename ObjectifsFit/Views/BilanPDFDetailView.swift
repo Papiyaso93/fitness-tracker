@@ -18,6 +18,7 @@ struct BilanPDFDetailView: View {
     let bilan: ArchivedBilan
 
     @Environment(\.modelContext) private var context
+    @Environment(ToastCenter.self) private var toast
     @Environment(\.dismiss) private var dismiss
     @State private var showsDeleteConfirmation = false
     @State private var shareURL: URL?
@@ -47,6 +48,7 @@ struct BilanPDFDetailView: View {
                 .confirmationDialog("Supprimer ce bilan ?", isPresented: $showsDeleteConfirmation, titleVisibility: .visible) {
                     Button("Supprimer", role: .destructive) {
                         context.delete(bilan)
+                        toast.show("Bilan supprimé")
                         dismiss()
                     }
                     Button("Annuler", role: .cancel) {}

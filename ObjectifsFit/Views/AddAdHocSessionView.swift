@@ -9,6 +9,7 @@ struct AddAdHocSessionView: View {
     var onCreated: (CycleSession) -> Void
 
     @Environment(\.modelContext) private var context
+    @Environment(ToastCenter.self) private var toast
     @Environment(\.dismiss) private var dismiss
     @Query private var allSessions: [CycleSession]
 
@@ -86,6 +87,7 @@ struct AddAdHocSessionView: View {
         )
         session.cycle = cycle
         context.insert(session)
+        toast.show("Séance ajoutée")
         dismiss()
         onCreated(session)
     }

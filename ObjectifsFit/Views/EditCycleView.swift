@@ -8,6 +8,7 @@ struct EditCycleView: View {
     var onDelete: () -> Void
 
     @Environment(\.modelContext) private var context
+    @Environment(ToastCenter.self) private var toast
     @Environment(\.dismiss) private var dismiss
 
     @State private var weekCount: Int
@@ -125,6 +126,7 @@ struct EditCycleView: View {
                         for session in cycle.trainingSessions where session.weekNumber > weekCount {
                             context.delete(session)
                         }
+                        toast.show("Cycle modifié")
                         dismiss()
                     }
                     .disabled(!canSave)
@@ -155,6 +157,7 @@ struct EditCycleView: View {
             ) {
                 Button("Supprimer", role: .destructive) {
                     context.delete(cycle)
+                    toast.show("Cycle supprimé")
                     onDelete()
                 }
                 Button("Annuler", role: .cancel) {}

@@ -9,6 +9,7 @@ struct LogCycleSessionView: View {
     @Bindable var session: CycleSession
 
     @Environment(\.modelContext) private var context
+    @Environment(ToastCenter.self) private var toast
     @Environment(\.dismiss) private var dismiss
     /// Relation `completion.setEntries` non fiable pour déclencher un refresh quand l'ajout se fait
     /// depuis une sheet enfant (même problème déjà rencontré sur ProgramDetailView/cycles) — on passe
@@ -163,7 +164,7 @@ struct LogCycleSessionView: View {
             isPresented: $showingCancelAdaptationConfirm,
             titleVisibility: .visible
         ) {
-            Button("Continuer", role: .destructive) { discardCurrentSession() }
+            Button("Continuer", role: .destructive) { cancelAdaptation() }
             Button("Annuler", role: .cancel) {}
         }
         .onAppear {
@@ -225,7 +226,7 @@ struct LogCycleSessionView: View {
                     if hasEnteredData {
                         showingCancelAdaptationConfirm = true
                     } else {
-                        discardCurrentSession()
+                        cancelAdaptation()
                     }
                 }
                 .font(.app(size: 13))
@@ -253,10 +254,12 @@ struct LogCycleSessionView: View {
     private func cancelOrDeleteSession() {
         if session.isAdHoc {
             context.delete(session)
+            toast.show("Séance supprimée")
             dismiss()
         } else if let completion = session.completion {
             context.delete(completion)
             session.completion = nil
+            toast.show("Saisie effacée")
         }
     }
 
@@ -273,6 +276,12 @@ struct LogCycleSessionView: View {
         completion.cycleSession = session
         context.insert(completion)
         session.completion = completion
+        toast.show("Séance adaptée")
+    }
+
+    private func cancelAdaptation() {
+        discardCurrentSession()
+        toast.show("Adaptation annulée")
     }
 
     private func collapsibleHeader(text: String) -> some View {
@@ -362,6 +371,7 @@ struct LogCycleSessionView: View {
                 .swipeActions(edge: .trailing, allowsFullSwipe: true) {
                     Button(role: .destructive) {
                         context.delete(entry)
+                        toast.showDeleted("Série supprimée", context: context)
                     } label: {
                         Label("Supprimer", systemImage: "trash")
                     }
@@ -382,6 +392,7 @@ struct LogCycleSessionView: View {
 
                 Button {
                     completion.endTime = .now
+                    toast.show(finishedMessage(for: completion)) { completion.endTime = nil }
                 } label: {
                     Text("Terminer la séance")
                         .accentOutlineButtonStyle()
@@ -406,6 +417,7 @@ struct LogCycleSessionView: View {
                 // rattrape un tap accidentel sur "Terminer" sans perdre la saisie.
                 Button {
                     completion.endTime = nil
+                    toast.show("Séance rouverte")
                 } label: {
                     Text("Rouvrir la séance")
                         .accentOutlineButtonStyle()
@@ -469,6 +481,13 @@ struct LogCycleSessionView: View {
     /// "Terminée · 52min" — uniquement pour la musculation, qui a un vrai début/fin séparés
     /// (Commencer/Terminer). Les séances "Autre" fixent les deux au même instant (pas d'étape
     /// "Commencer" séparée), donc une durée n'y aurait aucun sens.
+    /// « Séance terminée · 38 min » (musculation) — la durée n'est affichée que si elle a un sens.
+    private func finishedMessage(for completion: SessionCompletion) -> String {
+        guard let start = completion.startTime, let end = completion.endTime else { return "Séance terminée" }
+        let minutes = Int(end.timeIntervalSince(start) / 60)
+        return minutes > 0 ? "Séance terminée · \(minutes) min" : "Séance terminée"
+    }
+
     private func durationLabel(_ completion: SessionCompletion) -> String? {
         guard let start = completion.startTime, let end = completion.endTime else { return nil }
         let minutes = Int(end.timeIntervalSince(start) / 60)
@@ -481,6 +500,7 @@ struct LogCycleSessionView: View {
         completion.cycleSession = session
         context.insert(completion)
         session.completion = completion
+        toast.show("Séance démarrée")
     }
 
     // MARK: - Autre
@@ -495,6 +515,7 @@ struct LogCycleSessionView: View {
             .plainListRow()
             Button {
                 completionEntry.endTime = nil
+                toast.show("Séance rouverte")
             } label: {
                 Text("Rouvrir la séance")
                     .accentOutlineButtonStyle()
@@ -545,5 +566,6 @@ struct LogCycleSessionView: View {
             context.insert(completion)
             session.completion = completion
         }
+        toast.show("Séance enregistrée")
     }
 }

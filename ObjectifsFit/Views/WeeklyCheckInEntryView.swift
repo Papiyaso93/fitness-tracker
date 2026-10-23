@@ -65,6 +65,7 @@ struct WeeklyCheckInEntryView: View {
     let weekDate: Date
 
     @Environment(\.modelContext) private var context
+    @Environment(ToastCenter.self) private var toast
     @Environment(\.dismiss) private var dismiss
 
     /// Modules proposés au choix dans le premier écran — la note libre n'en fait pas partie : elle
@@ -260,6 +261,7 @@ struct WeeklyCheckInEntryView: View {
         let trimmedNote = note.trimmingCharacters(in: .whitespacesAndNewlines)
         checkIn.note = trimmedNote.isEmpty ? nil : trimmedNote
         context.insert(checkIn)
+        toast.show("Bilan enregistré")
         dismiss()
     }
 }

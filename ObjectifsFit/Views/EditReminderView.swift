@@ -7,6 +7,7 @@ struct EditReminderView: View {
     @Bindable var reminder: Reminder
 
     @Environment(\.modelContext) private var context
+    @Environment(ToastCenter.self) private var toast
     @Environment(\.dismiss) private var dismiss
 
     @State private var time: Date
@@ -65,6 +66,7 @@ struct EditReminderView: View {
                 Button("Supprimer ce rappel", role: .destructive) {
                     NotificationManager.cancel(reminder)
                     context.delete(reminder)
+                    toast.show("Rappel supprimé")
                     dismiss()
                 }
             }

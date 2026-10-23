@@ -5,6 +5,7 @@ struct EditPlannedSetEntryView: View {
     @Bindable var entry: PlannedSetEntry
 
     @Environment(\.modelContext) private var context
+    @Environment(ToastCenter.self) private var toast
     @Environment(\.dismiss) private var dismiss
 
     @State private var weightText: String = ""
@@ -72,6 +73,7 @@ struct EditPlannedSetEntryView: View {
                 Section {
                     Button("Supprimer cette série", role: .destructive) {
                         context.delete(entry)
+                        toast.showDeleted("Série supprimée", context: context)
                         dismiss()
                     }
                 }
@@ -109,6 +111,7 @@ struct EditPlannedSetEntryView: View {
         case .elastique:
             entry.weight = Double(weightText)
         }
+        toast.show("Série modifiée")
         dismiss()
     }
 }

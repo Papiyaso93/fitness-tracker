@@ -58,6 +58,7 @@ struct MealSensationField: View {
 
 struct MealEntryView: View {
     @Environment(\.modelContext) private var context
+    @Environment(ToastCenter.self) private var toast
     @Environment(\.dismiss) private var dismiss
 
     @State private var dateTime = Date.now
@@ -91,6 +92,7 @@ struct MealEntryView: View {
                     Button("Enregistrer") {
                         let meal = MealLog(dateTime: dateTime, title: title, mealDescription: description, sensation: sensation)
                         context.insert(meal)
+                        toast.show("Repas ajouté")
                         dismiss()
                     }
                     .disabled(title.trimmingCharacters(in: .whitespaces).isEmpty)

@@ -5,6 +5,7 @@ struct TransitDetailView: View {
     @Bindable var log: TransitLog
 
     @Environment(\.modelContext) private var context
+    @Environment(ToastCenter.self) private var toast
     @Environment(\.dismiss) private var dismiss
 
     var body: some View {
@@ -19,6 +20,7 @@ struct TransitDetailView: View {
             Section {
                 Button("Supprimer ce passage", role: .destructive) {
                     context.delete(log)
+                    toast.showDeleted("Passage supprimé", context: context)
                     dismiss()
                 }
             }

@@ -32,6 +32,7 @@ struct WeekdayPickerRow: View {
 struct AddReminderView: View {
     @Environment(\.dismiss) private var dismiss
     @Environment(\.modelContext) private var context
+    @Environment(ToastCenter.self) private var toast
 
     @State private var title: String = ""
     @State private var message: String = ""
@@ -96,6 +97,7 @@ struct AddReminderView: View {
         )
         context.insert(reminder)
         NotificationManager.schedule(reminder)
+        toast.show("Rappel créé")
         dismiss()
     }
 }

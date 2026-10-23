@@ -43,6 +43,7 @@
 		5FD27794CC091478861E79ED /* WeeklyCheckInDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 52BCADAE642666F2AF222356 /* WeeklyCheckInDetailView.swift */; };
 		61CBE56254D3A711CAA2757D /* ProgramBuilderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 72D565BAE03C3CAD2E5935A7 /* ProgramBuilderView.swift */; };
 		649ABB0964D9C664FB6A3BF3 /* EditSessionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F4D05861B7DC9BB13BB0DC9 /* EditSessionView.swift */; };
+		699D175FEA6D8DD81FF424B9 /* Toast.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5B6FEBC984BAD28EC2E27FF3 /* Toast.swift */; };
 		6BBB7B5FB762990F443492B0 /* WeeklyCheckIn.swift in Sources */ = {isa = PBXBuildFile; fileRef = D215EA8BB7C6B89FC2169F63 /* WeeklyCheckIn.swift */; };
 		6F9BC7F756137D700165AD99 /* BodyMeasurementEntry.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6C92A9B1E37F1E986EEC9748 /* BodyMeasurementEntry.swift */; };
 		7079E565CAA3201356859D0F /* AllBilansView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DE2BB0E86ED12E4ED51DE249 /* AllBilansView.swift */; };
@@ -132,6 +133,7 @@
 		530CED727015A1870095C077 /* BilanPDFDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BilanPDFDetailView.swift; sourceTree = "<group>"; };
 		575F2B82818BCE87EC10FC72 /* SessionCompletion.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SessionCompletion.swift; sourceTree = "<group>"; };
 		5A4726EA6DB2F081191B5C9F /* BilanRestoreImporter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BilanRestoreImporter.swift; sourceTree = "<group>"; };
+		5B6FEBC984BAD28EC2E27FF3 /* Toast.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Toast.swift; sourceTree = "<group>"; };
 		6448AEBC9E9549855073D233 /* QualitySelectionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QualitySelectionView.swift; sourceTree = "<group>"; };
 		654FB5919D9080C6235FCE7D /* Weekday.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Weekday.swift; sourceTree = "<group>"; };
 		68E3F58218E9D6D62AFECAB8 /* AppTheme.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppTheme.swift; sourceTree = "<group>"; };
@@ -240,6 +242,7 @@
 				C4036A2832918A1D3F285D4B /* DateFormatting.swift */,
 				3FF097894EB32CA0D0554DBB /* LegendToggleChip.swift */,
 				A5A0F470DD70E6401F481B48 /* MeasurementProgressionStyle.swift */,
+				5B6FEBC984BAD28EC2E27FF3 /* Toast.swift */,
 			);
 			path = DesignSystem;
 			sourceTree = "<group>";
@@ -541,6 +544,7 @@
 				A5C8E5C66458EF0F5BDF30B7 /* SleepEntryView.swift in Sources */,
 				523118CBAA79C21B8654F4FF /* SleepLog.swift in Sources */,
 				49A38F8FFF7459A919BD3AFD /* SwapDaysView.swift in Sources */,
+				699D175FEA6D8DD81FF424B9 /* Toast.swift in Sources */,
 				8F9B4E91A8C3D2A31E4DD4FF /* TrainingEnums.swift in Sources */,
 				FD23E4D0B3EB723AB91363B5 /* TrainingProgram.swift in Sources */,
 				BF29C93EB9D06CB847C40103 /* TransitDetailView.swift in Sources */,

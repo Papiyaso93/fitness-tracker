@@ -8,6 +8,7 @@ struct WeeklyCheckInDetailView: View {
     @Bindable var checkIn: WeeklyCheckIn
 
     @Environment(\.modelContext) private var context
+    @Environment(ToastCenter.self) private var toast
     @Environment(\.dismiss) private var dismiss
 
     @State private var formCommentText: String
@@ -73,6 +74,7 @@ struct WeeklyCheckInDetailView: View {
             Section {
                 Button("Supprimer ce bilan", role: .destructive) {
                     context.delete(checkIn)
+                    toast.showDeleted("Bilan supprimé", context: context)
                     dismiss()
                 }
             }

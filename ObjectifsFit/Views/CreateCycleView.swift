@@ -6,6 +6,7 @@ struct CreateCycleView: View {
     let program: TrainingProgram
 
     @Environment(\.modelContext) private var context
+    @Environment(ToastCenter.self) private var toast
     @Environment(\.dismiss) private var dismiss
 
     @State private var name: String = ""
@@ -257,6 +258,7 @@ struct CreateCycleView: View {
             context.insert(objective)
         }
 
+        toast.show("Cycle créé")
         dismiss()
     }
 
