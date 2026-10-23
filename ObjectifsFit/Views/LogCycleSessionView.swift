@@ -82,24 +82,30 @@ struct LogCycleSessionView: View {
 
     var body: some View {
         ScrollView {
-            VStack(alignment: .leading, spacing: 20) {
+            VStack(alignment: .leading, spacing: AppTheme.sectionSpacing) {
                 if session.isAdHoc {
                     adHocBadge
                 }
                 typeObjectiveCard
                 if !session.isAdHoc {
-                    collapsibleHeader(text: "Plan de la séance")
-                    if isPlanExpanded {
-                        planCard
+                    SectionGroup {
+                        collapsibleHeader(text: "Plan de la séance")
+                        if isPlanExpanded {
+                            planCard
+                        }
                     }
                 }
 
-                SectionLabel(text: "Ma séance")
-                switchSessionHeader
-                if effectiveKind == .musculation {
-                    musculationSection
-                } else {
-                    simpleSessionSection
+                SectionGroup {
+                    SectionLabel(text: "Ma séance")
+                    VStack(alignment: .leading, spacing: 16) {
+                        switchSessionHeader
+                        if effectiveKind == .musculation {
+                            musculationSection
+                        } else {
+                            simpleSessionSection
+                        }
+                    }
                 }
 
             }

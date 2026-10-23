@@ -40,7 +40,7 @@ struct MeasurementDetailView: View {
 
     var body: some View {
         ScrollView {
-            VStack(alignment: .leading, spacing: 16) {
+            VStack(alignment: .leading, spacing: AppTheme.sectionSpacing) {
                 AppCard {
                     VStack(alignment: .leading, spacing: 2) {
                         Text(type.rawValue)
@@ -94,17 +94,19 @@ struct MeasurementDetailView: View {
                     }
                 }
 
-                SectionLabel(text: "Historique")
-                AppCard {
-                    if entries.isEmpty {
-                        Text("Aucune mesure enregistrée pour l'instant.")
-                            .font(.app(size: 13))
-                            .foregroundStyle(AppTheme.textSecondary)
-                    } else {
-                        VStack(spacing: 0) {
-                            ForEach(Array(entries.enumerated()), id: \.element.id) { index, entry in
-                                if index > 0 { Divider().overlay(AppTheme.border) }
-                                historyRow(entry)
+                SectionGroup {
+                    SectionLabel(text: "Historique")
+                    AppCard {
+                        if entries.isEmpty {
+                            Text("Aucune mesure enregistrée pour l'instant.")
+                                .font(.app(size: 13))
+                                .foregroundStyle(AppTheme.textSecondary)
+                        } else {
+                            VStack(spacing: 0) {
+                                ForEach(Array(entries.enumerated()), id: \.element.id) { index, entry in
+                                    if index > 0 { Divider().overlay(AppTheme.border) }
+                                    historyRow(entry)
+                                }
                             }
                         }
                     }

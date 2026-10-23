@@ -18,23 +18,7 @@ struct ExerciseLibraryView: View {
 
     var body: some View {
         ScrollView {
-            VStack(alignment: .leading, spacing: 20) {
-                AppCard {
-                    Button {
-                        showingAddExercise = true
-                    } label: {
-                        HStack {
-                            Text("Ajouter un exercice")
-                                .font(.app(size: 14, weight: .medium))
-                                .foregroundStyle(AppTheme.textPrimary)
-                            Spacer()
-                            Image(systemName: "plus.circle.fill")
-                                .foregroundStyle(AppTheme.accent)
-                        }
-                    }
-                    .buttonStyle(.plain)
-                }
-
+            VStack(alignment: .leading, spacing: AppTheme.sectionSpacing) {
                 ForEach(groupedExercises, id: \.group) { entry in
                     let isExpanded = expandedGroups.contains(entry.group)
                     Button {
@@ -83,6 +67,16 @@ struct ExerciseLibraryView: View {
         .background(AppTheme.background)
         .navigationTitle("Exercices")
         .navigationBarTitleDisplayMode(.inline)
+        .toolbar {
+            ToolbarItem(placement: .topBarTrailing) {
+                Button {
+                    showingAddExercise = true
+                } label: {
+                    Label("Ajouter", systemImage: "plus")
+                        .labelStyle(.titleAndIcon)
+                }
+            }
+        }
         .sheet(isPresented: $showingAddExercise) {
             AddExerciseDefinitionView()
         }

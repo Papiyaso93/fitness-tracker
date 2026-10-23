@@ -228,13 +228,13 @@ struct EditCycleView: View {
     private func addObjectiveRow(label: String, action: @escaping () -> Void) -> some View {
         Button(action: action) {
             HStack {
+                Image(systemName: "plus")
+                    .font(.app(size: 12, weight: .bold))
                 Text(label)
-                    .font(.app(size: 17))
-                    .foregroundStyle(AppTheme.textPrimary)
+                    .font(.app(size: 13, weight: .semibold))
                 Spacer()
-                Image(systemName: "plus.circle.fill")
-                    .foregroundStyle(AppTheme.accent)
             }
+            .foregroundStyle(AppTheme.accent)
         }
         .buttonStyle(.plain)
     }
@@ -245,9 +245,7 @@ struct EditCycleView: View {
             Spacer()
             if !isEmpty {
                 Button(action: action) {
-                    Image(systemName: "plus")
-                        .font(.app(size: 13, weight: .semibold))
-                        .foregroundStyle(AppTheme.accent)
+                    AddPill(filled: false)
                 }
             }
         }

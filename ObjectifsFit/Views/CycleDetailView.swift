@@ -16,7 +16,7 @@ struct CycleDetailView: View {
 
     var body: some View {
         ScrollView {
-            VStack(alignment: .leading, spacing: 20) {
+            VStack(alignment: .leading, spacing: AppTheme.sectionSpacing) {
                 AppCard {
                     VStack(alignment: .leading, spacing: 8) {
                         HStack(spacing: 6) {
@@ -45,30 +45,33 @@ struct CycleDetailView: View {
 
                 CycleBilanCardView(cycle: cycle)
 
-                SectionLabel(text: "Objectifs du cycle")
-                if cycle.sortedObjectives.isEmpty {
-                    AppCard {
-                        Text("Aucun objectif défini pour ce cycle.")
-                            .font(.app(size: 14))
-                            .foregroundStyle(AppTheme.textSecondary)
-                    }
-                } else {
-                    VStack(spacing: 10) {
-                        ForEach(cycle.sortedObjectives) { objective in
-                            AppCard { objectiveRow(objective) }
+                SectionGroup {
+                    SectionLabel(text: "Objectifs du cycle")
+                    if cycle.sortedObjectives.isEmpty {
+                        AppCard {
+                            Text("Aucun objectif défini pour ce cycle.")
+                                .font(.app(size: 14))
+                                .foregroundStyle(AppTheme.textSecondary)
+                        }
+                    } else {
+                        VStack(spacing: 10) {
+                            ForEach(cycle.sortedObjectives) { objective in
+                                AppCard { objectiveRow(objective) }
+                            }
                         }
                     }
                 }
-
-                SectionLabel(text: "Semaines")
-                VStack(spacing: 10) {
-                    ForEach(1...cycle.weekCount, id: \.self) { week in
-                        NavigationLink {
-                            WeekDetailView(cycle: cycle, weekNumber: week)
-                        } label: {
-                            weekRow(week)
+                SectionGroup {
+                    SectionLabel(text: "Semaines")
+                    VStack(spacing: 10) {
+                        ForEach(1...cycle.weekCount, id: \.self) { week in
+                            NavigationLink {
+                                WeekDetailView(cycle: cycle, weekNumber: week)
+                            } label: {
+                                weekRow(week)
+                            }
+                            .buttonStyle(.plain)
                         }
-                        .buttonStyle(.plain)
                     }
                 }
             }

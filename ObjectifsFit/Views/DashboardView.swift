@@ -104,7 +104,7 @@ struct DashboardView: View {
     var body: some View {
         NavigationStack {
             ScrollView {
-                VStack(alignment: .leading, spacing: 20) {
+                VStack(alignment: .leading, spacing: AppTheme.sectionSpacing) {
                     BilanCoachCardView()
 
                     dashboardSectionHeader("Volume", systemImage: "dumbbell.fill")

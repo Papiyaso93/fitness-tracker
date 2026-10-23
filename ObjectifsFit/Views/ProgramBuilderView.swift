@@ -27,29 +27,33 @@ struct ProgramBuilderView: View {
     var body: some View {
         NavigationStack {
             ScrollView {
-                VStack(alignment: .leading, spacing: 20) {
+                VStack(alignment: .leading, spacing: AppTheme.sectionSpacing) {
                     if sortedPrograms.isEmpty {
                         emptyState
                     } else {
-                        SectionLabel(text: "Programmes")
-                        VStack(spacing: 10) {
-                            ForEach(sortedPrograms) { program in
-                                NavigationLink {
-                                    ProgramDetailView(program: program)
+                        SectionGroup {
+                            HStack {
+                                SectionLabel(text: "Programmes")
+                                Spacer()
+                                Button {
+                                    showingCreateSheet = true
                                 } label: {
-                                    programRow(program)
+                                    AddPill(filled: false)
                                 }
                                 .buttonStyle(.plain)
+                                .padding(.trailing, 4)
+                            }
+                            VStack(spacing: 10) {
+                                ForEach(sortedPrograms) { program in
+                                    NavigationLink {
+                                        ProgramDetailView(program: program)
+                                    } label: {
+                                        programRow(program)
+                                    }
+                                    .buttonStyle(.plain)
+                                }
                             }
                         }
-
-                        Button {
-                            showingCreateSheet = true
-                        } label: {
-                            Label("Créer un nouveau programme", systemImage: "plus.circle")
-                                .font(.app(size: 15, weight: .medium))
-                        }
-                        .padding(.top, 4)
 
                         Button {
                             showingImportSheet = true

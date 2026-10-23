@@ -198,6 +198,7 @@ enum AppTheme {
     static let textPrimary = Color(hex: "2A2521")
     static let textSecondary = Color(hex: "8A7A6C")
 
+    static let sectionSpacing: CGFloat = 24
     static let cardRadius: CGFloat = 14
     static let cardPadding: CGFloat = 14
     static let buttonRadius: CGFloat = 11
@@ -228,6 +229,18 @@ struct AddPill: View {
         .padding(.vertical, filled ? 6 : 0)
         .background(filled ? AppTheme.accent.opacity(0.12) : Color.clear)
         .clipShape(Capsule())
+    }
+}
+
+/// Titre de section + son contenu, resserrés (8 pt) pour se lire comme un groupe ; à placer dans un
+/// conteneur qui sépare les sections de `AppTheme.sectionSpacing`.
+struct SectionGroup<Content: View>: View {
+    @ViewBuilder var content: Content
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            content
+        }
     }
 }
 

@@ -65,22 +65,6 @@ struct DaySessionsView: View {
                             }
                         }
                     }
-
-                    AppCard {
-                        Button {
-                            showingAddSession = true
-                        } label: {
-                            HStack {
-                                Text("Ajouter une séance")
-                                    .font(.app(size: 14, weight: .medium))
-                                    .foregroundStyle(AppTheme.textPrimary)
-                                Spacer()
-                                Image(systemName: "plus.circle.fill")
-                                    .foregroundStyle(AppTheme.accent)
-                            }
-                        }
-                        .buttonStyle(.plain)
-                    }
                 }
                 .padding(16)
                 .frame(maxWidth: .infinity, alignment: .leading)
@@ -89,8 +73,16 @@ struct DaySessionsView: View {
             .navigationTitle(dayLabel)
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
-                ToolbarItem(placement: .confirmationAction) {
+                ToolbarItem(placement: .cancellationAction) {
                     Button("Fermer") { dismiss() }
+                }
+                ToolbarItem(placement: .confirmationAction) {
+                    Button {
+                        showingAddSession = true
+                    } label: {
+                        Label("Ajouter", systemImage: "plus")
+                            .labelStyle(.titleAndIcon)
+                    }
                 }
             }
             .sheet(isPresented: $showingAddSession) {

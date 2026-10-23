@@ -10,104 +10,96 @@ struct SettingsView: View {
     var body: some View {
         NavigationStack {
             ScrollView {
-                VStack(alignment: .leading, spacing: 20) {
-                    SectionLabel(text: "Exercices")
-                    NavigationLink {
-                        ExerciseLibraryView()
-                    } label: {
-                        AppCard {
-                            HStack {
-                                Text("Gérer les exercices")
-                                    .font(.app(size: 15))
-                                    .foregroundStyle(AppTheme.textPrimary)
-                                Spacer()
-                                Text("\(exercises.count)")
-                                    .font(.app(size: 13))
-                                    .foregroundStyle(AppTheme.textSecondary)
-                                Image(systemName: "chevron.right")
-                                    .font(.app(size: 12))
-                                    .foregroundStyle(AppTheme.textSecondary)
+                VStack(alignment: .leading, spacing: AppTheme.sectionSpacing) {
+                    SectionGroup {
+                        SectionLabel(text: "Exercices")
+                        NavigationLink {
+                            ExerciseLibraryView()
+                        } label: {
+                            AppCard {
+                                HStack {
+                                    Text("Gérer les exercices")
+                                        .font(.app(size: 15))
+                                        .foregroundStyle(AppTheme.textPrimary)
+                                    Spacer()
+                                    Text("\(exercises.count)")
+                                        .font(.app(size: 13))
+                                        .foregroundStyle(AppTheme.textSecondary)
+                                    Image(systemName: "chevron.right")
+                                        .font(.app(size: 12))
+                                        .foregroundStyle(AppTheme.textSecondary)
+                                }
                             }
                         }
+                        .buttonStyle(.plain)
                     }
-                    .buttonStyle(.plain)
 
-                    HStack {
-                        SectionLabel(text: "Rappels")
-                        Spacer()
-                        if !reminders.isEmpty {
+                    SectionGroup {
+                        HStack {
+                            SectionLabel(text: "Rappels")
+                            Spacer()
                             Button {
                                 showingAddReminder = true
                             } label: {
-                                Image(systemName: "plus")
-                                    .font(.app(size: 13, weight: .semibold))
-                                    .foregroundStyle(AppTheme.accent)
+                                AddPill(filled: false)
                             }
                             .padding(.trailing, 4)
                         }
-                    }
-                    if reminders.isEmpty {
-                        AppCard {
-                            Button {
-                                showingAddReminder = true
-                            } label: {
-                                HStack {
-                                    Text("Ajouter un rappel")
-                                        .font(.app(size: 14, weight: .medium))
-                                        .foregroundStyle(AppTheme.textPrimary)
-                                    Spacer()
-                                    Image(systemName: "plus.circle.fill")
-                                        .foregroundStyle(AppTheme.accent)
-                                }
+                        if reminders.isEmpty {
+                            AppCard {
+                                Text("Aucun rappel")
+                                    .font(.app(size: 14))
+                                    .foregroundStyle(AppTheme.textSecondary)
                             }
-                            .buttonStyle(.plain)
-                        }
-                    } else {
-                        VStack(spacing: 10) {
-                            ForEach(reminders.sorted { $0.hour == $1.hour ? $0.minute < $1.minute : $0.hour < $1.hour }) { reminder in
-                                NavigationLink {
-                                    EditReminderView(reminder: reminder)
-                                } label: {
-                                    AppCard {
-                                        HStack {
-                                            VStack(alignment: .leading, spacing: 2) {
-                                                Text(reminder.title)
-                                                    .font(.app(size: 15, weight: .medium))
-                                                    .foregroundStyle(AppTheme.textPrimary)
-                                                Text("\(reminder.scheduleLabel) · \(reminder.message)")
+                        } else {
+                            VStack(spacing: 10) {
+                                ForEach(reminders.sorted { $0.hour == $1.hour ? $0.minute < $1.minute : $0.hour < $1.hour }) { reminder in
+                                    NavigationLink {
+                                        EditReminderView(reminder: reminder)
+                                    } label: {
+                                        AppCard {
+                                            HStack {
+                                                VStack(alignment: .leading, spacing: 2) {
+                                                    Text(reminder.title)
+                                                        .font(.app(size: 15, weight: .medium))
+                                                        .foregroundStyle(AppTheme.textPrimary)
+                                                    Text("\(reminder.scheduleLabel) · \(reminder.message)")
+                                                        .font(.app(size: 12))
+                                                        .foregroundStyle(AppTheme.textSecondary)
+                                                        .lineLimit(1)
+                                                }
+                                                Spacer()
+                                                Image(systemName: "chevron.right")
                                                     .font(.app(size: 12))
                                                     .foregroundStyle(AppTheme.textSecondary)
-                                                    .lineLimit(1)
                                             }
-                                            Spacer()
-                                            Image(systemName: "chevron.right")
-                                                .font(.app(size: 12))
-                                                .foregroundStyle(AppTheme.textSecondary)
                                         }
                                     }
+                                    .buttonStyle(.plain)
                                 }
-                                .buttonStyle(.plain)
                             }
                         }
                     }
 
-                    SectionLabel(text: "Données")
-                    NavigationLink {
-                        ImportHistoryView()
-                    } label: {
-                        AppCard {
-                            HStack {
-                                Text("Import et sauvegarde")
-                                    .font(.app(size: 15))
-                                    .foregroundStyle(AppTheme.textPrimary)
-                                Spacer()
-                                Image(systemName: "chevron.right")
-                                    .font(.app(size: 12))
-                                    .foregroundStyle(AppTheme.textSecondary)
+                    SectionGroup {
+                        SectionLabel(text: "Données")
+                        NavigationLink {
+                            ImportHistoryView()
+                        } label: {
+                            AppCard {
+                                HStack {
+                                    Text("Import et sauvegarde")
+                                        .font(.app(size: 15))
+                                        .foregroundStyle(AppTheme.textPrimary)
+                                    Spacer()
+                                    Image(systemName: "chevron.right")
+                                        .font(.app(size: 12))
+                                        .foregroundStyle(AppTheme.textSecondary)
+                                }
                             }
                         }
+                        .buttonStyle(.plain)
                     }
-                    .buttonStyle(.plain)
                 }
                 .padding(16)
             }
