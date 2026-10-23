@@ -81,36 +81,32 @@ struct LogCycleSessionView: View {
     }
 
     var body: some View {
-        ScrollView {
-            VStack(alignment: .leading, spacing: AppTheme.sectionSpacing) {
-                if session.isAdHoc {
-                    adHocBadge
-                }
-                typeObjectiveCard
-                if !session.isAdHoc {
-                    SectionGroup {
-                        collapsibleHeader(text: "Plan de la séance")
-                        if isPlanExpanded {
-                            planCard
-                        }
-                    }
-                }
-
-                SectionGroup {
-                    SectionLabel(text: "Ma séance")
-                    VStack(alignment: .leading, spacing: 16) {
-                        switchSessionHeader
-                        if effectiveKind == .musculation {
-                            musculationSection
-                        } else {
-                            simpleSessionSection
-                        }
-                    }
-                }
-
+        List {
+            if session.isAdHoc {
+                adHocBadge.plainListRow(top: 0)
             }
-            .padding(16)
+            typeObjectiveCard.plainListRow(top: session.isAdHoc ? 12 : 0)
+            if !session.isAdHoc {
+                collapsibleHeader(text: "Plan de la séance").plainListRow(top: AppTheme.sectionSpacing)
+                if isPlanExpanded {
+                    planCard.plainListRow(top: 8)
+                }
+            }
+
+            SectionLabel(text: "Ma séance").plainListRow(top: AppTheme.sectionSpacing)
+            if hasSwitchSessionHeader {
+                switchSessionHeader.plainListRow(top: 8)
+            }
+            if effectiveKind == .musculation {
+                musculationSection
+            } else {
+                simpleSessionSection
+            }
         }
+        .listStyle(.plain)
+        .scrollContentBackground(.hidden)
+        .contentMargins(.horizontal, 16, for: .scrollContent)
+        .contentMargins(.vertical, 16, for: .scrollContent)
         .background(AppTheme.background)
         .navigationTitle(session.title)
         .navigationBarTitleDisplayMode(.inline)
@@ -207,6 +203,10 @@ struct LogCycleSessionView: View {
                 Spacer(minLength: 0)
             }
         }
+    }
+
+    private var hasSwitchSessionHeader: Bool {
+        session.completion?.isAdapted == true || (!session.isAdHoc && (isToday || isPast))
     }
 
     @ViewBuilder
@@ -331,36 +331,41 @@ struct LogCycleSessionView: View {
     private var musculationSection: some View {
         if let completion = session.completion {
             let entries = entries(for: completion)
-            if !entries.isEmpty {
-                AppCard {
-                    VStack(alignment: .leading, spacing: 0) {
-                        ForEach(Array(entries.enumerated()), id: \.element.id) { index, entry in
-                            if index > 0 { Divider().overlay(AppTheme.border) }
-                            Button {
-                                editingSet = entry
-                            } label: {
-                                HStack(alignment: .top, spacing: 10) {
-                                    VStack(alignment: .leading, spacing: 4) {
-                                        MuscleGroupTag(group: entry.muscleGroup)
-                                        Text(entry.exerciseName)
-                                            .foregroundStyle(AppTheme.textPrimary)
-                                            .fontWeight(.medium)
-                                        Text(setSummary(entry))
-                                            .font(.app(size: 12))
-                                            .foregroundStyle(AppTheme.textSecondary)
-                                    }
-                                    Spacer(minLength: 0)
-                                    Text(entry.date.formatted(date: .omitted, time: .shortened))
-                                        .font(.app(size: 12))
-                                        .foregroundStyle(AppTheme.textSecondary)
-                                }
-                                .frame(maxWidth: .infinity, alignment: .leading)
-                                .padding(.vertical, 10)
-                                .contentShape(Rectangle())
-                            }
-                            .buttonStyle(.plain)
+            ForEach(Array(entries.enumerated()), id: \.element.id) { index, entry in
+                Button {
+                    editingSet = entry
+                } label: {
+                    HStack(alignment: .top, spacing: 10) {
+                        VStack(alignment: .leading, spacing: 4) {
+                            MuscleGroupTag(group: entry.muscleGroup)
+                            Text(entry.exerciseName)
+                                .foregroundStyle(AppTheme.textPrimary)
+                                .fontWeight(.medium)
+                            Text(setSummary(entry))
+                                .font(.app(size: 12))
+                                .foregroundStyle(AppTheme.textSecondary)
                         }
+                        Spacer(minLength: 0)
+                        Text(entry.date.formatted(date: .omitted, time: .shortened))
+                            .font(.app(size: 12))
+                            .foregroundStyle(AppTheme.textSecondary)
                     }
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .padding(.horizontal, AppTheme.cardPadding)
+                    .padding(.vertical, 10)
+                    .contentShape(Rectangle())
+                }
+                .buttonStyle(.plain)
+                .listRowInsets(EdgeInsets())
+                .listRowSeparator(.hidden)
+                .listRowBackground(setRowBackground(isFirst: index == 0, isLast: index == entries.count - 1))
+                .swipeActions(edge: .trailing, allowsFullSwipe: true) {
+                    Button(role: .destructive) {
+                        context.delete(entry)
+                    } label: {
+                        Label("Supprimer", systemImage: "trash")
+                    }
+                    .tint(Color(hex: "E24B4A"))
                 }
             }
 
@@ -373,6 +378,7 @@ struct LogCycleSessionView: View {
                         .contentShape(Rectangle())
                 }
                 .buttonStyle(.plain)
+                .plainListRow()
 
                 Button {
                     completion.endTime = .now
@@ -382,6 +388,7 @@ struct LogCycleSessionView: View {
                         .contentShape(Rectangle())
                 }
                 .buttonStyle(.plain)
+                .plainListRow()
             } else {
                 if let label = durationLabel(completion) {
                     Text(label)
@@ -391,6 +398,7 @@ struct LogCycleSessionView: View {
                         .background(AppTheme.secondary.opacity(0.15))
                         .foregroundStyle(Color(hex: "0F6E56"))
                         .clipShape(Capsule())
+                        .plainListRow()
                 }
 
                 // Pas destructeur, contrairement à "Annuler" : remet juste la séance en cours (ce
@@ -404,6 +412,7 @@ struct LogCycleSessionView: View {
                         .contentShape(Rectangle())
                 }
                 .buttonStyle(.plain)
+                .plainListRow()
             }
         } else if isToday || isPast {
             Button {
@@ -414,12 +423,29 @@ struct LogCycleSessionView: View {
                     .contentShape(Rectangle())
             }
             .buttonStyle(.plain)
+            .plainListRow()
         } else {
             Text("Séance à venir.")
                 .font(.app(size: 13))
                 .foregroundStyle(AppTheme.textSecondary)
                 .frame(maxWidth: .infinity)
+                .plainListRow()
         }
+    }
+
+    /// Les séries sont des lignes natives de `List` (pour le balayage de suppression) mais gardent
+    /// l'allure d'une seule carte : coins arrondis en haut de la première et en bas de la dernière.
+    private func setRowBackground(isFirst: Bool, isLast: Bool) -> some View {
+        let r = AppTheme.cardRadius
+        let shape = UnevenRoundedRectangle(
+            topLeadingRadius: isFirst ? r : 0,
+            bottomLeadingRadius: isLast ? r : 0,
+            bottomTrailingRadius: isLast ? r : 0,
+            topTrailingRadius: isFirst ? r : 0
+        )
+        return shape
+            .fill(AppTheme.surface)
+            .overlay(shape.stroke(AppTheme.border, lineWidth: 0.5))
     }
 
     private func setSummary(_ entry: PlannedSetEntry) -> String {
@@ -466,6 +492,7 @@ struct LogCycleSessionView: View {
                 Text(completionEntry.simpleComment?.isEmpty == false ? completionEntry.simpleComment! : "Aucun commentaire")
                     .foregroundStyle(AppTheme.textPrimary)
             }
+            .plainListRow()
             Button {
                 completionEntry.endTime = nil
             } label: {
@@ -474,6 +501,7 @@ struct LogCycleSessionView: View {
                     .contentShape(Rectangle())
             }
             .buttonStyle(.plain)
+            .plainListRow()
         } else if isToday || isPast {
             AppCard {
                 VStack(alignment: .leading, spacing: 4) {
@@ -481,6 +509,7 @@ struct LogCycleSessionView: View {
                     TextField("Qu'as-tu fait ?", text: $simpleComment, axis: .vertical)
                 }
             }
+            .plainListRow()
             Button {
                 saveSimpleSession()
             } label: {
@@ -489,11 +518,13 @@ struct LogCycleSessionView: View {
                     .contentShape(Rectangle())
             }
             .buttonStyle(.plain)
+            .plainListRow()
         } else {
             Text("Séance à venir.")
                 .font(.app(size: 13))
                 .foregroundStyle(AppTheme.textSecondary)
                 .frame(maxWidth: .infinity)
+                .plainListRow()
         }
     }
 

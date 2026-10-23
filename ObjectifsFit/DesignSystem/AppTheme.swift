@@ -244,6 +244,18 @@ struct SectionGroup<Content: View>: View {
     }
 }
 
+extension View {
+    /// Ligne de `List` sans fond ni séparateur, pour y poser nos propres cartes/boutons tels quels
+    /// (la marge horizontale vient de `.contentMargins` sur la liste). `top` remplace l'espacement
+    /// qu'avait la VStack.
+    func plainListRow(top: CGFloat = 12) -> some View {
+        self
+            .listRowInsets(EdgeInsets(top: top, leading: 0, bottom: 0, trailing: 0))
+            .listRowBackground(Color.clear)
+            .listRowSeparator(.hidden)
+    }
+}
+
 /// Style de carte réutilisable : fond blanc, bordure fine, coin arrondi — remplace le style
 /// "réglages iOS" par défaut des List/Form.
 struct AppCard<Content: View>: View {
