@@ -19,7 +19,6 @@ struct EditSessionView: View {
     @State private var sessionDescription: String
     @State private var exerciseDrafts: [PlannedExerciseDraft]
     @State private var showingAddExercise = false
-    @State private var showingDeleteConfirmation = false
 
     /// Création d'une nouvelle séance.
     init(cycle: Cycle, weekNumber: Int, weekday: Int, order: Int) {
@@ -167,7 +166,11 @@ struct EditSessionView: View {
                 if existingSession != nil {
                     Section {
                         Button(role: .destructive) {
-                            showingDeleteConfirmation = true
+                            if let existingSession {
+                                context.delete(existingSession)
+                            }
+                            toast.showDeleted("Séance supprimée", context: context)
+                            dismiss()
                         } label: {
                             Text("Supprimer cette séance")
                         }
@@ -184,20 +187,6 @@ struct EditSessionView: View {
                     Button(existingSession == nil ? "Créer" : "Enregistrer") { save() }
                         .disabled(!canSave)
                 }
-            }
-            .confirmationDialog(
-                "Supprimer cette séance ?",
-                isPresented: $showingDeleteConfirmation,
-                titleVisibility: .visible
-            ) {
-                Button("Supprimer", role: .destructive) {
-                    if let existingSession {
-                        context.delete(existingSession)
-                    }
-                    toast.show("Séance supprimée")
-                    dismiss()
-                }
-                Button("Annuler", role: .cancel) {}
             }
             .sheet(isPresented: $showingAddExercise) {
                 AddPlannedExerciseView { draft in

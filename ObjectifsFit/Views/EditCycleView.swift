@@ -15,7 +15,6 @@ struct EditCycleView: View {
     @State private var principales: Set<PhysicalQuality>
     @State private var secondaires: Set<PhysicalQuality>
     @State private var showingAddObjective = false
-    @State private var showingDeleteConfirmation = false
 
     init(cycle: Cycle, onDelete: @escaping () -> Void) {
         self.cycle = cycle
@@ -108,7 +107,9 @@ struct EditCycleView: View {
 
                 Section {
                     Button(role: .destructive) {
-                        showingDeleteConfirmation = true
+                        context.delete(cycle)
+                        toast.showDeleted("Cycle supprimé", context: context)
+                        onDelete()
                     } label: {
                         Text("Supprimer le cycle")
                     }
@@ -149,20 +150,6 @@ struct EditCycleView: View {
                     objective.cycle = cycle
                     context.insert(objective)
                 }
-            }
-            .confirmationDialog(
-                "Supprimer ce cycle ?",
-                isPresented: $showingDeleteConfirmation,
-                titleVisibility: .visible
-            ) {
-                Button("Supprimer", role: .destructive) {
-                    context.delete(cycle)
-                    toast.show("Cycle supprimé")
-                    onDelete()
-                }
-                Button("Annuler", role: .cancel) {}
-            } message: {
-                Text("Cette action est irréversible.")
             }
         }
     }

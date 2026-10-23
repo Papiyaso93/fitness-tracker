@@ -19,10 +19,7 @@ struct LogCycleSessionView: View {
     @State private var showingAddSet = false
     @State private var editingSet: PlannedSetEntry?
     @State private var simpleComment: String = ""
-    @State private var showingSwitchConfirm = false
     @State private var showingSwitchChoice = false
-    @State private var showingCancelAdaptationConfirm = false
-    @State private var showingCancelOrDeleteConfirm = false
 
     private var scheduledDate: Date { session.scheduledDate ?? .now }
     private var isToday: Bool { Calendar.current.isDateInToday(scheduledDate) }
@@ -33,12 +30,6 @@ struct LogCycleSessionView: View {
     private var effectiveKind: SessionKind {
         guard let completion = session.completion, completion.isAdapted else { return session.kind }
         return completion.adaptedKind ?? session.kind
-    }
-
-    private var hasEnteredData: Bool {
-        guard let completion = session.completion else { return false }
-        return completion.startTime != nil || completion.endTime != nil || !entries(for: completion).isEmpty
-            || !(completion.simpleComment?.isEmpty ?? true)
     }
 
     private func entries(for completion: SessionCompletion) -> [PlannedSetEntry] {
@@ -53,32 +44,8 @@ struct LogCycleSessionView: View {
         session.isAdHoc || session.completion != nil
     }
 
-    private var cancelOrDeleteTitle: String {
-        session.isAdHoc ? "Supprimer la séance ?" : "Annuler la séance ?"
-    }
-
     private var cancelOrDeleteActionLabel: String {
         session.isAdHoc ? "Supprimer la séance" : "Annuler la séance"
-    }
-
-    /// "Annuler" entrerait en collision avec l'action elle-même ("Annuler la séance") dans le cas
-    /// planifié — "Fermer" évite l'ambiguïté. Pas de collision côté hors programme, donc le libellé
-    /// standard iOS reste.
-    private var cancelOrDeleteDismissLabel: String {
-        session.isAdHoc ? "Annuler" : "Fermer"
-    }
-
-    private var cancelOrDeleteMessage: String {
-        if session.isAdHoc {
-            return "Cette séance et tout ce qui a été enregistré seront définitivement supprimés."
-        }
-        if effectiveKind == .musculation, let completion = session.completion {
-            let count = entries(for: completion).count
-            if count > 0 {
-                return "\(count) série\(count > 1 ? "s" : "") déjà enregistrée\(count > 1 ? "s" : "") sera\(count > 1 ? "nt" : "") effacée\(count > 1 ? "s" : ""). La séance reste planifiée, tu pourras la refaire."
-            }
-        }
-        return "Ta saisie sera effacée. La séance reste planifiée, tu pourras la refaire."
     }
 
     var body: some View {
@@ -116,23 +83,13 @@ struct LogCycleSessionView: View {
                 ToolbarItem(placement: .topBarTrailing) {
                     Menu {
                         Button(cancelOrDeleteActionLabel, role: .destructive) {
-                            showingCancelOrDeleteConfirm = true
+                            cancelOrDeleteSession()
                         }
                     } label: {
                         Image(systemName: "ellipsis.circle")
                     }
                 }
             }
-        }
-        .confirmationDialog(
-            cancelOrDeleteTitle,
-            isPresented: $showingCancelOrDeleteConfirm,
-            titleVisibility: .visible
-        ) {
-            Button(cancelOrDeleteActionLabel, role: .destructive) { cancelOrDeleteSession() }
-            Button(cancelOrDeleteDismissLabel, role: .cancel) {}
-        } message: {
-            Text(cancelOrDeleteMessage)
         }
         .sheet(isPresented: $showingAddSet) {
             if let completion = session.completion {
@@ -143,28 +100,9 @@ struct LogCycleSessionView: View {
         .sheet(item: $editingSet) { entry in
             EditPlannedSetEntryView(entry: entry)
         }
-        .confirmationDialog(
-            "Les informations déjà saisies pour cette séance seront perdues.",
-            isPresented: $showingSwitchConfirm,
-            titleVisibility: .visible
-        ) {
-            Button("Continuer", role: .destructive) {
-                discardCurrentSession()
-                showingSwitchChoice = true
-            }
-            Button("Annuler", role: .cancel) {}
-        }
         .confirmationDialog("Quel type de séance ?", isPresented: $showingSwitchChoice) {
             Button("Musculation") { startAdaptation(kind: .musculation) }
             Button("Autre") { startAdaptation(kind: .autre) }
-            Button("Annuler", role: .cancel) {}
-        }
-        .confirmationDialog(
-            "Les informations déjà saisies pour cette séance seront perdues.",
-            isPresented: $showingCancelAdaptationConfirm,
-            titleVisibility: .visible
-        ) {
-            Button("Continuer", role: .destructive) { cancelAdaptation() }
             Button("Annuler", role: .cancel) {}
         }
         .onAppear {
@@ -222,22 +160,12 @@ struct LogCycleSessionView: View {
                     .foregroundStyle(Color(hex: "8A6D00"))
                     .clipShape(Capsule())
                 Spacer()
-                Button("Annuler") {
-                    if hasEnteredData {
-                        showingCancelAdaptationConfirm = true
-                    } else {
-                        cancelAdaptation()
-                    }
-                }
+                Button("Annuler") { cancelAdaptation() }
                 .font(.app(size: 13))
             }
         } else if !session.isAdHoc && (isToday || isPast) {
             Button {
-                if hasEnteredData {
-                    showingSwitchConfirm = true
-                } else {
-                    showingSwitchChoice = true
-                }
+                showingSwitchChoice = true
             } label: {
                 Text("Autre séance réalisée ?")
                     .underline()
@@ -254,12 +182,12 @@ struct LogCycleSessionView: View {
     private func cancelOrDeleteSession() {
         if session.isAdHoc {
             context.delete(session)
-            toast.show("Séance supprimée")
+            toast.showDeleted("Séance supprimée", context: context)
             dismiss()
         } else if let completion = session.completion {
             context.delete(completion)
             session.completion = nil
-            toast.show("Saisie effacée")
+            toast.showDeleted("Saisie effacée", context: context)
         }
     }
 
@@ -272,16 +200,17 @@ struct LogCycleSessionView: View {
     }
 
     private func startAdaptation(kind: SessionKind) {
+        discardCurrentSession()
         let completion = SessionCompletion(startTime: .now, isAdapted: true, adaptedTitle: session.title, adaptedKind: kind)
         completion.cycleSession = session
         context.insert(completion)
         session.completion = completion
-        toast.show("Séance adaptée")
+        toast.showDeleted("Séance adaptée", context: context)
     }
 
     private func cancelAdaptation() {
         discardCurrentSession()
-        toast.show("Adaptation annulée")
+        toast.showDeleted("Adaptation annulée", context: context)
     }
 
     private func collapsibleHeader(text: String) -> some View {
