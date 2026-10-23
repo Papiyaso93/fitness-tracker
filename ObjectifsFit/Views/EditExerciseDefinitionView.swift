@@ -8,6 +8,7 @@ struct EditExerciseDefinitionView: View {
     @Query private var allExercises: [ExerciseDefinition]
 
     @Environment(\.modelContext) private var context
+    @Environment(ToastCenter.self) private var toast
     @Environment(\.dismiss) private var dismiss
 
     @State private var coefficientText: String
@@ -95,6 +96,7 @@ struct EditExerciseDefinitionView: View {
             Section {
                 Button("Supprimer cet exercice", role: .destructive) {
                     context.delete(exercise)
+                    toast.show("Exercice supprimé")
                     dismiss()
                 }
             }

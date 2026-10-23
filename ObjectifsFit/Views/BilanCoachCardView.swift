@@ -8,6 +8,7 @@ struct BilanCoachCardView: View {
     @Query(sort: \ArchivedBilan.importedAt, order: .reverse) private var bilans: [ArchivedBilan]
 
     @Environment(\.modelContext) private var context
+    @Environment(ToastCenter.self) private var toast
 
     @State private var shareItems: [Any]?
     @State private var showsImporter = false
@@ -145,6 +146,7 @@ struct BilanCoachCardView: View {
                 let title = "Bilan du \(Date.now.formatted(date: .abbreviated, time: .omitted))"
                 let bilan = ArchivedBilan(title: title, pdfData: data)
                 context.insert(bilan)
+                toast.show("Bilan importé")
             } catch {
                 exportError = error.localizedDescription
             }

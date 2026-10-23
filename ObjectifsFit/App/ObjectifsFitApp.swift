@@ -4,6 +4,7 @@ import SwiftData
 @main
 struct ObjectifsFitApp: App {
     let container: ModelContainer
+    @State private var toastCenter = ToastCenter()
 
     init() {
         let schema = Schema([
@@ -39,11 +40,16 @@ struct ObjectifsFitApp: App {
         let reminders = (try? container.mainContext.fetch(FetchDescriptor<Reminder>())) ?? []
         NotificationManager.syncPending(with: reminders)
         AppAppearance.apply()
+
+        // Permet d'annuler une suppression depuis la pastille « Annuler » (voir `ToastCenter`).
+        container.mainContext.undoManager = UndoManager()
     }
 
     var body: some Scene {
         WindowGroup {
             RootTabView()
+                .toastOverlay()
+                .environment(toastCenter)
                 .tint(AppTheme.accent)
                 .preferredColorScheme(.light)
         }

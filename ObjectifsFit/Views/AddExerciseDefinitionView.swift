@@ -8,6 +8,7 @@ struct AddExerciseDefinitionView: View {
 
     @Environment(\.dismiss) private var dismiss
     @Environment(\.modelContext) private var context
+    @Environment(ToastCenter.self) private var toast
 
     @State private var name: String = ""
     @State private var muscleGroup: String?
@@ -117,6 +118,7 @@ struct AddExerciseDefinitionView: View {
             tonnageCoefficient: coefficient
         )
         context.insert(exercise)
+        toast.show("Exercice ajouté")
         dismiss()
     }
 }

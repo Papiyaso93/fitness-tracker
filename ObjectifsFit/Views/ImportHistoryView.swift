@@ -10,6 +10,7 @@ import UniformTypeIdentifiers
 /// Les deux sont idempotents : réimporter le même fichier ne duplique rien.
 struct ImportHistoryView: View {
     @Environment(\.modelContext) private var context
+    @Environment(ToastCenter.self) private var toast
 
     @State private var isShowingCSVPicker = false
     @State private var csvResult: HistoryCSVImporter.ImportResult?
@@ -86,8 +87,10 @@ struct ImportHistoryView: View {
             switch pickerResult {
             case .success(let url):
                 do {
-                    csvResult = try HistoryCSVImporter.importCSV(url: url, context: context)
+                    let imported = try HistoryCSVImporter.importCSV(url: url, context: context)
+                    csvResult = imported
                     csvError = nil
+                    toast.show("Historique importé · \(imported.importedCount) série\(imported.importedCount > 1 ? "s" : "")")
                 } catch {
                     csvError = "Impossible de lire ce fichier CSV."
                     csvResult = nil
@@ -149,6 +152,7 @@ struct ImportHistoryView: View {
                 do {
                     restoreResult = try BilanRestoreImporter.restore(url: url, context: context)
                     restoreError = nil
+                    toast.show("Sauvegarde restaurée")
                 } catch {
                     restoreError = "Impossible de lire ce fichier de sauvegarde."
                     restoreResult = nil

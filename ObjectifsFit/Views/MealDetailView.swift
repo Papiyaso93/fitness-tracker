@@ -5,6 +5,7 @@ struct MealDetailView: View {
     @Bindable var meal: MealLog
 
     @Environment(\.modelContext) private var context
+    @Environment(ToastCenter.self) private var toast
     @Environment(\.dismiss) private var dismiss
 
     var body: some View {
@@ -25,6 +26,7 @@ struct MealDetailView: View {
             Section {
                 Button("Supprimer ce repas", role: .destructive) {
                     context.delete(meal)
+                    toast.showDeleted("Repas supprimé", context: context)
                     dismiss()
                 }
             }

@@ -4,6 +4,7 @@ import SwiftData
 /// Formulaire de création d'un programme (le conteneur long terme au-dessus des cycles).
 struct CreateProgramView: View {
     @Environment(\.modelContext) private var context
+    @Environment(ToastCenter.self) private var toast
     @Environment(\.dismiss) private var dismiss
 
     @State private var title: String = ""
@@ -168,6 +169,7 @@ struct CreateProgramView: View {
             context.insert(makeObjective(draft, category: .indicateur, order: index, program: program))
         }
 
+        toast.show("Programme créé")
         dismiss()
     }
 

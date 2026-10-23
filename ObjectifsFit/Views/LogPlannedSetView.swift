@@ -8,6 +8,7 @@ struct LogPlannedSetView: View {
     let suggestedExercises: [PlannedExercise]
 
     @Environment(\.modelContext) private var context
+    @Environment(ToastCenter.self) private var toast
     @Environment(\.dismiss) private var dismiss
     @Query(sort: \MetricEntry.date) private var metricEntries: [MetricEntry]
     @Query(sort: \ExerciseDefinition.name) private var exerciseLibrary: [ExerciseDefinition]
@@ -356,6 +357,7 @@ struct LogPlannedSetView: View {
         )
         entry.completion = completion
         context.insert(entry)
+        toast.show("Série ajoutée")
         dismiss()
     }
 }

@@ -9,6 +9,7 @@ struct EditSessionView: View {
     private let order: Int
 
     @Environment(\.modelContext) private var context
+    @Environment(ToastCenter.self) private var toast
     @Environment(\.dismiss) private var dismiss
 
     @State private var weekday: Int
@@ -193,6 +194,7 @@ struct EditSessionView: View {
                     if let existingSession {
                         context.delete(existingSession)
                     }
+                    toast.show("Séance supprimée")
                     dismiss()
                 }
                 Button("Annuler", role: .cancel) {}
@@ -249,6 +251,7 @@ struct EditSessionView: View {
             }
         }
 
+        toast.show(existingSession == nil ? "Séance planifiée" : "Séance modifiée")
         dismiss()
     }
 }

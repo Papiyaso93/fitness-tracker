@@ -10,6 +10,7 @@ struct WeekDetailView: View {
     private struct WeekdaySelection: Identifiable { let weekday: Int; var id: Int { weekday } }
 
     @Environment(\.modelContext) private var context
+    @Environment(ToastCenter.self) private var toast
     @Query private var allSessions: [CycleSession]
     @State private var selectedWeekday: WeekdaySelection?
     @State private var showingSwapDays = false
@@ -145,5 +146,6 @@ struct WeekDetailView: View {
                 context.insert(exerciseCopy)
             }
         }
+        toast.show("Semaine dupliquée")
     }
 }

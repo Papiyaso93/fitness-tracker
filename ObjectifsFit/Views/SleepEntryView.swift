@@ -39,6 +39,7 @@ struct SleepEntryView: View {
     let moment: SleepMoment
 
     @Environment(\.modelContext) private var context
+    @Environment(ToastCenter.self) private var toast
     @Environment(\.dismiss) private var dismiss
     @Query private var allSleepLogs: [SleepLog]
 
@@ -138,6 +139,7 @@ struct SleepEntryView: View {
             log.bedEnergy = energy
             log.bedStomach = stomach
         }
+        toast.show(moment == .reveil ? "Réveil enregistré" : "Coucher enregistré")
         dismiss()
     }
 }

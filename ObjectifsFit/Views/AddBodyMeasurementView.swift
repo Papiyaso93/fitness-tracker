@@ -5,6 +5,7 @@ import SwiftData
 /// puis valeur, même ordre que les autres formulaires de saisie de l'app.
 struct AddBodyMeasurementView: View {
     @Environment(\.modelContext) private var context
+    @Environment(ToastCenter.self) private var toast
     @Environment(\.dismiss) private var dismiss
 
     @State private var date = Calendar.current.startOfDay(for: .now)
@@ -65,6 +66,7 @@ struct AddBodyMeasurementView: View {
     private func save() {
         guard let value = Double(valueText.replacingOccurrences(of: ",", with: ".")) else { return }
         context.insert(BodyMeasurementEntry(type: type, value: value, date: date))
+        toast.show("Mesure ajoutée")
         dismiss()
     }
 }

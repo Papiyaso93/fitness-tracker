@@ -11,6 +11,7 @@ struct MeasurementDetailView: View {
     @Query private var allEntries: [BodyMeasurementEntry]
     @Query private var allObjectives: [ProgramObjective]
     @Environment(\.modelContext) private var context
+    @Environment(ToastCenter.self) private var toast
 
     private var entries: [BodyMeasurementEntry] {
         allEntries.filter { $0.type == type }.sorted { $0.date > $1.date }
@@ -160,6 +161,7 @@ struct MeasurementDetailView: View {
                 .foregroundStyle(AppTheme.textSecondary)
             Button {
                 context.delete(entry)
+                toast.showDeleted("Mesure supprimée", context: context)
             } label: {
                 Image(systemName: "trash")
                     .font(.app(size: 12))

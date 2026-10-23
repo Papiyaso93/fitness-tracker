@@ -8,6 +8,7 @@ struct EditProgramView: View {
     var onDelete: () -> Void
 
     @Environment(\.modelContext) private var context
+    @Environment(ToastCenter.self) private var toast
     @Environment(\.dismiss) private var dismiss
 
     @State private var hasStartDate: Bool
@@ -126,6 +127,7 @@ struct EditProgramView: View {
             ) {
                 Button("Supprimer", role: .destructive) {
                     context.delete(program)
+                    toast.show("Programme supprimé")
                     onDelete()
                 }
                 Button("Annuler", role: .cancel) {}
