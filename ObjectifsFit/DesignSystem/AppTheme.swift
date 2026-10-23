@@ -259,13 +259,16 @@ extension View {
 /// Style de carte réutilisable : fond blanc, bordure fine, coin arrondi — remplace le style
 /// "réglages iOS" par défaut des List/Form.
 struct AppCard<Content: View>: View {
+    /// Surcharge du padding vertical, pour une carte dont les lignes gèrent déjà leur propre marge.
+    var verticalPadding: CGFloat?
     @ViewBuilder var content: Content
 
     var body: some View {
         VStack(alignment: .leading, spacing: 10) {
             content
         }
-        .padding(AppTheme.cardPadding)
+        .padding(.horizontal, AppTheme.cardPadding)
+        .padding(.vertical, verticalPadding ?? AppTheme.cardPadding)
         .frame(maxWidth: .infinity, alignment: .leading)
         .background(AppTheme.surface)
         .overlay(
