@@ -10,7 +10,7 @@ struct RootTabView: View {
                 .tabItem { Label("Programme", systemImage: "calendar") }
 
             DashboardView()
-                .tabItem { Label("Tableau de bord", systemImage: "chart.bar") }
+                .tabItem { Label("Statistiques", systemImage: "chart.bar") }
 
             SettingsView()
                 .tabItem { Label("Réglages", systemImage: "gearshape") }

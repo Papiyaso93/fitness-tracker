@@ -396,6 +396,10 @@ enum AppAppearance {
         UITableView.appearance().separatorColor = UIColor(AppTheme.border)
         UITableViewCell.appearance().backgroundColor = surface
 
+        // Depuis iOS 26 les barres de navigation/onglets sont gérées par le système (verre liquide) :
+        // y forcer une apparence opaque supprime les grands titres et casse les marges.
+        if #available(iOS 26, *) { return }
+
         let navAppearance = UINavigationBarAppearance()
         navAppearance.configureWithOpaqueBackground()
         navAppearance.backgroundColor = bg

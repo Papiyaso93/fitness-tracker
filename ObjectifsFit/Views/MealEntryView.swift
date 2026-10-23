@@ -51,8 +51,8 @@ struct MealSensationField: View {
             .clipShape(RoundedRectangle(cornerRadius: 10))
         }
         .listRowInsets(EdgeInsets())
-        .padding(.vertical, 4)
-        .padding(.horizontal, 4)
+        .padding(.vertical, 8)
+        .padding(.horizontal, 12)
     }
 }
 
