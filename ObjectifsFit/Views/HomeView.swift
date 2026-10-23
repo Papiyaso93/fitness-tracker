@@ -712,11 +712,11 @@ struct HomeView: View {
     }
 
     private var sleepCard: some View {
-        AppCard {
+        AppCard(verticalPadding: 0) {
             VStack(spacing: 0) {
-                sleepRow(moment: .reveil, icon: "sunrise", time: daySleepLog?.wakeTime, energy: daySleepLog?.wakeEnergy, stomach: daySleepLog?.wakeStomach, durationLabel: sleepDurationLabel)
+                sleepRow(moment: .reveil, icon: "sun.max.fill", time: daySleepLog?.wakeTime, energy: daySleepLog?.wakeEnergy, stomach: daySleepLog?.wakeStomach, durationLabel: sleepDurationLabel)
                 Divider().overlay(AppTheme.border)
-                sleepRow(moment: .coucher, icon: "moon", time: daySleepLog?.bedTime, energy: daySleepLog?.bedEnergy, stomach: daySleepLog?.bedStomach, durationLabel: nil)
+                sleepRow(moment: .coucher, icon: "moon.stars.fill", time: daySleepLog?.bedTime, energy: daySleepLog?.bedEnergy, stomach: daySleepLog?.bedStomach, durationLabel: nil)
             }
         }
     }
@@ -745,10 +745,14 @@ struct HomeView: View {
 
     private func sleepRowContent(moment: SleepMoment, icon: String, time: Date?, energy: EnergyLevel?, stomach: StomachState?, isFilled: Bool, durationLabel: String?) -> some View {
         HStack(spacing: 10) {
+            let isReveil = moment == .reveil
             Image(systemName: icon)
-                .font(.app(size: 15))
-                .foregroundStyle((isFilled || isToday) ? AppTheme.textSecondary : AppTheme.textSecondary.opacity(0.6))
-                .frame(width: 20)
+                .font(.app(size: 16))
+                .foregroundStyle(Color(hex: isReveil ? "C98A12" : "5B55B0"))
+                .frame(width: 34, height: 34)
+                .background(Color(hex: isReveil ? "FDEFD3" : "E8E6F7"))
+                .clipShape(Circle())
+                .opacity((isFilled || isToday) ? 1 : 0.6)
             if isFilled, let time {
                 VStack(alignment: .leading, spacing: 3) {
                     Text("\(moment.title) · \(time.formatted(date: .omitted, time: .shortened))")
@@ -790,7 +794,8 @@ struct HomeView: View {
                 AddPill()
             }
         }
-        .padding(.vertical, 10)
+        .padding(.vertical, 8)
+        .frame(minHeight: 60)
         .contentShape(Rectangle())
     }
 
