@@ -124,7 +124,7 @@ struct DashboardView: View {
                 .padding(16)
             }
             .background(AppTheme.background)
-            .navigationTitle("Tableau de bord")
+            .navigationTitle("Statistiques")
         }
     }
 
