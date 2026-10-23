@@ -47,7 +47,7 @@ struct ProgramBuilderView: View {
                             showingCreateSheet = true
                         } label: {
                             Label("Créer un nouveau programme", systemImage: "plus.circle")
-                                .font(.system(size: 15, weight: .medium))
+                                .font(.app(size: 15, weight: .medium))
                         }
                         .padding(.top, 4)
 
@@ -55,7 +55,7 @@ struct ProgramBuilderView: View {
                             showingImportSheet = true
                         } label: {
                             Label("Importer un programme", systemImage: "square.and.arrow.down")
-                                .font(.system(size: 15, weight: .medium))
+                                .font(.app(size: 15, weight: .medium))
                         }
                         .padding(.top, 16)
                     }
@@ -77,12 +77,12 @@ struct ProgramBuilderView: View {
     private var emptyState: some View {
         VStack(spacing: 14) {
             Text("📋")
-                .font(.system(size: 36))
+                .font(.app(size: 36))
             Text("Aucun programme")
                 .font(AppTheme.Font.cardTitle)
                 .foregroundStyle(AppTheme.textPrimary)
             Text("Organise tes séances et suis tes objectifs sur la durée.")
-                .font(.system(size: 14))
+                .font(.app(size: 14))
                 .foregroundStyle(AppTheme.textSecondary)
                 .multilineTextAlignment(.center)
             Button {
@@ -98,7 +98,7 @@ struct ProgramBuilderView: View {
                 showingImportSheet = true
             } label: {
                 Label("Importer un programme", systemImage: "square.and.arrow.down")
-                    .font(.system(size: 14, weight: .medium))
+                    .font(.app(size: 14, weight: .medium))
                     .foregroundStyle(AppTheme.accent)
             }
             .padding(.top, 10)
@@ -113,21 +113,21 @@ struct ProgramBuilderView: View {
                 ZStack {
                     Circle().fill(AppTheme.accent.opacity(0.12)).frame(width: 40, height: 40)
                     Image(systemName: "target")
-                        .font(.system(size: 18))
+                        .font(.app(size: 18))
                         .foregroundStyle(AppTheme.accent)
                 }
                 VStack(alignment: .leading, spacing: 6) {
                     if let dateRangeLabel = dateRangeLabel(program) {
                         HStack(spacing: 4) {
                             Image(systemName: "calendar")
-                                .font(.system(size: 11))
+                                .font(.app(size: 11))
                             Text(dateRangeLabel)
-                                .font(.system(size: 12))
+                                .font(.app(size: 12))
                         }
                         .foregroundStyle(AppTheme.textSecondary)
                     }
                     Text(program.title)
-                        .font(.system(size: 16, weight: .semibold))
+                        .font(.app(size: 16, weight: .semibold))
                         .foregroundStyle(AppTheme.textPrimary)
                     if !program.principalObjectives.isEmpty {
                         objectiveBadges(program.principalObjectives)
@@ -137,7 +137,7 @@ struct ProgramBuilderView: View {
                 VStack(spacing: 8) {
                     statusTag(program.status)
                     Image(systemName: "chevron.right")
-                        .font(.system(size: 12))
+                        .font(.app(size: 12))
                         .foregroundStyle(AppTheme.textSecondary)
                 }
             }
@@ -153,7 +153,7 @@ struct ProgramBuilderView: View {
         return HStack(spacing: 6) {
             ForEach(Array(shown)) { objective in
                 Text(objective.name)
-                    .font(.system(size: 11, weight: .medium))
+                    .font(.app(size: 11, weight: .medium))
                     .padding(.horizontal, 9)
                     .padding(.vertical, 3)
                     .background(AppTheme.accent.opacity(0.1))
@@ -162,7 +162,7 @@ struct ProgramBuilderView: View {
             }
             if remaining > 0 {
                 Text("+\(remaining)")
-                    .font(.system(size: 11, weight: .medium))
+                    .font(.app(size: 11, weight: .medium))
                     .padding(.horizontal, 9)
                     .padding(.vertical, 3)
                     .background(AppTheme.accent.opacity(0.1))
@@ -194,7 +194,7 @@ struct ProgramBuilderView: View {
             }
         }()
         return Text(status.rawValue)
-            .font(.system(size: 11, weight: .medium))
+            .font(.app(size: 11, weight: .medium))
             .padding(.horizontal, 8)
             .padding(.vertical, 3)
             .background(color.opacity(0.15))

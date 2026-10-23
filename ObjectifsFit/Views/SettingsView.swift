@@ -18,14 +18,14 @@ struct SettingsView: View {
                         AppCard {
                             HStack {
                                 Text("Gérer les exercices")
-                                    .font(.system(size: 15))
+                                    .font(.app(size: 15))
                                     .foregroundStyle(AppTheme.textPrimary)
                                 Spacer()
                                 Text("\(exercises.count)")
-                                    .font(.system(size: 13))
+                                    .font(.app(size: 13))
                                     .foregroundStyle(AppTheme.textSecondary)
                                 Image(systemName: "chevron.right")
-                                    .font(.system(size: 12))
+                                    .font(.app(size: 12))
                                     .foregroundStyle(AppTheme.textSecondary)
                             }
                         }
@@ -40,7 +40,7 @@ struct SettingsView: View {
                                 showingAddReminder = true
                             } label: {
                                 Image(systemName: "plus")
-                                    .font(.system(size: 13, weight: .semibold))
+                                    .font(.app(size: 13, weight: .semibold))
                                     .foregroundStyle(AppTheme.accent)
                             }
                             .padding(.trailing, 4)
@@ -53,7 +53,7 @@ struct SettingsView: View {
                             } label: {
                                 HStack {
                                     Text("Ajouter un rappel")
-                                        .font(.system(size: 14, weight: .medium))
+                                        .font(.app(size: 14, weight: .medium))
                                         .foregroundStyle(AppTheme.textPrimary)
                                     Spacer()
                                     Image(systemName: "plus.circle.fill")
@@ -72,16 +72,16 @@ struct SettingsView: View {
                                         HStack {
                                             VStack(alignment: .leading, spacing: 2) {
                                                 Text(reminder.title)
-                                                    .font(.system(size: 15, weight: .medium))
+                                                    .font(.app(size: 15, weight: .medium))
                                                     .foregroundStyle(AppTheme.textPrimary)
                                                 Text("\(reminder.scheduleLabel) · \(reminder.message)")
-                                                    .font(.system(size: 12))
+                                                    .font(.app(size: 12))
                                                     .foregroundStyle(AppTheme.textSecondary)
                                                     .lineLimit(1)
                                             }
                                             Spacer()
                                             Image(systemName: "chevron.right")
-                                                .font(.system(size: 12))
+                                                .font(.app(size: 12))
                                                 .foregroundStyle(AppTheme.textSecondary)
                                         }
                                     }
@@ -98,11 +98,11 @@ struct SettingsView: View {
                         AppCard {
                             HStack {
                                 Text("Import et sauvegarde")
-                                    .font(.system(size: 15))
+                                    .font(.app(size: 15))
                                     .foregroundStyle(AppTheme.textPrimary)
                                 Spacer()
                                 Image(systemName: "chevron.right")
-                                    .font(.system(size: 12))
+                                    .font(.app(size: 12))
                                     .foregroundStyle(AppTheme.textSecondary)
                             }
                         }

@@ -36,7 +36,7 @@ struct ImportHistoryView: View {
         VStack(alignment: .leading, spacing: 16) {
             SectionLabel(text: "Importer un historique CSV")
             Text("Ajoute tes séries passées depuis un fichier CSV externe. À utiliser une seule fois.")
-                .font(.system(size: 13))
+                .font(.app(size: 13))
                 .foregroundStyle(AppTheme.textSecondary)
 
             Button {
@@ -45,7 +45,7 @@ struct ImportHistoryView: View {
                 AppCard {
                     HStack {
                         Text("Choisir un fichier CSV")
-                            .font(.system(size: 15, weight: .medium))
+                            .font(.app(size: 15, weight: .medium))
                             .foregroundStyle(AppTheme.accent)
                         Spacer()
                         Image(systemName: "doc.badge.plus")
@@ -56,7 +56,7 @@ struct ImportHistoryView: View {
             .buttonStyle(.plain)
 
             if let csvError {
-                Text(csvError).font(.system(size: 13)).foregroundStyle(.red)
+                Text(csvError).font(.app(size: 13)).foregroundStyle(.red)
             }
 
             if let csvResult {
@@ -72,10 +72,10 @@ struct ImportHistoryView: View {
                         if !csvResult.unmatchedExerciseNames.isEmpty {
                             Divider()
                             Text("Exercices non reconnus (non importés) :")
-                                .font(.system(size: 12, weight: .semibold))
+                                .font(.app(size: 12, weight: .semibold))
                                 .foregroundStyle(AppTheme.textPrimary)
                             Text(csvResult.unmatchedExerciseNames.sorted().joined(separator: ", "))
-                                .font(.system(size: 12))
+                                .font(.app(size: 12))
                                 .foregroundStyle(AppTheme.textSecondary)
                         }
                     }
@@ -102,7 +102,7 @@ struct ImportHistoryView: View {
         VStack(alignment: .leading, spacing: 16) {
             SectionLabel(text: "Restaurer une sauvegarde")
             Text("Réimporte une sauvegarde JSON pour récupérer tes données sur un nouvel appareil.")
-                .font(.system(size: 13))
+                .font(.app(size: 13))
                 .foregroundStyle(AppTheme.textSecondary)
 
             Button {
@@ -111,7 +111,7 @@ struct ImportHistoryView: View {
                 AppCard {
                     HStack {
                         Text("Choisir un fichier de sauvegarde")
-                            .font(.system(size: 15, weight: .medium))
+                            .font(.app(size: 15, weight: .medium))
                             .foregroundStyle(AppTheme.accent)
                         Spacer()
                         Image(systemName: "arrow.down.doc")
@@ -122,7 +122,7 @@ struct ImportHistoryView: View {
             .buttonStyle(.plain)
 
             if let restoreError {
-                Text(restoreError).font(.system(size: 13)).foregroundStyle(.red)
+                Text(restoreError).font(.app(size: 13)).foregroundStyle(.red)
             }
 
             if let restoreResult {
@@ -162,11 +162,11 @@ struct ImportHistoryView: View {
     private func importSummaryRow(label: String, value: String) -> some View {
         HStack {
             Text(label)
-                .font(.system(size: 13))
+                .font(.app(size: 13))
                 .foregroundStyle(AppTheme.textSecondary)
             Spacer()
             Text(value)
-                .font(.system(size: 13, weight: .semibold))
+                .font(.app(size: 13, weight: .semibold))
                 .foregroundStyle(AppTheme.textPrimary)
         }
     }

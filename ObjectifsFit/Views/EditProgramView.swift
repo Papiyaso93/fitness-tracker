@@ -141,7 +141,7 @@ struct EditProgramView: View {
         Button(action: action) {
             HStack {
                 Text(label)
-                    .font(.system(size: 17))
+                    .font(.app(size: 17))
                     .foregroundStyle(AppTheme.textPrimary)
                 Spacer()
                 Image(systemName: "plus.circle.fill")
@@ -158,7 +158,7 @@ struct EditProgramView: View {
             if !isEmpty {
                 Button(action: action) {
                     Image(systemName: "plus")
-                        .font(.system(size: 13, weight: .semibold))
+                        .font(.app(size: 13, weight: .semibold))
                         .foregroundStyle(AppTheme.accent)
                 }
             }
@@ -189,11 +189,11 @@ struct EditProgramView: View {
         let parts = objective.summary.split(separator: ":", maxSplits: 1).map { $0.trimmingCharacters(in: .whitespaces) }
         return VStack(alignment: .leading, spacing: 4) {
             if parts.count == 2 {
-                Text(parts[0]).font(.system(size: 15, weight: .semibold)).foregroundStyle(AppTheme.textPrimary)
-                Text(parts[1]).font(.system(size: 13)).foregroundStyle(AppTheme.textSecondary)
+                Text(parts[0]).font(.app(size: 15, weight: .semibold)).foregroundStyle(AppTheme.textPrimary)
+                Text(parts[1]).font(.app(size: 13)).foregroundStyle(AppTheme.textSecondary)
             } else {
                 Text(objective.summary)
-                    .font(.system(size: 15, weight: .semibold))
+                    .font(.app(size: 15, weight: .semibold))
                     .foregroundStyle(AppTheme.textPrimary)
             }
         }

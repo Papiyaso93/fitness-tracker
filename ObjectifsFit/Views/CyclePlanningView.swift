@@ -65,10 +65,10 @@ struct CyclePlanningView: View {
 
             VStack(spacing: 2) {
                 Text("Semaine \(weekNumber)")
-                    .font(.system(size: 15, weight: .medium))
+                    .font(.app(size: 15, weight: .medium))
                     .foregroundStyle(AppTheme.textPrimary)
                 Text("sur \(cycle.weekCount)")
-                    .font(.system(size: 12))
+                    .font(.app(size: 12))
                     .foregroundStyle(AppTheme.textSecondary)
             }
 
@@ -93,11 +93,11 @@ struct CyclePlanningView: View {
         HStack(alignment: .top, spacing: 10) {
             VStack(alignment: .leading, spacing: 1) {
                 Text(label)
-                    .font(.system(size: 13, weight: .medium))
+                    .font(.app(size: 13, weight: .medium))
                     .foregroundStyle(AppTheme.textPrimary)
                 if let date = date(for: weekday) {
                     Text(isToday ? "Aujourd'hui" : dayLabel(date))
-                        .font(.system(size: 11))
+                        .font(.app(size: 11))
                         .foregroundStyle(AppTheme.textSecondary)
                 }
             }
@@ -105,7 +105,7 @@ struct CyclePlanningView: View {
 
             if daySessions.isEmpty {
                 Text("Repos")
-                    .font(.system(size: 12))
+                    .font(.app(size: 12))
                     .foregroundStyle(AppTheme.textSecondary)
                     .padding(.top, 2)
             } else {
@@ -116,10 +116,10 @@ struct CyclePlanningView: View {
                         } label: {
                             VStack(alignment: .leading, spacing: 2) {
                                 Text(session.title)
-                                    .font(.system(size: 13, weight: .medium))
+                                    .font(.app(size: 13, weight: .medium))
                                     .foregroundStyle(AppTheme.textPrimary)
                                 Text([session.kind.rawValue, session.objective?.rawValue].compactMap { $0 }.joined(separator: " · "))
-                                    .font(.system(size: 11))
+                                    .font(.app(size: 11))
                                     .foregroundStyle(AppTheme.textSecondary)
                             }
                             .frame(maxWidth: .infinity, alignment: .leading)

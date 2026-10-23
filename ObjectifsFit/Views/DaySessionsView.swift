@@ -26,7 +26,7 @@ struct DaySessionsView: View {
                     if daySessions.isEmpty {
                         AppCard {
                             Text("Repos — aucune séance ce jour-là.")
-                                .font(.system(size: 14))
+                                .font(.app(size: 14))
                                 .foregroundStyle(AppTheme.textSecondary)
                         }
                     } else {
@@ -42,10 +42,10 @@ struct DaySessionsView: View {
                                         HStack {
                                             VStack(alignment: .leading, spacing: 2) {
                                                 Text(topLabel(session))
-                                                    .font(.system(size: 12))
+                                                    .font(.app(size: 12))
                                                     .foregroundStyle(AppTheme.textSecondary)
                                                 Text(session.title)
-                                                    .font(.system(size: 16, weight: .semibold))
+                                                    .font(.app(size: 16, weight: .semibold))
                                                     .foregroundStyle(AppTheme.textPrimary)
                                                 if session.kind == .musculation && !muscleGroups(session).isEmpty {
                                                     muscleGroupBadges(muscleGroups(session))
@@ -54,7 +54,7 @@ struct DaySessionsView: View {
                                             }
                                             Spacer(minLength: 8)
                                             Image(systemName: "chevron.right")
-                                                .font(.system(size: 12))
+                                                .font(.app(size: 12))
                                                 .foregroundStyle(AppTheme.textSecondary)
                                         }
                                         .padding(.vertical, 10)
@@ -72,7 +72,7 @@ struct DaySessionsView: View {
                         } label: {
                             HStack {
                                 Text("Ajouter une séance")
-                                    .font(.system(size: 14, weight: .medium))
+                                    .font(.app(size: 14, weight: .medium))
                                     .foregroundStyle(AppTheme.textPrimary)
                                 Spacer()
                                 Image(systemName: "plus.circle.fill")

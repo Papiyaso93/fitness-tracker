@@ -43,7 +43,7 @@ struct WeekDetailView: View {
                             HStack(spacing: 8) {
                                 Image(systemName: "doc.on.doc")
                                 Text("Dupliquer la semaine précédente")
-                                    .font(.system(size: 14, weight: .medium))
+                                    .font(.app(size: 14, weight: .medium))
                             }
                             .foregroundStyle(AppTheme.accent)
                         }
@@ -62,14 +62,14 @@ struct WeekDetailView: View {
                             } label: {
                                 HStack {
                                     Text(day.label)
-                                        .font(.system(size: 15))
+                                        .font(.app(size: 15))
                                         .foregroundStyle(AppTheme.textPrimary)
                                     Spacer()
                                     Text(summary(for: day.weekday))
-                                        .font(.system(size: 14))
+                                        .font(.app(size: 14))
                                         .foregroundStyle(AppTheme.textSecondary)
                                     Image(systemName: "chevron.right")
-                                        .font(.system(size: 12))
+                                        .font(.app(size: 12))
                                         .foregroundStyle(AppTheme.textSecondary)
                                 }
                                 .padding(.vertical, 12)
@@ -87,7 +87,7 @@ struct WeekDetailView: View {
                         HStack(spacing: 8) {
                             Image(systemName: "arrow.left.arrow.right")
                             Text("Permuter deux jours")
-                                .font(.system(size: 14, weight: .medium))
+                                .font(.app(size: 14, weight: .medium))
                         }
                         .foregroundStyle(AppTheme.accent)
                     }

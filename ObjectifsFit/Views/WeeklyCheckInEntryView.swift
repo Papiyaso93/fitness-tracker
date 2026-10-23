@@ -37,9 +37,9 @@ struct WeeklyFormLevelField: View {
                 } label: {
                     VStack(spacing: 6) {
                         Image(systemName: level.icon)
-                            .font(.system(size: 20, weight: .semibold))
+                            .font(.app(size: 20, weight: .semibold))
                         Text(level.rawValue)
-                            .font(.system(size: 12, weight: .medium))
+                            .font(.app(size: 12, weight: .medium))
                     }
                     .frame(maxWidth: .infinity)
                     .frame(height: 72)
@@ -107,7 +107,7 @@ struct WeeklyCheckInEntryView: View {
         ScrollView {
             VStack(alignment: .leading, spacing: 16) {
                 Text("Qu'est-ce que tu veux renseigner cette semaine ?")
-                    .font(.system(size: 13))
+                    .font(.app(size: 13))
                     .foregroundStyle(AppTheme.textSecondary)
 
                 AppCard {
@@ -138,10 +138,10 @@ struct WeeklyCheckInEntryView: View {
         } label: {
             HStack(spacing: 10) {
                 Image(systemName: isSelected ? "checkmark.square.fill" : "square")
-                    .font(.system(size: 18))
+                    .font(.app(size: 18))
                     .foregroundStyle(isSelected ? AppTheme.accent : Color(hex: "D8D4C8"))
                 Text(module.label)
-                    .font(.system(size: 14))
+                    .font(.app(size: 14))
                     .foregroundStyle(AppTheme.textPrimary)
                 Spacer()
             }
@@ -156,7 +156,7 @@ struct WeeklyCheckInEntryView: View {
         ScrollView {
             VStack(alignment: .leading, spacing: 20) {
                 Text("\(step) / \(orderedModules.count)")
-                    .font(.system(size: 12))
+                    .font(.app(size: 12))
                     .foregroundStyle(AppTheme.textSecondary)
                     .frame(maxWidth: .infinity, alignment: .center)
 
@@ -164,7 +164,7 @@ struct WeeklyCheckInEntryView: View {
                 case .forme:
                     VStack(alignment: .leading, spacing: 12) {
                         Text("Comment tu te sens cette semaine ?")
-                            .font(.system(size: 15, weight: .semibold))
+                            .font(.app(size: 15, weight: .semibold))
                             .foregroundStyle(AppTheme.textPrimary)
                         WeeklyFormLevelField(selection: $formLevel)
                         TextField("Pourquoi ? (optionnel)", text: $formComment, axis: .vertical)
@@ -176,14 +176,14 @@ struct WeeklyCheckInEntryView: View {
                 case .course:
                     VStack(alignment: .leading, spacing: 8) {
                         Text("Combien de km as-tu couru cette semaine ?")
-                            .font(.system(size: 15, weight: .semibold))
+                            .font(.app(size: 15, weight: .semibold))
                             .foregroundStyle(AppTheme.textPrimary)
                         HStack {
                             TextField("0", text: $runningVolumeText)
                                 .keyboardType(.decimalPad)
-                                .font(.system(size: 20, weight: .semibold))
+                                .font(.app(size: 20, weight: .semibold))
                             Text("km")
-                                .font(.system(size: 14))
+                                .font(.app(size: 14))
                                 .foregroundStyle(AppTheme.textSecondary)
                         }
                         .padding(12)
@@ -194,14 +194,14 @@ struct WeeklyCheckInEntryView: View {
                 case .steps:
                     VStack(alignment: .leading, spacing: 8) {
                         Text("Quelle a été ta moyenne quotidienne de pas cette semaine ?")
-                            .font(.system(size: 15, weight: .semibold))
+                            .font(.app(size: 15, weight: .semibold))
                             .foregroundStyle(AppTheme.textPrimary)
                         HStack {
                             TextField("0", text: $stepsText)
                                 .keyboardType(.numberPad)
-                                .font(.system(size: 20, weight: .semibold))
+                                .font(.app(size: 20, weight: .semibold))
                             Text("pas/jour")
-                                .font(.system(size: 14))
+                                .font(.app(size: 14))
                                 .foregroundStyle(AppTheme.textSecondary)
                         }
                         .padding(12)
@@ -212,7 +212,7 @@ struct WeeklyCheckInEntryView: View {
                 case .note:
                     VStack(alignment: .leading, spacing: 8) {
                         Text("Autre chose à noter sur ta semaine ?")
-                            .font(.system(size: 15, weight: .semibold))
+                            .font(.app(size: 15, weight: .semibold))
                             .foregroundStyle(AppTheme.textPrimary)
                         TextField("Ex: cheville encore sensible après jambes", text: $note, axis: .vertical)
                             .padding(12)

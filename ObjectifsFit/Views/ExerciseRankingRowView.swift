@@ -12,7 +12,7 @@ struct ExerciseRankingRowView: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 4) {
             Text(row.exerciseName)
-                .font(.system(size: 13))
+                .font(.app(size: 13))
                 .foregroundStyle(isNeverDone ? AppTheme.textSecondary : AppTheme.textPrimary)
             HStack(spacing: 8) {
                 GeometryReader { geometry in
@@ -28,7 +28,7 @@ struct ExerciseRankingRowView: View {
                 }
                 .frame(height: 16)
                 Text(isNeverDone ? "Jamais" : "\(row.count)")
-                    .font(.system(size: 12, weight: .semibold))
+                    .font(.app(size: 12, weight: .semibold))
                     .foregroundStyle(AppTheme.textSecondary)
                     .frame(minWidth: 22, alignment: .trailing)
             }

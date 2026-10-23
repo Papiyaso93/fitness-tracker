@@ -145,7 +145,7 @@ struct CreateCycleView: View {
                 }
                 .disabled(weekCount >= 12)
             }
-            .font(.system(size: 14, weight: .semibold))
+            .font(.app(size: 14, weight: .semibold))
             .foregroundStyle(AppTheme.accent)
             .background(AppTheme.background)
             .clipShape(RoundedRectangle(cornerRadius: 8))
@@ -168,7 +168,7 @@ struct CreateCycleView: View {
                 FlowLayout(spacing: 6) {
                     ForEach(sortedQualities(selection), id: \.self) { quality in
                         Text(quality.rawValue)
-                            .font(.system(size: 12, weight: .medium))
+                            .font(.app(size: 12, weight: .medium))
                             .padding(.horizontal, 10)
                             .padding(.vertical, 4)
                             .background(AppTheme.accent.opacity(0.1))
@@ -191,7 +191,7 @@ struct CreateCycleView: View {
         Button(action: action) {
             HStack {
                 Text(label)
-                    .font(.system(size: 17))
+                    .font(.app(size: 17))
                     .foregroundStyle(AppTheme.textPrimary)
                 Spacer()
                 Image(systemName: "plus.circle.fill")
@@ -208,7 +208,7 @@ struct CreateCycleView: View {
             if !isEmpty {
                 Button(action: action) {
                     Image(systemName: "plus")
-                        .font(.system(size: 13, weight: .semibold))
+                        .font(.app(size: 13, weight: .semibold))
                         .foregroundStyle(AppTheme.accent)
                 }
             }
@@ -219,11 +219,11 @@ struct CreateCycleView: View {
     private func objectiveDraftText(_ draft: ObjectiveDraft) -> some View {
         VStack(alignment: .leading, spacing: 2) {
             Text(draft.name)
-                .font(.system(size: 15, weight: .semibold))
+                .font(.app(size: 15, weight: .semibold))
                 .foregroundStyle(AppTheme.textPrimary)
             if let progressionText = draft.progressionText {
                 Text(progressionText)
-                    .font(.system(size: 13))
+                    .font(.app(size: 13))
                     .foregroundStyle(AppTheme.textSecondary)
             }
         }

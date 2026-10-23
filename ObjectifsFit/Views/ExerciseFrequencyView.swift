@@ -42,9 +42,9 @@ struct ExerciseFrequencyView: View {
                         HStack(spacing: 4) {
                             Text(period.rawValue)
                             Image(systemName: "chevron.down")
-                                .font(.system(size: 10, weight: .semibold))
+                                .font(.app(size: 10, weight: .semibold))
                         }
-                        .font(.system(size: 13, weight: .medium))
+                        .font(.app(size: 13, weight: .medium))
                         .foregroundStyle(AppTheme.accent)
                     }
                 }
@@ -64,7 +64,7 @@ struct ExerciseFrequencyView: View {
                 AppCard {
                     if visibleGroups.isEmpty {
                         Text("Aucun groupe sélectionné")
-                            .font(.system(size: 12))
+                            .font(.app(size: 12))
                             .foregroundStyle(AppTheme.textSecondary)
                     } else {
                         let maxCount = max(ranking.first?.count ?? 1, 1)

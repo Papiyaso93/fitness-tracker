@@ -21,9 +21,9 @@ struct CycleDetailView: View {
                     VStack(alignment: .leading, spacing: 8) {
                         HStack(spacing: 6) {
                             Image(systemName: "calendar")
-                                .font(.system(size: 12))
+                                .font(.app(size: 12))
                             Text("Du \(formatted(cycle.startDate)) au \(formatted(cycle.endDate))")
-                                .font(.system(size: 12))
+                                .font(.app(size: 12))
                         }
                         .foregroundStyle(AppTheme.textSecondary)
                         HStack {
@@ -49,7 +49,7 @@ struct CycleDetailView: View {
                 if cycle.sortedObjectives.isEmpty {
                     AppCard {
                         Text("Aucun objectif défini pour ce cycle.")
-                            .font(.system(size: 14))
+                            .font(.app(size: 14))
                             .foregroundStyle(AppTheme.textSecondary)
                     }
                 } else {
@@ -102,7 +102,7 @@ struct CycleDetailView: View {
             }
         }()
         return Text(cycle.status.rawValue)
-            .font(.system(size: 11, weight: .medium))
+            .font(.app(size: 11, weight: .medium))
             .padding(.horizontal, 8)
             .padding(.vertical, 3)
             .background(color.opacity(0.15))
@@ -123,11 +123,11 @@ struct CycleDetailView: View {
         let parts = objective.summary.split(separator: ":", maxSplits: 1).map { $0.trimmingCharacters(in: .whitespaces) }
         return VStack(alignment: .leading, spacing: 2) {
             if parts.count == 2 {
-                Text(parts[0]).font(.system(size: 15, weight: .semibold)).foregroundStyle(AppTheme.textPrimary)
-                Text(parts[1]).font(.system(size: 13)).foregroundStyle(AppTheme.textSecondary)
+                Text(parts[0]).font(.app(size: 15, weight: .semibold)).foregroundStyle(AppTheme.textPrimary)
+                Text(parts[1]).font(.app(size: 13)).foregroundStyle(AppTheme.textSecondary)
             } else {
                 Text(objective.summary)
-                    .font(.system(size: 15, weight: .semibold))
+                    .font(.app(size: 15, weight: .semibold))
                     .foregroundStyle(AppTheme.textPrimary)
             }
         }
@@ -138,14 +138,14 @@ struct CycleDetailView: View {
         return AppCard {
             HStack {
                 Text("Semaine \(week)")
-                    .font(.system(size: 15, weight: .semibold))
+                    .font(.app(size: 15, weight: .semibold))
                     .foregroundStyle(AppTheme.textPrimary)
                 Spacer()
                 Text(sessions.isEmpty ? "Vide" : "\(sessions.count) séance\(sessions.count > 1 ? "s" : "")")
-                    .font(.system(size: 13))
+                    .font(.app(size: 13))
                     .foregroundStyle(AppTheme.textSecondary)
                 Image(systemName: "chevron.right")
-                    .font(.system(size: 12))
+                    .font(.app(size: 12))
                     .foregroundStyle(AppTheme.textSecondary)
             }
         }
@@ -155,7 +155,7 @@ struct CycleDetailView: View {
         HStack(spacing: 6) {
             ForEach(qualities) { quality in
                 Text(quality.rawValue)
-                    .font(.system(size: 11, weight: .medium))
+                    .font(.app(size: 11, weight: .medium))
                     .padding(.horizontal, 8)
                     .padding(.vertical, 3)
                     .background(color.opacity(0.12))

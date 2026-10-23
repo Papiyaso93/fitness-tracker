@@ -64,9 +64,9 @@ struct SleepEntryView: View {
                     if let rollbackNotice {
                         HStack(alignment: .top, spacing: 8) {
                             Image(systemName: "info.circle")
-                                .font(.system(size: 13))
+                                .font(.app(size: 13))
                             Text(rollbackNotice)
-                                .font(.system(size: 12.5))
+                                .font(.app(size: 12.5))
                         }
                         .foregroundStyle(Color(hex: "993C1D"))
                         .padding(10)

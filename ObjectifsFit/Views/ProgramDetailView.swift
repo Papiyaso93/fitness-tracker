@@ -31,9 +31,9 @@ struct ProgramDetailView: View {
                         if program.startDate != nil || program.endDate != nil {
                             HStack(spacing: 6) {
                                 Image(systemName: "calendar")
-                                    .font(.system(size: 12))
+                                    .font(.app(size: 12))
                                 Text(dateRangeLabel)
-                                    .font(.system(size: 12))
+                                    .font(.app(size: 12))
                             }
                             .foregroundStyle(AppTheme.textSecondary)
                         }
@@ -46,7 +46,7 @@ struct ProgramDetailView: View {
                         }
                         if let description = program.programDescription, !description.isEmpty {
                             Text(description)
-                                .font(.system(size: 14))
+                                .font(.app(size: 14))
                                 .foregroundStyle(AppTheme.textSecondary)
                         }
                     }
@@ -76,7 +76,7 @@ struct ProgramDetailView: View {
                         } label: {
                             HStack {
                                 Text("Créer un nouveau cycle")
-                                    .font(.system(size: 14, weight: .medium))
+                                    .font(.app(size: 14, weight: .medium))
                                     .foregroundStyle(AppTheme.textPrimary)
                                 Spacer()
                                 Image(systemName: "plus.circle.fill")
@@ -95,7 +95,7 @@ struct ProgramDetailView: View {
                         showingCreateCycle = true
                     } label: {
                         Label("Créer un nouveau cycle", systemImage: "plus.circle")
-                            .font(.system(size: 15, weight: .medium))
+                            .font(.app(size: 15, weight: .medium))
                     }
                 }
             }
@@ -136,7 +136,7 @@ struct ProgramDetailView: View {
             }
         }()
         return Text(status.rawValue)
-            .font(.system(size: 11, weight: .medium))
+            .font(.app(size: 11, weight: .medium))
             .padding(.horizontal, 8)
             .padding(.vertical, 3)
             .background(color.opacity(0.15))
@@ -159,7 +159,7 @@ struct ProgramDetailView: View {
         if objectives.isEmpty {
             AppCard {
                 Text(emptyText)
-                    .font(.system(size: 14))
+                    .font(.app(size: 14))
                     .foregroundStyle(AppTheme.textSecondary)
             }
         } else {
@@ -176,9 +176,9 @@ struct ProgramDetailView: View {
                     HStack(spacing: 4) {
                         Text(expanded.wrappedValue ? "Voir moins" : "Voir plus")
                         Image(systemName: expanded.wrappedValue ? "chevron.up" : "chevron.down")
-                            .font(.system(size: 11, weight: .semibold))
+                            .font(.app(size: 11, weight: .semibold))
                     }
-                    .font(.system(size: 13, weight: .medium))
+                    .font(.app(size: 13, weight: .medium))
                     .foregroundStyle(AppTheme.accent)
                 }
                 .padding(.top, 2)
@@ -199,11 +199,11 @@ struct ProgramDetailView: View {
         let parts = objective.summary.split(separator: ":", maxSplits: 1).map { $0.trimmingCharacters(in: .whitespaces) }
         return VStack(alignment: .leading, spacing: 2) {
             if parts.count == 2 {
-                Text(parts[0]).font(.system(size: 15, weight: .semibold)).foregroundStyle(AppTheme.textPrimary)
-                Text(parts[1]).font(.system(size: 13)).foregroundStyle(AppTheme.textSecondary)
+                Text(parts[0]).font(.app(size: 15, weight: .semibold)).foregroundStyle(AppTheme.textPrimary)
+                Text(parts[1]).font(.app(size: 13)).foregroundStyle(AppTheme.textSecondary)
             } else {
                 Text(objective.summary)
-                    .font(.system(size: 15, weight: .semibold))
+                    .font(.app(size: 15, weight: .semibold))
                     .foregroundStyle(AppTheme.textPrimary)
             }
         }
@@ -218,19 +218,19 @@ struct ProgramDetailView: View {
                     VStack(alignment: .leading, spacing: 6) {
                         HStack(spacing: 4) {
                             Image(systemName: "calendar")
-                                .font(.system(size: 11))
+                                .font(.app(size: 11))
                             Text("Du \(formatted(cycle.startDate)) au \(formatted(cycle.endDate))")
-                                .font(.system(size: 12))
+                                .font(.app(size: 12))
                         }
                         .foregroundStyle(AppTheme.textSecondary)
                         Text(cycle.name)
-                            .font(.system(size: 15, weight: .semibold))
+                            .font(.app(size: 15, weight: .semibold))
                             .foregroundStyle(AppTheme.textPrimary)
                         if !cycle.objectifsPrincipaux.isEmpty {
                             HStack(spacing: 6) {
                                 ForEach(cycle.objectifsPrincipaux) { quality in
                                     Text(quality.rawValue)
-                                        .font(.system(size: 11, weight: .medium))
+                                        .font(.app(size: 11, weight: .medium))
                                         .padding(.horizontal, 8)
                                         .padding(.vertical, 3)
                                         .background(AppTheme.accent.opacity(0.12))
@@ -244,7 +244,7 @@ struct ProgramDetailView: View {
                     VStack(spacing: 8) {
                         statusTag(cycle.status)
                         Image(systemName: "chevron.right")
-                            .font(.system(size: 12))
+                            .font(.app(size: 12))
                             .foregroundStyle(AppTheme.textSecondary)
                     }
                 }

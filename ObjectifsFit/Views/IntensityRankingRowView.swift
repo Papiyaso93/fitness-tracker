@@ -9,11 +9,11 @@ struct IntensityRankingRowView: View {
         VStack(alignment: .leading, spacing: 4) {
             HStack(alignment: .firstTextBaseline) {
                 Text(row.exerciseName)
-                    .font(.system(size: 13))
+                    .font(.app(size: 13))
                     .foregroundStyle(AppTheme.textPrimary)
                 Spacer(minLength: 8)
                 Text("\(row.nearFailureCount)/\(row.totalCount) · \(Int(row.percentage.rounded()))%")
-                    .font(.system(size: 12, weight: .semibold))
+                    .font(.app(size: 12, weight: .semibold))
                     .foregroundStyle(AppTheme.textSecondary)
             }
             GeometryReader { geometry in

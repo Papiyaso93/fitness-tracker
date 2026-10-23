@@ -8,7 +8,7 @@ func legendToggleChip(color: Color, label: String, isActive: Bool, action: @esca
         HStack(spacing: 5) {
             RoundedRectangle(cornerRadius: 2).fill(color).frame(width: 8, height: 8)
             Text(label)
-                .font(.system(size: 11, weight: isActive ? .semibold : .regular))
+                .font(.app(size: 11, weight: isActive ? .semibold : .regular))
         }
         .foregroundStyle(isActive ? color : AppTheme.textSecondary.opacity(0.5))
         .padding(.horizontal, 9)

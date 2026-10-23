@@ -277,7 +277,7 @@ struct HomeView: View {
                 showingDatePicker = true
             } label: {
                 Text(dayLabel)
-                    .font(.system(size: 14, weight: .medium))
+                    .font(.app(size: 14, weight: .medium))
                     .foregroundStyle(AppTheme.textSecondary)
             }
             Button {
@@ -304,15 +304,15 @@ struct HomeView: View {
                 ZStack {
                     Circle().fill(AppTheme.border.opacity(0.5)).frame(width: 40, height: 40)
                     Image(systemName: "calendar.badge.exclamationmark")
-                        .font(.system(size: 16))
+                        .font(.app(size: 16))
                         .foregroundStyle(AppTheme.textSecondary)
                 }
                 VStack(spacing: 4) {
                     Text("Aucun programme en cours")
-                        .font(.system(size: 14, weight: .medium))
+                        .font(.app(size: 14, weight: .medium))
                         .foregroundStyle(AppTheme.textPrimary)
                     Text("Crée un programme pour planifier tes séances et suivre tes objectifs.")
-                        .font(.system(size: 13))
+                        .font(.app(size: 13))
                         .foregroundStyle(AppTheme.textSecondary)
                         .multilineTextAlignment(.center)
                 }
@@ -335,16 +335,16 @@ struct HomeView: View {
                 ZStack {
                     Circle().fill(AppTheme.border.opacity(0.5)).frame(width: 36, height: 36)
                     Image(systemName: "clock")
-                        .font(.system(size: 14))
+                        .font(.app(size: 14))
                         .foregroundStyle(AppTheme.textSecondary)
                 }
                 VStack(alignment: .leading, spacing: 2) {
                     Text("Pas de programme en cours")
-                        .font(.system(size: 14, weight: .medium))
+                        .font(.app(size: 14, weight: .medium))
                         .foregroundStyle(AppTheme.textPrimary)
                     if let startDate = program.startDate {
                         Text("« \(program.title) » commence le \(formatted(startDate))")
-                            .font(.system(size: 12))
+                            .font(.app(size: 12))
                             .foregroundStyle(AppTheme.textSecondary)
                     }
                 }
@@ -363,25 +363,25 @@ struct HomeView: View {
                 ZStack {
                     Circle().fill(AppTheme.accent.opacity(0.12)).frame(width: 36, height: 36)
                     Image(systemName: "calendar")
-                        .font(.system(size: 14))
+                        .font(.app(size: 14))
                         .foregroundStyle(AppTheme.accent)
                 }
                 VStack(alignment: .leading, spacing: 4) {
                     HStack(spacing: 6) {
                         Text(program.title)
-                            .font(.system(size: 14, weight: .medium))
+                            .font(.app(size: 14, weight: .medium))
                             .foregroundStyle(AppTheme.textPrimary)
                         Text("— en cours")
-                            .font(.system(size: 12))
+                            .font(.app(size: 12))
                             .foregroundStyle(AppTheme.textSecondary)
                     }
                     if let upcomingCycle {
                         Text("Prochain cycle « \(upcomingCycle.name) » le \(formatted(upcomingCycle.startDate))")
-                            .font(.system(size: 12))
+                            .font(.app(size: 12))
                             .foregroundStyle(AppTheme.textSecondary)
                     } else {
                         Text("Aucun cycle configuré pour ce programme.")
-                            .font(.system(size: 12))
+                            .font(.app(size: 12))
                             .foregroundStyle(AppTheme.textSecondary)
                         NavigationLink {
                             ProgramDetailView(program: program)
@@ -405,10 +405,10 @@ struct HomeView: View {
                 HStack {
                     HStack(spacing: 8) {
                         Image(systemName: "calendar")
-                            .font(.system(size: 14))
+                            .font(.app(size: 14))
                             .foregroundStyle(AppTheme.accent)
                         Text(cycle.name)
-                            .font(.system(size: 14, weight: .medium))
+                            .font(.app(size: 14, weight: .medium))
                             .foregroundStyle(AppTheme.textPrimary)
                     }
                     Spacer()
@@ -423,12 +423,12 @@ struct HomeView: View {
                 .frame(height: 5)
                 HStack {
                     Text("Semaine \(weekNumber) / \(cycle.weekCount)")
-                        .font(.system(size: 12))
+                        .font(.app(size: 12))
                         .foregroundStyle(AppTheme.textSecondary)
                     Spacer()
                     if !cycle.objectifsPrincipaux.isEmpty {
                         Text(cycle.objectifsPrincipaux.map(\.rawValue).joined(separator: ", "))
-                            .font(.system(size: 12))
+                            .font(.app(size: 12))
                             .foregroundStyle(AppTheme.textSecondary)
                             .lineLimit(1)
                     }
@@ -452,7 +452,7 @@ struct HomeView: View {
             }
         }()
         return Text(status.rawValue)
-            .font(.system(size: 11, weight: .medium))
+            .font(.app(size: 11, weight: .medium))
             .padding(.horizontal, 8)
             .padding(.vertical, 3)
             .background(color.opacity(0.15))
@@ -466,7 +466,7 @@ struct HomeView: View {
             if activeCycle != nil {
                 VStack(spacing: 8) {
                     Text("Pas de séance prévue. Repose-toi.")
-                        .font(.system(size: 15))
+                        .font(.app(size: 15))
                         .foregroundStyle(AppTheme.textSecondary)
                 }
                 .frame(maxWidth: .infinity)
@@ -489,7 +489,7 @@ struct HomeView: View {
                 showingAddAdHocSession = true
             } label: {
                 Image(systemName: "plus")
-                    .font(.system(size: 13, weight: .semibold))
+                    .font(.app(size: 13, weight: .semibold))
                     .foregroundStyle(AppTheme.accent)
             }
             .padding(.trailing, 4)
@@ -503,11 +503,11 @@ struct HomeView: View {
             } label: {
                 HStack {
                     Text("Ajouter une séance")
-                        .font(.system(size: 14, weight: .medium))
+                        .font(.app(size: 14, weight: .medium))
                         .foregroundStyle(AppTheme.textPrimary)
                     Spacer()
                     Image(systemName: "plus")
-                        .font(.system(size: 15, weight: .semibold))
+                        .font(.app(size: 15, weight: .semibold))
                         .foregroundStyle(AppTheme.accent)
                 }
             }
@@ -522,7 +522,7 @@ struct HomeView: View {
                 HStack {
                     VStack(alignment: .leading, spacing: 6) {
                         Text(summary(for: session))
-                            .font(.system(size: 12))
+                            .font(.app(size: 12))
                             .foregroundStyle(AppTheme.textSecondary)
                         Text(session.title)
                             .font(AppTheme.Font.cardTitle)
@@ -588,7 +588,7 @@ struct HomeView: View {
             }
         }()
         return Text(text)
-            .font(.system(size: 11, weight: .medium))
+            .font(.app(size: 11, weight: .medium))
             .padding(.horizontal, 8)
             .padding(.vertical, 3)
             .background(bg)
@@ -610,19 +610,19 @@ struct HomeView: View {
                     AppCard {
                         HStack(spacing: 10) {
                             Image(systemName: "checkmark.circle.fill")
-                                .font(.system(size: 19))
+                                .font(.app(size: 19))
                                 .foregroundStyle(AppTheme.secondary)
                             VStack(alignment: .leading, spacing: 2) {
                                 Text("Bilan de la semaine fait")
-                                    .font(.system(size: 14, weight: .medium))
+                                    .font(.app(size: 14, weight: .medium))
                                     .foregroundStyle(AppTheme.textPrimary)
                                 Text("Semaine du \(formatted(existing.weekDate))")
-                                    .font(.system(size: 12))
+                                    .font(.app(size: 12))
                                     .foregroundStyle(AppTheme.textSecondary)
                             }
                             Spacer()
                             Image(systemName: "chevron.right")
-                                .font(.system(size: 13, weight: .semibold))
+                                .font(.app(size: 13, weight: .semibold))
                                 .foregroundStyle(Color(hex: "B4AFA6"))
                         }
                     }
@@ -633,14 +633,14 @@ struct HomeView: View {
                 AppCard {
                     HStack(spacing: 8) {
                         Image(systemName: "sparkles")
-                            .font(.system(size: 16, weight: .semibold))
+                            .font(.app(size: 16, weight: .semibold))
                             .foregroundStyle(AppTheme.accent)
                         Text("Bilan hebdomadaire")
                             .font(AppTheme.Font.cardTitle)
                             .foregroundStyle(AppTheme.textPrimary)
                     }
                     Text("C'est dimanche — prends deux minutes pour faire le point sur ta semaine.")
-                        .font(.system(size: 13))
+                        .font(.app(size: 13))
                         .foregroundStyle(AppTheme.textSecondary)
                         .fixedSize(horizontal: false, vertical: true)
                     Button {
@@ -664,7 +664,7 @@ struct HomeView: View {
                     showingAddMeasurement = true
                 } label: {
                     Image(systemName: "plus")
-                        .font(.system(size: 13, weight: .semibold))
+                        .font(.app(size: 13, weight: .semibold))
                         .foregroundStyle(AppTheme.accent)
                 }
                 .padding(.trailing, 4)
@@ -679,11 +679,11 @@ struct HomeView: View {
             } label: {
                 HStack {
                     Text("Ajouter une mesure")
-                        .font(.system(size: 14, weight: .medium))
+                        .font(.app(size: 14, weight: .medium))
                         .foregroundStyle(AppTheme.textPrimary)
                     Spacer()
                     Image(systemName: "plus")
-                        .font(.system(size: 15, weight: .semibold))
+                        .font(.app(size: 15, weight: .semibold))
                         .foregroundStyle(AppTheme.accent)
                 }
             }
@@ -694,7 +694,7 @@ struct HomeView: View {
         AppCard {
             if dayMeasurements.isEmpty {
                 Text("Aucune mesure ce jour-là")
-                    .font(.system(size: 14))
+                    .font(.app(size: 14))
                     .foregroundStyle(AppTheme.textSecondary)
             } else {
             VStack(spacing: 0) {
@@ -705,19 +705,19 @@ struct HomeView: View {
                     } label: {
                         HStack(spacing: 10) {
                             Text(measurementBadge(entry.type))
-                                .font(.system(size: 9, weight: .bold))
+                                .font(.app(size: 9, weight: .bold))
                                 .frame(width: 26, height: 26)
                                 .foregroundStyle(Color(hex: "993C1D"))
                                 .background(AppTheme.accent.opacity(0.15))
                                 .clipShape(RoundedRectangle(cornerRadius: 8))
                             VStack(alignment: .leading, spacing: 1) {
                                 Text(entry.type.rawValue)
-                                    .font(.system(size: 13, weight: .medium))
+                                    .font(.app(size: 13, weight: .medium))
                                     .foregroundStyle(AppTheme.textPrimary)
                                 let previous = previousMeasurement(before: entry)
                                 HStack(alignment: .firstTextBaseline, spacing: 6) {
                                     Text("\(entry.value.formatted())\(entry.type.unit)")
-                                        .font(.system(size: 13, weight: .semibold))
+                                        .font(.app(size: 13, weight: .semibold))
                                         .foregroundStyle(AppTheme.textSecondary)
                                     if let previous {
                                         let delta = entry.value - previous.value
@@ -730,13 +730,13 @@ struct HomeView: View {
                                 }
                                 if let previous {
                                     Text("depuis le \(AppDateFormat.dayFullMonth.string(from: previous.date))")
-                                        .font(.system(size: 10))
+                                        .font(.app(size: 10))
                                         .foregroundStyle(AppTheme.textSecondary)
                                 }
                             }
                             Spacer()
                             Image(systemName: "chevron.right")
-                                .font(.system(size: 12))
+                                .font(.app(size: 12))
                                 .foregroundStyle(AppTheme.textSecondary)
                         }
                         .padding(.vertical, 8)
@@ -783,23 +783,23 @@ struct HomeView: View {
     private func sleepRowContent(moment: SleepMoment, icon: String, time: Date?, energy: EnergyLevel?, stomach: StomachState?, isFilled: Bool, durationLabel: String?) -> some View {
         HStack(spacing: 10) {
             Image(systemName: icon)
-                .font(.system(size: 15))
+                .font(.app(size: 15))
                 .foregroundStyle((isFilled || isToday) ? AppTheme.textSecondary : AppTheme.textSecondary.opacity(0.6))
                 .frame(width: 20)
             if isFilled, let time {
                 VStack(alignment: .leading, spacing: 3) {
                     Text("\(moment.title) · \(time.formatted(date: .omitted, time: .shortened))")
-                        .font(.system(size: 14, weight: .medium))
+                        .font(.app(size: 14, weight: .medium))
                         .foregroundStyle(AppTheme.textPrimary)
                     Text("\(energy?.label ?? "") · \(stomach?.label ?? "")")
-                        .font(.system(size: 12))
+                        .font(.app(size: 12))
                         .foregroundStyle(AppTheme.textSecondary)
                     if let durationLabel {
                         HStack(spacing: 4) {
                             Image(systemName: "bed.double.fill")
-                                .font(.system(size: 10))
+                                .font(.app(size: 10))
                             Text(durationLabel)
-                                .font(.system(size: 11, weight: .medium))
+                                .font(.app(size: 11, weight: .medium))
                         }
                         .foregroundStyle(AppTheme.textSecondary)
                         .padding(.horizontal, 8)
@@ -811,21 +811,21 @@ struct HomeView: View {
                 }
             } else if isToday {
                 Text(moment.title)
-                    .font(.system(size: 14, weight: .medium))
+                    .font(.app(size: 14, weight: .medium))
                     .foregroundStyle(AppTheme.textPrimary)
             } else {
                 Text("\(moment.title) non renseigné")
-                    .font(.system(size: 14))
+                    .font(.app(size: 14))
                     .foregroundStyle(AppTheme.textSecondary)
             }
             Spacer()
             if isFilled {
                 Image(systemName: "chevron.right")
-                    .font(.system(size: 12))
+                    .font(.app(size: 12))
                     .foregroundStyle(AppTheme.textSecondary)
             } else if isToday {
                 Image(systemName: "plus")
-                    .font(.system(size: 15, weight: .semibold))
+                    .font(.app(size: 15, weight: .semibold))
                     .foregroundStyle(AppTheme.accent)
             }
         }
@@ -842,7 +842,7 @@ struct HomeView: View {
                     showingMealSheet = true
                 } label: {
                     Image(systemName: "plus")
-                        .font(.system(size: 13, weight: .semibold))
+                        .font(.app(size: 13, weight: .semibold))
                         .foregroundStyle(AppTheme.accent)
                 }
                 .padding(.trailing, 4)
@@ -857,11 +857,11 @@ struct HomeView: View {
             } label: {
                 HStack {
                     Text("Ajouter une prise alimentaire")
-                        .font(.system(size: 14, weight: .medium))
+                        .font(.app(size: 14, weight: .medium))
                         .foregroundStyle(AppTheme.textPrimary)
                     Spacer()
                     Image(systemName: "plus")
-                        .font(.system(size: 15, weight: .semibold))
+                        .font(.app(size: 15, weight: .semibold))
                         .foregroundStyle(AppTheme.accent)
                 }
             }
@@ -871,7 +871,7 @@ struct HomeView: View {
     private var mealCard: some View {
         AppCard {
             if dayMeals.isEmpty {
-                Text("Aucun repas noté").font(.system(size: 14)).foregroundStyle(AppTheme.textSecondary)
+                Text("Aucun repas noté").font(.app(size: 14)).foregroundStyle(AppTheme.textSecondary)
             } else {
                 VStack(spacing: 0) {
                     ForEach(dayMeals) { meal in
@@ -883,26 +883,26 @@ struct HomeView: View {
                         } label: {
                             HStack(spacing: 10) {
                                 Image(systemName: meal.sensation.icon)
-                                    .font(.system(size: 12, weight: .bold))
+                                    .font(.app(size: 12, weight: .bold))
                                     .frame(width: 26, height: 26)
                                     .foregroundStyle(meal.sensation.categoryColor.text)
                                     .background(meal.sensation.categoryColor.background)
                                     .clipShape(RoundedRectangle(cornerRadius: 8))
                                 VStack(alignment: .leading, spacing: 1) {
                                     Text(meal.title)
-                                        .font(.system(size: 13, weight: .medium))
+                                        .font(.app(size: 13, weight: .medium))
                                         .foregroundStyle(AppTheme.textPrimary)
                                         .lineLimit(1)
                                     Text(meal.sensation.rawValue)
-                                        .font(.system(size: 11))
+                                        .font(.app(size: 11))
                                         .foregroundStyle(meal.sensation.categoryColor.text)
                                 }
                                 Spacer()
                                 Text(meal.dateTime.formatted(date: .omitted, time: .shortened))
-                                    .font(.system(size: 12))
+                                    .font(.app(size: 12))
                                     .foregroundStyle(AppTheme.textSecondary)
                                 Image(systemName: "chevron.right")
-                                    .font(.system(size: 12))
+                                    .font(.app(size: 12))
                                     .foregroundStyle(AppTheme.textSecondary)
                             }
                             .padding(.vertical, 8)
@@ -923,7 +923,7 @@ struct HomeView: View {
                     transitRevealed = false
                 } label: {
                     Image(systemName: "eye.slash")
-                        .font(.system(size: 13, weight: .semibold))
+                        .font(.app(size: 13, weight: .semibold))
                         .foregroundStyle(AppTheme.textSecondary)
                 }
                 .padding(.trailing, isToday ? 14 : 4)
@@ -933,7 +933,7 @@ struct HomeView: View {
                     showingTransitSheet = true
                 } label: {
                     Image(systemName: "plus")
-                        .font(.system(size: 13, weight: .semibold))
+                        .font(.app(size: 13, weight: .semibold))
                         .foregroundStyle(AppTheme.accent)
                 }
                 .padding(.trailing, 4)
@@ -948,11 +948,11 @@ struct HomeView: View {
             } label: {
                 HStack {
                     Text("Ajouter un passage")
-                        .font(.system(size: 14, weight: .medium))
+                        .font(.app(size: 14, weight: .medium))
                         .foregroundStyle(AppTheme.textPrimary)
                     Spacer()
                     Image(systemName: "plus")
-                        .font(.system(size: 15, weight: .semibold))
+                        .font(.app(size: 15, weight: .semibold))
                         .foregroundStyle(AppTheme.accent)
                 }
             }
@@ -963,7 +963,7 @@ struct HomeView: View {
         ZStack {
             AppCard {
                 if dayTransitLogs.isEmpty {
-                    Text("Aucun passage noté").font(.system(size: 14)).foregroundStyle(AppTheme.textSecondary)
+                    Text("Aucun passage noté").font(.app(size: 14)).foregroundStyle(AppTheme.textSecondary)
                 } else {
                     transitLogsList
                 }
@@ -977,14 +977,14 @@ struct HomeView: View {
                 } label: {
                     VStack(spacing: 6) {
                         Image(systemName: "eye")
-                            .font(.system(size: 17, weight: .medium))
+                            .font(.app(size: 17, weight: .medium))
                             .foregroundStyle(AppTheme.textPrimary)
                             .frame(width: 40, height: 40)
                             .background(AppTheme.surface)
                             .overlay(Circle().stroke(AppTheme.border, lineWidth: 0.5))
                             .clipShape(Circle())
                         Text("Afficher")
-                            .font(.system(size: 13, weight: .medium))
+                            .font(.app(size: 13, weight: .medium))
                             .foregroundStyle(AppTheme.textSecondary)
                     }
                 }
@@ -1004,25 +1004,25 @@ struct HomeView: View {
                         } label: {
                             HStack(spacing: 10) {
                                 Text("\(log.bristolType.rawValue)")
-                                    .font(.system(size: 12, weight: .bold))
+                                    .font(.app(size: 12, weight: .bold))
                                     .frame(width: 26, height: 26)
                                     .foregroundStyle(log.bristolType.categoryColor.text)
                                     .background(log.bristolType.categoryColor.background)
                                     .clipShape(RoundedRectangle(cornerRadius: 8))
                                 VStack(alignment: .leading, spacing: 1) {
                                     Text(log.bristolType.shortDescription)
-                                        .font(.system(size: 13, weight: .medium))
+                                        .font(.app(size: 13, weight: .medium))
                                         .foregroundStyle(AppTheme.textPrimary)
                                     Text(log.bristolType.category)
-                                        .font(.system(size: 11))
+                                        .font(.app(size: 11))
                                         .foregroundStyle(log.bristolType.categoryColor.text)
                                 }
                                 Spacer()
                                 Text(log.dateTime.formatted(date: .omitted, time: .shortened))
-                                    .font(.system(size: 12))
+                                    .font(.app(size: 12))
                                     .foregroundStyle(AppTheme.textSecondary)
                                 Image(systemName: "chevron.right")
-                                    .font(.system(size: 12))
+                                    .font(.app(size: 12))
                                     .foregroundStyle(AppTheme.textSecondary)
                             }
                             .padding(.vertical, 8)

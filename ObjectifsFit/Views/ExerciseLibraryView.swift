@@ -25,7 +25,7 @@ struct ExerciseLibraryView: View {
                     } label: {
                         HStack {
                             Text("Ajouter un exercice")
-                                .font(.system(size: 14, weight: .medium))
+                                .font(.app(size: 14, weight: .medium))
                                 .foregroundStyle(AppTheme.textPrimary)
                             Spacer()
                             Image(systemName: "plus.circle.fill")
@@ -47,7 +47,7 @@ struct ExerciseLibraryView: View {
                         HStack(spacing: 6) {
                             SectionLabel(text: "\(entry.group) (\(entry.exercises.count))")
                             Image(systemName: isExpanded ? "chevron.down" : "chevron.right")
-                                .font(.system(size: 11, weight: .semibold))
+                                .font(.app(size: 11, weight: .semibold))
                                 .foregroundStyle(AppTheme.textSecondary)
                         }
                     }
@@ -62,11 +62,11 @@ struct ExerciseLibraryView: View {
                                     AppCard {
                                         HStack {
                                             Text(exercise.name)
-                                                .font(.system(size: 15, weight: .medium))
+                                                .font(.app(size: 15, weight: .medium))
                                                 .foregroundStyle(AppTheme.textPrimary)
                                             Spacer()
                                             Image(systemName: "chevron.right")
-                                                .font(.system(size: 12))
+                                                .font(.app(size: 12))
                                                 .foregroundStyle(AppTheme.textSecondary)
                                         }
                                     }

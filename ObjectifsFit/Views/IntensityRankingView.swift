@@ -24,7 +24,7 @@ struct IntensityRankingView: View {
         ScrollView {
             VStack(alignment: .leading, spacing: 16) {
                 Text("Le ratio correspond au nombre de séries notées très difficiles ou à l'échec sur le nombre de séries totales.")
-                    .font(.system(size: 12))
+                    .font(.app(size: 12))
                     .foregroundStyle(AppTheme.textSecondary)
 
                 HStack {
@@ -45,9 +45,9 @@ struct IntensityRankingView: View {
                         HStack(spacing: 4) {
                             Text(period.rawValue)
                             Image(systemName: "chevron.down")
-                                .font(.system(size: 10, weight: .semibold))
+                                .font(.app(size: 10, weight: .semibold))
                         }
-                        .font(.system(size: 13, weight: .medium))
+                        .font(.app(size: 13, weight: .medium))
                         .foregroundStyle(AppTheme.accent)
                     }
                 }
@@ -66,9 +66,9 @@ struct IntensityRankingView: View {
 
                 AppCard {
                     if visibleGroups.isEmpty {
-                        Text("Aucun groupe sélectionné").font(.system(size: 12)).foregroundStyle(AppTheme.textSecondary)
+                        Text("Aucun groupe sélectionné").font(.app(size: 12)).foregroundStyle(AppTheme.textSecondary)
                     } else if ranking.isEmpty {
-                        Text("Pas encore de données").font(.system(size: 12)).foregroundStyle(AppTheme.textSecondary)
+                        Text("Pas encore de données").font(.app(size: 12)).foregroundStyle(AppTheme.textSecondary)
                     } else {
                         VStack(spacing: 14) {
                             ForEach(ranking) { row in

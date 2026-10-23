@@ -69,19 +69,19 @@ struct ProgramBilanCardView: View {
             } label: {
                 HStack(spacing: 10) {
                     Image(systemName: "checkmark.circle.fill")
-                        .font(.system(size: 19))
+                        .font(.app(size: 19))
                         .foregroundStyle(AppTheme.secondary)
                     VStack(alignment: .leading, spacing: 2) {
                         Text("Bilan réalisé")
-                            .font(.system(size: 14, weight: .medium))
+                            .font(.app(size: 14, weight: .medium))
                             .foregroundStyle(AppTheme.textPrimary)
                         Text("Importé le \(bilan.importedAt.formatted(date: .abbreviated, time: .omitted))")
-                            .font(.system(size: 12))
+                            .font(.app(size: 12))
                             .foregroundStyle(AppTheme.textSecondary)
                     }
                     Spacer()
                     Image(systemName: "chevron.right")
-                        .font(.system(size: 13, weight: .semibold))
+                        .font(.app(size: 13, weight: .semibold))
                         .foregroundStyle(Color(hex: "B4AFA6"))
                 }
             }
@@ -93,7 +93,7 @@ struct ProgramBilanCardView: View {
         AppCard {
             HStack(spacing: 8) {
                 Image(systemName: "sparkles")
-                    .font(.system(size: 16, weight: .semibold))
+                    .font(.app(size: 16, weight: .semibold))
                     .foregroundStyle(AppTheme.accent)
                 Text("Bilan de programme")
                     .font(AppTheme.Font.cardTitle)
@@ -103,13 +103,13 @@ struct ProgramBilanCardView: View {
             Text(isOver
                  ? "Ce programme est terminé — transmets-le à un coach sportif pour un bilan et une proposition pour la suite."
                  : "Ce programme se termine bientôt — transmets-le à un coach sportif pour un bilan et une proposition pour la suite.")
-                .font(.system(size: 13))
+                .font(.app(size: 13))
                 .foregroundStyle(AppTheme.textSecondary)
                 .fixedSize(horizontal: false, vertical: true)
 
             if let requestedAt = program.lastAnalysisRequestedAt {
                 Text("Analysé le \(requestedAt.formatted(date: .abbreviated, time: .omitted))")
-                    .font(.system(size: 12, weight: .medium))
+                    .font(.app(size: 12, weight: .medium))
                     .foregroundStyle(AppTheme.secondary)
             }
 
